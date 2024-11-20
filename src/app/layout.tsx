@@ -21,7 +21,7 @@ export default function RootLayout(props: { children: ReactNode }) {
   );
   return (
     <html lang='en' suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ minHeight: '100vh' }}>
         <Providers initialState={initialState}>{props.children}</Providers>
       </body>
     </html>
