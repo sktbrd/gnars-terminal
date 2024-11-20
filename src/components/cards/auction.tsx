@@ -91,7 +91,7 @@ export default function AuctionCard() {
           <Button
             variant={'subtle'}
             onClick={onClickBid}
-            disabled={!isAuctionRunning || parseEther(bidValue) < minBidValue}
+            disabled={!isAuctionRunning || parseEther(bidValue) < winningBid}
           >
             Bid
           </Button>
