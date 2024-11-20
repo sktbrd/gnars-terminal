@@ -1,6 +1,6 @@
 'use client'
 
-import { getConfig } from '@/utils/abis/wagmi'
+import { getConfig } from '@/utils/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type ReactNode, useState } from 'react'
 import { type State, WagmiProvider } from 'wagmi'
