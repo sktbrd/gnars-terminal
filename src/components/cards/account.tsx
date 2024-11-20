@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { formatEthAddress } from '@/utils/helpers';
 import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
@@ -17,14 +18,15 @@ export default function AccountCard() {
       rounded={'md'}
       _dark={{ borderColor: 'yellow', borderWidth: 1 }}
     >
-      <VStack align={'start'}>
+      <VStack align={'start'} truncate maxW={'full'}>
         <Heading as='h2'>Account</Heading>
         {account.isConnected ? (
           <>
             <div>
               status: {account.status}
               <br />
-              addresses: {JSON.stringify(account.addresses)}
+              address:{' '}
+              {account.address ? formatEthAddress(account.address) : ''}
               <br />
               chainId: {account.chainId}
             </div>
@@ -39,7 +41,7 @@ export default function AccountCard() {
         ) : (
           <>
             <Text fontSize={'sm'}>Connect your wallet</Text>
-            <HStack gap={2}>
+            <HStack gap={2} wrap={'wrap'}>
               {connectors.map((connector) => (
                 <Button
                   size={'xs'}

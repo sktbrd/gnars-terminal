@@ -11,6 +11,7 @@ import {
   Heading,
   HStack,
   Image,
+  Stack,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -22,6 +23,7 @@ import { useAccount, useEnsName } from 'wagmi';
 import { NumberInputField, NumberInputRoot } from '../ui/number-input';
 import { LuExternalLink } from 'react-icons/lu';
 import { default as NextImage } from 'next/image';
+import { formatEthAddress } from '@/utils/helpers';
 
 export default function AuctionCard() {
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -103,14 +105,24 @@ export default function AuctionCard() {
       rounded={'md'}
       _dark={{ borderColor: 'yellow', borderWidth: 1 }}
     >
-      <HStack align={'start'} justify={'space-between'} w={'full'}>
-        <VStack align={'start'} gap={0}>
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        gap={4}
+        align={'start'}
+        justify={'space-between'}
+        w={'full'}
+      >
+        <VStack align={'stretch'} gap={0}>
           <Heading as='h2'>Auction #{tokenId.toString()}</Heading>
           <Text>Highest bid: {formatEther(winningBid)} ETH</Text>
-          <Text>Highest bidder: {ensName ? ensName : winningBidder}</Text>
+          <Text>
+            Highest bidder:{' '}
+            {ensName ? ensName : formatEthAddress(winningBidder)}
+          </Text>
           <HStack mt={4}>
             <NumberInputRoot
-              maxW='200px'
+              maxW={{ md: '120px' }}
+              w={'full'}
               defaultValue={bidValue}
               step={0.0001}
               onValueChange={(datails) => setBidValue(datails.value)}
@@ -124,13 +136,11 @@ export default function AuctionCard() {
             >
               Bid
             </Button>
-            <Button
-              variant={'subtle'}
-              onClick={onClickSettle}
-              visibility={isAuctionRunning ? 'hidden' : 'visible'}
-            >
-              Settle
-            </Button>
+            {!isAuctionRunning && (
+              <Button variant={'subtle'} onClick={onClickSettle}>
+                Settle
+              </Button>
+            )}
           </HStack>
           <HStack maxW={'full'}>
             {txHash && (
@@ -144,7 +154,7 @@ export default function AuctionCard() {
           </HStack>
         </VStack>
         {imageUrl && (
-          <Image asChild rounded={'md'}>
+          <Image asChild rounded={'md'} w={'full'} maxW={{ md: '240px' }}>
             <NextImage
               width={240}
               height={240}
@@ -153,7 +163,7 @@ export default function AuctionCard() {
             />
           </Image>
         )}
-      </HStack>
+      </Stack>
     </Box>
   );
 }
