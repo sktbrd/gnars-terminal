@@ -112,14 +112,14 @@ export default function AuctionCard() {
         justify={'space-between'}
         w={'full'}
       >
-        <VStack align={'stretch'} gap={0}>
+        <VStack align={'stretch'} gap={0} w={'full'}>
           <Heading as='h2'>Auction #{tokenId.toString()}</Heading>
           <Text>Highest bid: {formatEther(winningBid)} ETH</Text>
           <Text>
             Highest bidder:{' '}
             {ensName ? ensName : formatEthAddress(winningBidder)}
           </Text>
-          <HStack mt={4}>
+          <HStack mt={4} w={'full'}>
             <NumberInputRoot
               maxW={{ md: '120px' }}
               w={'full'}
