@@ -615,6 +615,867 @@ export const auctionConfig = {
 } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Token
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const tokenAbi = [
+  {
+    type: 'constructor',
+    inputs: [{ name: '_manager', internalType: 'address', type: 'address' }],
+    stateMutability: 'payable',
+  },
+  { type: 'error', inputs: [], name: 'ADDRESS_ZERO' },
+  { type: 'error', inputs: [], name: 'ALREADY_INITIALIZED' },
+  { type: 'error', inputs: [], name: 'ALREADY_MINTED' },
+  { type: 'error', inputs: [], name: 'CANNOT_CHANGE_RESERVE' },
+  { type: 'error', inputs: [], name: 'CANNOT_DECREASE_RESERVE' },
+  { type: 'error', inputs: [], name: 'DELEGATE_CALL_FAILED' },
+  { type: 'error', inputs: [], name: 'EXPIRED_SIGNATURE' },
+  { type: 'error', inputs: [], name: 'INITIALIZING' },
+  { type: 'error', inputs: [], name: 'INVALID_APPROVAL' },
+  { type: 'error', inputs: [], name: 'INVALID_FOUNDER_OWNERSHIP' },
+  { type: 'error', inputs: [], name: 'INVALID_OWNER' },
+  { type: 'error', inputs: [], name: 'INVALID_RECIPIENT' },
+  { type: 'error', inputs: [], name: 'INVALID_SIGNATURE' },
+  { type: 'error', inputs: [], name: 'INVALID_TARGET' },
+  { type: 'error', inputs: [], name: 'INVALID_TIMESTAMP' },
+  {
+    type: 'error',
+    inputs: [{ name: 'impl', internalType: 'address', type: 'address' }],
+    name: 'INVALID_UPGRADE',
+  },
+  { type: 'error', inputs: [], name: 'NOT_INITIALIZING' },
+  { type: 'error', inputs: [], name: 'NOT_MINTED' },
+  { type: 'error', inputs: [], name: 'NO_METADATA_GENERATED' },
+  { type: 'error', inputs: [], name: 'ONLY_AUCTION' },
+  { type: 'error', inputs: [], name: 'ONLY_AUCTION_OR_MINTER' },
+  { type: 'error', inputs: [], name: 'ONLY_CALL' },
+  { type: 'error', inputs: [], name: 'ONLY_DELEGATECALL' },
+  { type: 'error', inputs: [], name: 'ONLY_MANAGER' },
+  { type: 'error', inputs: [], name: 'ONLY_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_PENDING_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_PROXY' },
+  { type: 'error', inputs: [], name: 'ONLY_TOKEN_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_UUPS' },
+  { type: 'error', inputs: [], name: 'REENTRANCY' },
+  { type: 'error', inputs: [], name: 'TOKEN_NOT_RESERVED' },
+  { type: 'error', inputs: [], name: 'UNSUPPORTED_UUID' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'delegator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'DelegateChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'delegate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'prevTotalVotes',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newTotalVotes',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'DelegateVotesChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newFounders',
+        internalType: 'struct IManager.FounderParams[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint256', type: 'uint256' },
+          { name: 'vestExpiry', internalType: 'uint256', type: 'uint256' },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'FounderAllocationsCleared',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'renderer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'MetadataRendererUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'baseTokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'founderId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'founder',
+        internalType: 'struct TokenTypesV1.Founder',
+        type: 'tuple',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint8', type: 'uint8' },
+          { name: 'vestExpiry', internalType: 'uint32', type: 'uint32' },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'MintScheduled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'baseTokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'founderId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'founder',
+        internalType: 'struct TokenTypesV1.Founder',
+        type: 'tuple',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint8', type: 'uint8' },
+          { name: 'vestExpiry', internalType: 'uint32', type: 'uint32' },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'MintUnscheduled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'minter',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      { name: 'allowed', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'MinterUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'canceledOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'pendingOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerPending',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'reservedUntilTokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ReservedUntilTokenIDUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'impl',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'DOMAIN_SEPARATOR',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'acceptOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'auction',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'burn',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'cancelOwnershipTransfer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'contractURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'contractVersion',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_to', internalType: 'address', type: 'address' }],
+    name: 'delegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_from', internalType: 'address', type: 'address' },
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_deadline', internalType: 'uint256', type: 'uint256' },
+      { name: '_v', internalType: 'uint8', type: 'uint8' },
+      { name: '_r', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_s', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'delegateBySig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_account', internalType: 'address', type: 'address' }],
+    name: 'delegates',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_founderId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getFounder',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct TokenTypesV1.Founder',
+        type: 'tuple',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint8', type: 'uint8' },
+          { name: 'vestExpiry', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getFounders',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct TokenTypesV1.Founder[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint8', type: 'uint8' },
+          { name: 'vestExpiry', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_account', internalType: 'address', type: 'address' },
+      { name: '_timestamp', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getPastVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getScheduledRecipient',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct TokenTypesV1.Founder',
+        type: 'tuple',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint8', type: 'uint8' },
+          { name: 'vestExpiry', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_account', internalType: 'address', type: 'address' }],
+    name: 'getVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_founders',
+        internalType: 'struct IManager.FounderParams[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint256', type: 'uint256' },
+          { name: 'vestExpiry', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+      { name: '_initStrings', internalType: 'bytes', type: 'bytes' },
+      {
+        name: '_reservedUntilTokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      { name: '_metadataRenderer', internalType: 'address', type: 'address' },
+      { name: '_auction', internalType: 'address', type: 'address' },
+      { name: '_initialOwner', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: '_operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_minter', internalType: 'address', type: 'address' }],
+    name: 'isMinter',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'metadataRenderer',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'mint',
+    outputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'recipient', internalType: 'address', type: 'address' },
+    ],
+    name: 'mintBatchTo',
+    outputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'recipient', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'mintFromReserveTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'recipient', internalType: 'address', type: 'address' }],
+    name: 'mintTo',
+    outputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'minter',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_account', internalType: 'address', type: 'address' }],
+    name: 'nonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'onFirstAuctionStarted',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pendingOwner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'remainingTokensInReserve',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'reservedUntilTokenId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_from', internalType: 'address', type: 'address' },
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_from', internalType: 'address', type: 'address' },
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
+    name: 'safeTransferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_operator', internalType: 'address', type: 'address' },
+      { name: '_approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newRenderer',
+        internalType: 'contract IBaseMetadata',
+        type: 'address',
+      },
+    ],
+    name: 'setMetadataRenderer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newReservedUntilTokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'setReservedUntilTokenId',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalFounderOwnership',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalFounders',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_from', internalType: 'address', type: 'address' },
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newFounders',
+        internalType: 'struct IManager.FounderParams[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'wallet', internalType: 'address', type: 'address' },
+          { name: 'ownershipPct', internalType: 'uint256', type: 'uint256' },
+          { name: 'vestExpiry', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    name: 'updateFounders',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_minters',
+        internalType: 'struct TokenTypesV2.MinterParams[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'minter', internalType: 'address', type: 'address' },
+          { name: 'allowed', internalType: 'bool', type: 'bool' },
+        ],
+      },
+    ],
+    name: 'updateMinters',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newImpl', internalType: 'address', type: 'address' }],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newImpl', internalType: 'address', type: 'address' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+] as const
+
+export const tokenAddress =
+  '0x6940100C44D214cD1570b394A1C42949C3eB820d' as const
+
+export const tokenConfig = { address: tokenAddress, abi: tokenAbi } as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1308,5 +2169,907 @@ export const useWatchAuctionUpgradedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: auctionAbi,
     address: auctionAddress,
+    eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__
+ */
+export const useReadToken = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"DOMAIN_SEPARATOR"`
+ */
+export const useReadTokenDomainSeparator = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'DOMAIN_SEPARATOR',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"auction"`
+ */
+export const useReadTokenAuction = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'auction',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadTokenBalanceOf = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'balanceOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"contractURI"`
+ */
+export const useReadTokenContractUri = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'contractURI',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"contractVersion"`
+ */
+export const useReadTokenContractVersion = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'contractVersion',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"delegates"`
+ */
+export const useReadTokenDelegates = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'delegates',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadTokenGetApproved = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'getApproved',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getFounder"`
+ */
+export const useReadTokenGetFounder = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'getFounder',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getFounders"`
+ */
+export const useReadTokenGetFounders = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'getFounders',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getPastVotes"`
+ */
+export const useReadTokenGetPastVotes = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'getPastVotes',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getScheduledRecipient"`
+ */
+export const useReadTokenGetScheduledRecipient =
+  /*#__PURE__*/ createUseReadContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'getScheduledRecipient',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"getVotes"`
+ */
+export const useReadTokenGetVotes = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'getVotes',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadTokenIsApprovedForAll = /*#__PURE__*/ createUseReadContract(
+  { abi: tokenAbi, address: tokenAddress, functionName: 'isApprovedForAll' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"isMinter"`
+ */
+export const useReadTokenIsMinter = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'isMinter',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"metadataRenderer"`
+ */
+export const useReadTokenMetadataRenderer = /*#__PURE__*/ createUseReadContract(
+  { abi: tokenAbi, address: tokenAddress, functionName: 'metadataRenderer' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"minter"`
+ */
+export const useReadTokenMinter = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'minter',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadTokenName = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"nonce"`
+ */
+export const useReadTokenNonce = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'nonce',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"owner"`
+ */
+export const useReadTokenOwner = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadTokenOwnerOf = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'ownerOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"pendingOwner"`
+ */
+export const useReadTokenPendingOwner = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'pendingOwner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadTokenProxiableUuid = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'proxiableUUID',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"remainingTokensInReserve"`
+ */
+export const useReadTokenRemainingTokensInReserve =
+  /*#__PURE__*/ createUseReadContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'remainingTokensInReserve',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"reservedUntilTokenId"`
+ */
+export const useReadTokenReservedUntilTokenId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'reservedUntilTokenId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadTokenSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadTokenSymbol = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"tokenURI"`
+ */
+export const useReadTokenTokenUri = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'tokenURI',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"totalFounderOwnership"`
+ */
+export const useReadTokenTotalFounderOwnership =
+  /*#__PURE__*/ createUseReadContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'totalFounderOwnership',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"totalFounders"`
+ */
+export const useReadTokenTotalFounders = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'totalFounders',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"totalSupply"`
+ */
+export const useReadTokenTotalSupply = /*#__PURE__*/ createUseReadContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'totalSupply',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__
+ */
+export const useWriteToken = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"acceptOwnership"`
+ */
+export const useWriteTokenAcceptOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'acceptOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteTokenApprove = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"burn"`
+ */
+export const useWriteTokenBurn = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'burn',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"cancelOwnershipTransfer"`
+ */
+export const useWriteTokenCancelOwnershipTransfer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'cancelOwnershipTransfer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useWriteTokenDelegate = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'delegate',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"delegateBySig"`
+ */
+export const useWriteTokenDelegateBySig = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'delegateBySig',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteTokenInitialize = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'initialize',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mint"`
+ */
+export const useWriteTokenMint = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintBatchTo"`
+ */
+export const useWriteTokenMintBatchTo = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'mintBatchTo',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintFromReserveTo"`
+ */
+export const useWriteTokenMintFromReserveTo =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'mintFromReserveTo',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintTo"`
+ */
+export const useWriteTokenMintTo = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'mintTo',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"onFirstAuctionStarted"`
+ */
+export const useWriteTokenOnFirstAuctionStarted =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'onFirstAuctionStarted',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteTokenSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"safeTransferOwnership"`
+ */
+export const useWriteTokenSafeTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'safeTransferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteTokenSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setMetadataRenderer"`
+ */
+export const useWriteTokenSetMetadataRenderer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setMetadataRenderer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setReservedUntilTokenId"`
+ */
+export const useWriteTokenSetReservedUntilTokenId =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setReservedUntilTokenId',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteTokenTransferFrom = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'transferFrom',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useWriteTokenTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"updateFounders"`
+ */
+export const useWriteTokenUpdateFounders = /*#__PURE__*/ createUseWriteContract(
+  { abi: tokenAbi, address: tokenAddress, functionName: 'updateFounders' },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"updateMinters"`
+ */
+export const useWriteTokenUpdateMinters = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'updateMinters',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"upgradeTo"`
+ */
+export const useWriteTokenUpgradeTo = /*#__PURE__*/ createUseWriteContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteTokenUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__
+ */
+export const useSimulateToken = /*#__PURE__*/ createUseSimulateContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"acceptOwnership"`
+ */
+export const useSimulateTokenAcceptOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'acceptOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateTokenApprove = /*#__PURE__*/ createUseSimulateContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"burn"`
+ */
+export const useSimulateTokenBurn = /*#__PURE__*/ createUseSimulateContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'burn',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"cancelOwnershipTransfer"`
+ */
+export const useSimulateTokenCancelOwnershipTransfer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'cancelOwnershipTransfer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useSimulateTokenDelegate = /*#__PURE__*/ createUseSimulateContract(
+  { abi: tokenAbi, address: tokenAddress, functionName: 'delegate' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"delegateBySig"`
+ */
+export const useSimulateTokenDelegateBySig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'delegateBySig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateTokenInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mint"`
+ */
+export const useSimulateTokenMint = /*#__PURE__*/ createUseSimulateContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintBatchTo"`
+ */
+export const useSimulateTokenMintBatchTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'mintBatchTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintFromReserveTo"`
+ */
+export const useSimulateTokenMintFromReserveTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'mintFromReserveTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"mintTo"`
+ */
+export const useSimulateTokenMintTo = /*#__PURE__*/ createUseSimulateContract({
+  abi: tokenAbi,
+  address: tokenAddress,
+  functionName: 'mintTo',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"onFirstAuctionStarted"`
+ */
+export const useSimulateTokenOnFirstAuctionStarted =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'onFirstAuctionStarted',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateTokenSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"safeTransferOwnership"`
+ */
+export const useSimulateTokenSafeTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'safeTransferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateTokenSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setMetadataRenderer"`
+ */
+export const useSimulateTokenSetMetadataRenderer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setMetadataRenderer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"setReservedUntilTokenId"`
+ */
+export const useSimulateTokenSetReservedUntilTokenId =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'setReservedUntilTokenId',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateTokenTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useSimulateTokenTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"updateFounders"`
+ */
+export const useSimulateTokenUpdateFounders =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'updateFounders',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"updateMinters"`
+ */
+export const useSimulateTokenUpdateMinters =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'updateMinters',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"upgradeTo"`
+ */
+export const useSimulateTokenUpgradeTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link tokenAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateTokenUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: tokenAbi,
+    address: tokenAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__
+ */
+export const useWatchTokenEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: tokenAbi,
+  address: tokenAddress,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchTokenApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchTokenApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"DelegateChanged"`
+ */
+export const useWatchTokenDelegateChangedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'DelegateChanged',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"DelegateVotesChanged"`
+ */
+export const useWatchTokenDelegateVotesChangedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'DelegateVotesChanged',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"FounderAllocationsCleared"`
+ */
+export const useWatchTokenFounderAllocationsClearedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'FounderAllocationsCleared',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchTokenInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'Initialized',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"MetadataRendererUpdated"`
+ */
+export const useWatchTokenMetadataRendererUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'MetadataRendererUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"MintScheduled"`
+ */
+export const useWatchTokenMintScheduledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'MintScheduled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"MintUnscheduled"`
+ */
+export const useWatchTokenMintUnscheduledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'MintUnscheduled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"MinterUpdated"`
+ */
+export const useWatchTokenMinterUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'MinterUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"OwnerCanceled"`
+ */
+export const useWatchTokenOwnerCanceledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'OwnerCanceled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"OwnerPending"`
+ */
+export const useWatchTokenOwnerPendingEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'OwnerPending',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"OwnerUpdated"`
+ */
+export const useWatchTokenOwnerUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'OwnerUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"ReservedUntilTokenIDUpdated"`
+ */
+export const useWatchTokenReservedUntilTokenIdUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'ReservedUntilTokenIDUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchTokenTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link tokenAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchTokenUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: tokenAbi,
+    address: tokenAddress,
     eventName: 'Upgraded',
   })

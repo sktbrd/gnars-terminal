@@ -1,7 +1,8 @@
-import { defineConfig, loadEnv } from "@wagmi/cli";
-import { etherscan, react } from "@wagmi/cli/plugins";
-import { Address } from "viem";
-import AUCTION_ABI from "@/utils/abis/auction";
+import { defineConfig, loadEnv } from '@wagmi/cli';
+import { etherscan, react } from '@wagmi/cli/plugins';
+import { Address } from 'viem';
+import AUCTION_ABI from '@/utils/abis/auction';
+import TOKEN_ABI from '@/utils/abis/token';
 
 export default defineConfig(() => {
   const env = loadEnv({
@@ -9,7 +10,7 @@ export default defineConfig(() => {
     envDir: process.cwd(),
   });
   const DAO_ADDRESSES = {
-    nft: env.NEXT_PUBLIC_NFT as Address,
+    token: env.NEXT_PUBLIC_TOKEN as Address,
     metadata: env.NEXT_PUBLIC_METADATA as Address,
     auction: env.NEXT_PUBLIC_AUCTION as Address,
     treasury: env.NEXT_PUBLIC_TREASURY as Address,
@@ -19,12 +20,17 @@ export default defineConfig(() => {
   console.log(DAO_ADDRESSES.auction);
 
   return {
-    out: "src/hooks/wagmiGenerated.ts",
+    out: 'src/hooks/wagmiGenerated.ts',
     contracts: [
       {
-        name: "Auction",
+        name: 'Auction',
         abi: AUCTION_ABI,
         address: DAO_ADDRESSES.auction,
+      },
+      {
+        name: 'Token',
+        abi: TOKEN_ABI,
+        address: DAO_ADDRESSES.token,
       },
     ],
     plugins: [react()],
