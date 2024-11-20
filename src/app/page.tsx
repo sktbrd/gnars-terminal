@@ -1,5 +1,6 @@
 'use client'
 
+import { DAO_ADDRESSES } from '@/utils/constants'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
 function App() {
@@ -40,6 +41,11 @@ function App() {
         ))}
         <div>{status}</div>
         <div>{error?.message}</div>
+      </div>
+
+      <div>
+        <h2>DAO Addresses</h2>
+        <pre>{JSON.stringify(DAO_ADDRESSES, null, 2)}</pre>
       </div>
     </>
   )
