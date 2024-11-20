@@ -1,7 +1,7 @@
 import { http, cookieStorage, createConfig, createStorage } from "wagmi";
 import { base, mainnet, sepolia } from "wagmi/chains";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
-import { WC_PROJECT_ID } from "./constants";
+import { RPC_URL, WC_PROJECT_ID } from "./constants";
 
 export function getConfig() {
   return createConfig({

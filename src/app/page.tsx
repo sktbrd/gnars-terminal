@@ -1,15 +1,18 @@
 'use client'
 
 import { useAuction } from '@/hooks/auction'
+import { useReadAuctionAuction } from '@/hooks/wagmiGenerated'
 import { DAO_ADDRESSES } from '@/utils/constants'
 import { toObject } from '@/utils/helpers'
+import { useEffect } from 'react'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
 function App() {
   const account = useAccount()
-  const { connectors, connect, status, error } = useConnect()
+  const { connectors, connect, status, error: connectError } = useConnect()
   const { disconnect } = useDisconnect()
-  const { data } = useAuction();
+  const { data: manualAuction } = useAuction();
+  const { data: wagmiAuction, isPending: wagmiAuctionIsPending } = useReadAuctionAuction();
 
 
   return (
@@ -44,7 +47,7 @@ function App() {
           </button>
         ))}
         <div>{status}</div>
-        <div>{error?.message}</div>
+        <div>{connectError?.message}</div>
       </div>
 
       <div>
@@ -53,13 +56,26 @@ function App() {
       </div>
 
       <div>
-        <h2>Auction Data</h2>
+        <h2>Manual Auction Data</h2>
         {
-          data === null ? (
+          manualAuction === null ? (
             <div>Loading...</div>
           ) : (
             <div>
-              <pre>{JSON.stringify(toObject(data), null, 2)}</pre>
+              <pre>{JSON.stringify(toObject(manualAuction), null, 2)}</pre>
+            </div>
+          )
+        }
+      </div>
+
+      <div>
+        <h2>Wagmi Auction Data</h2>
+        {
+          wagmiAuctionIsPending ? (
+            <div>Loading...</div>
+          ) : (
+            <div>
+              <pre>{JSON.stringify(toObject(wagmiAuction), null, 2)}</pre>
             </div>
           )
         }

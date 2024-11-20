@@ -1,6 +1,8 @@
 import { Address } from "viem";
 
 export const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID as string;
+export const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY as string;
+export const RPC_URL = `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
 
 export const DAO_ADDRESSES = {
   nft: process.env.NEXT_PUBLIC_NFT as Address,
