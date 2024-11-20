@@ -10,7 +10,13 @@ export default function AccountCard() {
   const { disconnect } = useDisconnect();
 
   return (
-    <Box shadow={'sm'} w={'full'} padding={4} rounded={'md'}>
+    <Box
+      shadow={'sm'}
+      w={'full'}
+      padding={4}
+      rounded={'md'}
+      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+    >
       <VStack align={'start'}>
         <Heading as='h2'>Account</Heading>
         {account.isConnected ? (

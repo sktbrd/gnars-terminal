@@ -96,7 +96,13 @@ export default function AuctionCard() {
   }
 
   return (
-    <Box shadow={'sm'} w={'full'} padding={4} rounded={'md'}>
+    <Box
+      shadow={'sm'}
+      w={'full'}
+      padding={4}
+      rounded={'md'}
+      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+    >
       <HStack align={'start'} justify={'space-between'} w={'full'}>
         <VStack align={'start'} gap={0}>
           <Heading as='h2'>Auction #{tokenId.toString()}</Heading>
