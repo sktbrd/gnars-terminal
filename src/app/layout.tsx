@@ -5,7 +5,9 @@ import { headers } from 'next/headers'
 import { type ReactNode } from 'react'
 import { cookieToInitialState } from 'wagmi'
 
-import { getConfig } from '../wagmi'
+// import { getConfig } from '../wagmi'
+// import { Providers } from './providers'
+import { getConfig } from '@/utils/abis/wagmi'
 import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
