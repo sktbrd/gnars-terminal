@@ -6,6 +6,7 @@ import { DAO_ADDRESSES } from '@/utils/constants'
 import { toObject } from '@/utils/helpers'
 import { useCallback, useEffect, useState } from 'react'
 import { parseEther } from 'viem'
+import { BaseErrorType } from 'wagmi'
 import { serialize, useAccount, useConnect, useDisconnect } from 'wagmi'
 
 function App() {
@@ -20,17 +21,35 @@ function App() {
 
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
-    const res = await writeBid({
-      args: [tokenId],
-      value: parseEther(bidValue),
-    })
-    console.log(res)
+    try {
+      const res = await writeBid({
+        args: [tokenId],
+        value: parseEther(bidValue),
+      })
+      console.log(res)
+    } catch (error) {
+      console.error(error)
+      if (error instanceof Error) {
+        window.alert(`Error creating bid: ${error.message}`)
+      } else {
+        window.alert('Error creating bid')
+      }
+    }
   }, [writeBid, bidValue])
 
   const { writeContractAsync: writeSettle } = useWriteAuctionSettleCurrentAndCreateNewAuction();
   const onClickSettle = useCallback(async () => {
-    const res = await writeSettle({})
-    console.log(res)
+    try {
+      const res = await writeSettle({})
+      console.log(res)
+    } catch (error) {
+      console.error(error)
+      if (error instanceof Error) {
+        window.alert(`Error settling auction: ${error.message}`)
+      } else {
+        window.alert('Error settling auction')
+      }
+    }
   }, [writeSettle])
 
 
