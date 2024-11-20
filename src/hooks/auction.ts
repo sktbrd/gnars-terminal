@@ -1,8 +1,8 @@
-import AUCTION_ABI from "@/utils/abis/auction";
-import { DAO_ADDRESSES } from "@/utils/constants";
-import { getConfig } from "@/utils/wagmi";
-import { useEffect, useState } from "react";
-import { readContract } from "wagmi/actions";
+import AUCTION_ABI from '@/utils/abis/auction';
+import { DAO_ADDRESSES } from '@/utils/constants';
+import { getConfig } from '@/utils/wagmi';
+import { useEffect, useState } from 'react';
+import { readContract } from 'wagmi/actions';
 
 export const useAuction = () => {
   const [data, setData] = useState<any>(null);
@@ -10,12 +10,11 @@ export const useAuction = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("fetching");
       try {
         const contractData = await readContract(getConfig(), {
           address: DAO_ADDRESSES.auction,
           abi: AUCTION_ABI,
-          functionName: "auction",
+          functionName: 'auction',
         });
         console.log({ contractData });
         setData(contractData);

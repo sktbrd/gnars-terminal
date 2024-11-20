@@ -49,7 +49,6 @@ export default function AuctionCard() {
   });
 
   const { data: tokenUri } = useReadTokenTokenUri({ args: [tokenId] });
-  console.log(tokenUri);
 
   let imageUrl: string | undefined;
   if (tokenUri) {

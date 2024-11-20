@@ -17,8 +17,6 @@ export default defineConfig(() => {
     governor: env.NEXT_PUBLIC_GOVERNOR as Address,
   };
 
-  console.log(DAO_ADDRESSES.auction);
-
   return {
     out: 'src/hooks/wagmiGenerated.ts',
     contracts: [
