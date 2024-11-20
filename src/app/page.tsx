@@ -1,11 +1,12 @@
 'use client'
 
 import { useAuction } from '@/hooks/auction'
-import { useReadAuctionAuction } from '@/hooks/wagmiGenerated'
+import { useReadAuctionAuction, useWriteAuctionCreateBid, useWriteAuctionSettleCurrentAndCreateNewAuction } from '@/hooks/wagmiGenerated'
 import { DAO_ADDRESSES } from '@/utils/constants'
 import { toObject } from '@/utils/helpers'
-import { useEffect } from 'react'
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useCallback, useEffect, useState } from 'react'
+import { parseEther } from 'viem'
+import { serialize, useAccount, useConnect, useDisconnect } from 'wagmi'
 
 function App() {
   const account = useAccount()
@@ -13,6 +14,24 @@ function App() {
   const { disconnect } = useDisconnect()
   const { data: manualAuction } = useAuction();
   const { data: wagmiAuction, isPending: wagmiAuctionIsPending } = useReadAuctionAuction();
+  const [bidValue, setBidValue] = useState('0.1')
+
+  const tokenId = wagmiAuction ? wagmiAuction[0] : 0n
+
+  const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
+  const onClickBid = useCallback(async () => {
+    const res = await writeBid({
+      args: [tokenId],
+      value: parseEther(bidValue),
+    })
+    console.log(res)
+  }, [writeBid, bidValue])
+
+  const { writeContractAsync: writeSettle } = useWriteAuctionSettleCurrentAndCreateNewAuction();
+  const onClickSettle = useCallback(async () => {
+    const res = await writeSettle({})
+    console.log(res)
+  }, [writeSettle])
 
 
   return (
@@ -79,6 +98,22 @@ function App() {
             </div>
           )
         }
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "self-start" }}>
+        <h2>Wagmi Auction Write</h2>
+        <input
+          type="text"
+          value={bidValue}
+          onChange={(e) => setBidValue(e.target.value)}
+          placeholder="Enter bid value in ETH"
+        />
+        <button type="button" onClick={onClickBid}>
+          Create Bid
+        </button>
+        <button type="button" onClick={onClickSettle}>
+          Settle Current and Create New Auction
+        </button>
       </div>
     </>
   )
