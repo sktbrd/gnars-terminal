@@ -3,26 +3,36 @@ import {
   useWriteAuctionCreateBid,
   useWriteAuctionSettleCurrentAndCreateNewAuction,
 } from '@/hooks/wagmiGenerated';
-import { Box, Button, Heading, HStack, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Link as ChakraLink,
+  Heading,
+  HStack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
+import NextLink from 'next/link';
 import { useCallback, useState } from 'react';
 import { formatEther, parseEther } from 'viem';
 import { mainnet } from 'viem/chains';
 import { useAccount, useEnsName } from 'wagmi';
 import { NumberInputField, NumberInputRoot } from '../ui/number-input';
+import { LuExternalLink } from 'react-icons/lu';
 
 export default function AuctionCard() {
+  const [txHash, setTxHash] = useState<string | null>(null);
+
   const account = useAccount();
   const { data: wagmiAuction } = useReadAuctionAuction();
 
   const tokenId = wagmiAuction ? wagmiAuction[0] : 0n;
   const winningBid = wagmiAuction ? wagmiAuction[1] : 0n;
   const winningBidder = wagmiAuction ? wagmiAuction[2] : undefined;
-  const auctionStartTime = wagmiAuction ? wagmiAuction[3] : 0;
-  const auctionEndTime = wagmiAuction ? wagmiAuction[4] : 0;
+  const auctionStartTime = wagmiAuction ? wagmiAuction[3] * 1000 : 0;
+  const auctionEndTime = wagmiAuction ? wagmiAuction[4] * 1000 : 0;
 
-  const isAuctionRunning = wagmiAuction
-    ? wagmiAuction[5] || auctionEndTime > Date.now()
-    : false;
+  const isAuctionRunning = auctionEndTime ? auctionEndTime > Date.now() : false;
 
   const [bidValue, setBidValue] = useState(
     formatEther(winningBid + parseEther('0.0001')).toString() || '0.0001'
@@ -36,11 +46,11 @@ export default function AuctionCard() {
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
     try {
-      const res = await writeBid({
+      const txHash = await writeBid({
         args: [tokenId],
         value: parseEther(bidValue),
       });
-      console.log(res);
+      setTxHash(txHash);
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -55,8 +65,8 @@ export default function AuctionCard() {
     useWriteAuctionSettleCurrentAndCreateNewAuction();
   const onClickSettle = useCallback(async () => {
     try {
-      const res = await writeSettle({});
-      console.log(res);
+      const txHash = await writeSettle({});
+      setTxHash(txHash);
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -98,10 +108,20 @@ export default function AuctionCard() {
           <Button
             variant={'subtle'}
             onClick={onClickSettle}
-            disabled={isAuctionRunning}
+            visibility={isAuctionRunning ? 'hidden' : 'visible'}
           >
             Settle
           </Button>
+        </HStack>
+        <HStack maxW={'full'}>
+          {txHash && (
+            <ChakraLink asChild>
+              <NextLink href={`https://basescan.org/tx/${txHash}`}>
+                Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
+                <LuExternalLink />
+              </NextLink>
+            </ChakraLink>
+          )}
         </HStack>
       </VStack>
     </Box>
