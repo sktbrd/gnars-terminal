@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { parseEther } from 'viem'
 import { BaseErrorType } from 'wagmi'
 import { serialize, useAccount, useConnect, useDisconnect } from 'wagmi'
+import './neon-green-style.css';
 
 function App() {
   const account = useAccount()
