@@ -2,6 +2,7 @@
 
 import AccountCard from '@/components/cards/account';
 import AuctionCard from '@/components/cards/auction';
+import GovernorCard from '@/components/cards/governor';
 import { ColorModeButton } from '@/components/ui/color-mode';
 import { Box, Container, Heading, HStack, VStack } from '@chakra-ui/react';
 
@@ -22,6 +23,7 @@ function App() {
             </Heading>
             <ColorModeButton variant={'outline'} />
           </HStack>
+          <GovernorCard />
           <AccountCard />
           <AuctionCard />
         </VStack>
