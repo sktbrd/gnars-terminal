@@ -22,11 +22,6 @@ export default function AccountCard() {
     >
       <VStack align={'start'} truncate maxW={'full'}>
         <Heading as='h2'>Account</Heading>
-        {activeChain?.id !== base.id && (
-          <Text onClick={() => switchChain({ chainId: base.id })}>
-            Switch to Base
-          </Text>
-        )}
         {account.isConnected ? (
           <>
             <div>
@@ -37,13 +32,26 @@ export default function AccountCard() {
               <br />
               chainId: {account.chainId}
             </div>
-            <Button
-              colorPalette={'red'}
-              variant={'subtle'}
-              onClick={() => disconnect()}
-            >
-              Disconnect
-            </Button>
+            <HStack gap={2}>
+              {activeChain?.id !== base.id && (
+                <Button
+                  size={'xs'}
+                  colorPalette={'blue'}
+                  variant={'subtle'}
+                  onClick={() => switchChain({ chainId: base.id })}
+                >
+                  Switch to Base
+                </Button>
+              )}
+              <Button
+                size={'xs'}
+                colorPalette={'red'}
+                variant={'subtle'}
+                onClick={() => disconnect()}
+              >
+                Disconnect
+              </Button>
+            </HStack>
           </>
         ) : (
           <>
