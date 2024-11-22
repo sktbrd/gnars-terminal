@@ -78,7 +78,7 @@ export default async function AuctionCard() {
           />
         </Image>
       </Stack>
-      <Box
+      {/* <Box
         overflow={'auto'}
         p={4}
         borderWidth={1}
@@ -88,7 +88,7 @@ export default async function AuctionCard() {
         maxW={'full'}
       >
         <pre>{JSON.stringify(auctions, null, 2)}</pre>
-      </Box>
+      </Box> */}
     </VStack>
   );
 }

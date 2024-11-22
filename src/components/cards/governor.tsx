@@ -26,7 +26,7 @@ async function GovernorCard() {
       gap={2}
     >
       <Heading as='h2'>Proposals</Heading>
-      <Box
+      {/* <Box
         overflow={'auto'}
         p={4}
         borderWidth={1}
@@ -35,7 +35,7 @@ async function GovernorCard() {
         maxH={'240px'}
       >
         <pre>{JSON.stringify(proposals, null, 2)}</pre>
-      </Box>
+      </Box> */}
       {proposals.map((proposal: Proposal) => (
         <Box
           key={proposal.proposalId}
