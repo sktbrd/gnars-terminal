@@ -1,109 +1,35 @@
-'use client';
-
+import { fetchAuction } from '@/services/auction';
+import { DAO_ADDRESSES } from '@/utils/constants';
 import {
-  useReadAuctionAuction,
-  useReadTokenTokenUri,
-  useWriteAuctionCreateBid,
-  useWriteAuctionSettleCurrentAndCreateNewAuction,
-} from '@/hooks/wagmiGenerated';
-import {
+  Badge,
   Box,
-  Button,
-  Link as ChakraLink,
   Heading,
-  HStack,
   Image,
   Stack,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import NextLink from 'next/link';
-import { useCallback, useState } from 'react';
-import { formatEther, parseEther } from 'viem';
-import { mainnet } from 'viem/chains';
-import { useAccount, useEnsName } from 'wagmi';
-import { NumberInputField, NumberInputRoot } from '../ui/number-input';
-import { LuExternalLink } from 'react-icons/lu';
 import { default as NextImage } from 'next/image';
-import { formatEthAddress } from '@/utils/helpers';
+import { formatEther } from 'viem';
+import { AuctionBid } from '../auction/bid';
+import { FormattedAddress } from '../utils/ethereum';
 
-export default function AuctionCard() {
-  const [txHash, setTxHash] = useState<string | null>(null);
-
-  const account = useAccount();
-  const { data: wagmiAuction } = useReadAuctionAuction();
-
-  const tokenId = wagmiAuction ? wagmiAuction[0] : 0n;
-  const winningBid = wagmiAuction ? wagmiAuction[1] : 0n;
-  const winningBidder = wagmiAuction ? wagmiAuction[2] : undefined;
-  const auctionStartTime = wagmiAuction ? wagmiAuction[3] * 1000 : 0;
-  const auctionEndTime = wagmiAuction ? wagmiAuction[4] * 1000 : 0;
-
-  const isAuctionRunning = auctionEndTime ? auctionEndTime > Date.now() : false;
-
-  const [bidValue, setBidValue] = useState(
-    formatEther(winningBid + parseEther('0.0001')).toString() || '0.0001'
+export default async function AuctionCard() {
+  const auctions = await fetchAuction(
+    DAO_ADDRESSES.token,
+    'endTime',
+    'desc',
+    1
   );
-
-  const { data: ensName } = useEnsName({
-    address: winningBidder,
-    chainId: mainnet.id,
-  });
-
-  const { data: tokenUri } = useReadTokenTokenUri({ args: [tokenId] });
-
-  let imageUrl: string | undefined;
-  if (tokenUri) {
-    const base64Data = tokenUri.split(',')[1];
-    const jsonStr = atob(base64Data);
-    const metadata = JSON.parse(jsonStr);
-    imageUrl = metadata.image;
-  }
-
-  const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
-  const onClickBid = useCallback(async () => {
-    try {
-      const txHash = await writeBid({
-        args: [tokenId],
-        value: parseEther(bidValue),
-      });
-      setTxHash(txHash);
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        window.alert(`Error creating bid: ${error.message}`);
-      } else {
-        window.alert('Error creating bid');
-      }
-    }
-  }, [writeBid, bidValue]);
-
-  const { writeContractAsync: writeSettle } =
-    useWriteAuctionSettleCurrentAndCreateNewAuction();
-  const onClickSettle = useCallback(async () => {
-    try {
-      const txHash = await writeSettle({});
-      setTxHash(txHash);
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        window.alert(`Error settling auction: ${error.message}`);
-      } else {
-        window.alert('Error settling auction');
-      }
-    }
-  }, [writeSettle]);
-
-  if (account.isDisconnected) {
-    return null;
-  }
+  const activeAuction = auctions[0];
 
   return (
-    <Box
+    <VStack
       shadow={'sm'}
       w={'full'}
       padding={4}
       rounded={'md'}
+      gap={4}
       _dark={{ borderColor: 'yellow', borderWidth: 1 }}
     >
       <Stack
@@ -114,57 +40,55 @@ export default function AuctionCard() {
         w={'full'}
       >
         <VStack align={'stretch'} gap={0} w={'full'}>
-          <Heading as='h2'>Auction #{tokenId.toString()}</Heading>
-          <Text>Highest bid: {formatEther(winningBid)} ETH</Text>
-          <Text>
-            Highest bidder:{' '}
-            {ensName ? ensName : formatEthAddress(winningBidder)}
-          </Text>
-          <HStack mt={4} w={'full'}>
-            <NumberInputRoot
-              maxW={{ md: '120px' }}
-              w={'full'}
-              defaultValue={bidValue}
-              step={0.0001}
-              onValueChange={(datails) => setBidValue(datails.value)}
-            >
-              <NumberInputField />
-            </NumberInputRoot>
-            <Button
-              variant={'subtle'}
-              onClick={onClickBid}
-              disabled={!isAuctionRunning || parseEther(bidValue) < winningBid}
-            >
-              Bid
-            </Button>
-            {!isAuctionRunning && (
-              <Button variant={'subtle'} onClick={onClickSettle}>
-                Settle
-              </Button>
-            )}
-          </HStack>
-          <HStack maxW={'full'}>
-            {txHash && (
-              <ChakraLink asChild>
-                <NextLink href={`https://basescan.org/tx/${txHash}`}>
-                  Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
-                  <LuExternalLink />
-                </NextLink>
-              </ChakraLink>
-            )}
-          </HStack>
+          <Heading as='h2'>Auction #{activeAuction.token.tokenId}</Heading>
+          {activeAuction.highestBid ? (
+            <>
+              <Text>
+                Highest bid:{' '}
+                <Badge colorPalette={'blue'} variant={'surface'}>
+                  {formatEther(activeAuction.highestBid.amount)} ETH
+                </Badge>
+              </Text>
+              <FormattedAddress
+                address={activeAuction.highestBid.bidder}
+                textBefore='Highest bidder: '
+              />
+            </>
+          ) : (
+            <Text>No bids yet</Text>
+          )}
+          <AuctionBid
+            tokenId={activeAuction.token.tokenId}
+            winningBid={
+              activeAuction.winningBid
+                ? BigInt(activeAuction.winningBid.amount)
+                : 0n
+            }
+            isAuctionRunning={
+              parseInt(activeAuction.endTime) * 1000 > Date.now()
+            }
+          />
         </VStack>
-        {imageUrl && (
-          <Image asChild rounded={'md'} w={'full'} maxW={{ md: '240px' }}>
-            <NextImage
-              width={240}
-              height={240}
-              src={imageUrl}
-              alt={`Auction token id ${tokenId}`}
-            />
-          </Image>
-        )}
+        <Image asChild rounded={'md'} w={'full'} maxW={{ md: '240px' }}>
+          <NextImage
+            width={240}
+            height={240}
+            src={activeAuction.token.image}
+            alt={`Auction token id ${activeAuction.token.tokenId}`}
+          />
+        </Image>
       </Stack>
-    </Box>
+      <Box
+        overflow={'auto'}
+        p={4}
+        borderWidth={1}
+        borderRadius={'md'}
+        bg={'bg.subtle'}
+        maxH={'240px'}
+        maxW={'full'}
+      >
+        <pre>{JSON.stringify(auctions, null, 2)}</pre>
+      </Box>
+    </VStack>
   );
 }

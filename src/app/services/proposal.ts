@@ -19,7 +19,7 @@ export interface Proposal {
   executed: boolean;
   canceled: boolean;
   vetoed: boolean;
-  description: string;
+  // description: string;
 }
 
 const GET_DATA = gql`
@@ -51,7 +51,7 @@ const GET_DATA = gql`
       canceled
       vetoed
       voteCount
-      description
+      # description
     }
   }
 `;

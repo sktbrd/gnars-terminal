@@ -21,9 +21,9 @@ function App() {
             </Heading>
             <ColorModeButton variant={'outline'} />
           </HStack>
-          <GovernorCard />
           <AccountCard />
           <AuctionCard />
+          <GovernorCard />
         </VStack>
       </Container>
     </Box>
