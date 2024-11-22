@@ -37,9 +37,9 @@ function App() {
               <ColorModeButton variant={'outline'} />
             </HStack>
           </HStack>
-          {/* <AccountCard />
+          <AccountCard />
           <AuctionCard />
-          <GovernorCard /> */}
+          <GovernorCard />
         </VStack>
       </Container>
     </Box>
