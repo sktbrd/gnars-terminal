@@ -1,24 +1,18 @@
-'use client';
-
 import { DAO_ADDRESSES } from '@/utils/constants';
-import { Box, Heading } from '@chakra-ui/react';
+import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
+import { fetchProposals, Proposal } from '@/app/services/proposal';
+import { FormattedAddress } from '../utils/ethereum';
+import ProposalStatus from '../proposal/status';
 
-function GovernorCard() {
-  const [jsonData, setJsonData] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const doThings = async () => {
-    setIsLoading(true);
-    console.log('doing things');
-    const data = await fetch(`/api/governor/${DAO_ADDRESSES.token}`);
-    console.log(data);
-    const json = await data.json();
-    console.log(json);
-    setJsonData(JSON.stringify(json, null, 2));
-    setIsLoading(false);
-  };
+async function GovernorCard() {
+  const proposals = await fetchProposals(
+    DAO_ADDRESSES.token,
+    'proposalNumber',
+    'desc',
+    100
+  );
 
   return (
     <Box
@@ -32,22 +26,34 @@ function GovernorCard() {
       gap={2}
     >
       <Heading as='h2'>Proposals</Heading>
-      {jsonData ? (
+      <Box
+        overflow={'auto'}
+        p={4}
+        borderWidth={1}
+        borderRadius={'md'}
+        bg={'bg.subtle'}
+        maxH={'240px'}
+      >
+        <pre>{JSON.stringify(proposals, null, 2)}</pre>
+      </Box>
+      {proposals.map((proposal: Proposal) => (
         <Box
-          overflow={'auto'}
-          p={4}
+          key={proposal.proposalId}
           borderWidth={1}
           borderRadius={'md'}
+          p={4}
+          mb={2}
           bg={'bg.subtle'}
-          maxH={'240px'}
         >
-          <pre>{jsonData}</pre>
+          <VStack gap={2} align={'start'}>
+            <ProposalStatus proposal={proposal} />
+            <Heading as='h3' size='md'>
+              #{proposal.proposalNumber}: {proposal.title}
+            </Heading>
+            <FormattedAddress address={proposal.proposer} />
+          </VStack>
         </Box>
-      ) : (
-        <Button w={'full'} onClick={doThings} loading={isLoading}>
-          Fetch data
-        </Button>
-      )}
+      ))}
     </Box>
   );
 }

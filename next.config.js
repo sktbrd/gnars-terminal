@@ -7,7 +7,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'api.zora.co',
+        hostname: '**',
       },
     ],
   },

@@ -1,14 +1,16 @@
 import { gql } from '@apollo/client';
 import apolloClient from '@/utils/apollo';
+import { Address } from 'viem';
 
 export interface Proposal {
   proposalId: string;
   proposalNumber: number;
   title: string;
-  proposer: string;
+  proposer: Address;
   timeCreated: string;
   againstVotes: number;
   voteCount: number;
+  quorumVotes: string;
   forVotes: number;
   abstainVotes: number;
   voteStart: string;
@@ -38,6 +40,7 @@ const GET_DATA = gql`
       title
       proposer
       timeCreated
+      quorumVotes
       againstVotes
       forVotes
       abstainVotes
