@@ -2,7 +2,16 @@ import AccountCard from '@/components/cards/account';
 import AuctionCard from '@/components/cards/auction';
 import GovernorCard from '@/components/cards/governor';
 import { ColorModeButton } from '@/components/ui/color-mode';
-import { Box, Container, Heading, HStack, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Container,
+  Heading,
+  HStack,
+  IconButton,
+  VStack,
+} from '@chakra-ui/react';
+import Link from 'next/link';
+import { BsGithub } from 'react-icons/bs';
 
 function App() {
   return (
@@ -19,11 +28,18 @@ function App() {
             <Heading size={'4xl'} as='h1'>
               Gnars Terminal
             </Heading>
-            <ColorModeButton variant={'outline'} />
+            <HStack>
+              <Link href='https://github.com/r4topunk/gnars-terminal'>
+                <IconButton variant={'outline'} colorPalette={'black'}>
+                  <BsGithub style={{ background: 'none' }} />
+                </IconButton>
+              </Link>
+              <ColorModeButton variant={'outline'} />
+            </HStack>
           </HStack>
-          <AccountCard />
+          {/* <AccountCard />
           <AuctionCard />
-          <GovernorCard />
+          <GovernorCard /> */}
         </VStack>
       </Container>
     </Box>
