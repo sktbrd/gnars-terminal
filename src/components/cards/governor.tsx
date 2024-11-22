@@ -1,3 +1,5 @@
+'use client';
+
 import { DAO_ADDRESSES } from '@/utils/constants';
 import { Box, Heading } from '@chakra-ui/react';
 import React, { useState } from 'react';

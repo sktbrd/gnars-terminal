@@ -1,5 +1,3 @@
-'use client';
-
 import AccountCard from '@/components/cards/account';
 import AuctionCard from '@/components/cards/auction';
 import GovernorCard from '@/components/cards/governor';
