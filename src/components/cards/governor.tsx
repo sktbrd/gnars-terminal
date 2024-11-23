@@ -1,12 +1,18 @@
-import { DAO_ADDRESSES } from '@/utils/constants';
-import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { Button } from '../ui/button';
 import { fetchProposals, Proposal } from '@/app/services/proposal';
-import { FormattedAddress } from '../utils/ethereum';
+import { DAO_ADDRESSES } from '@/utils/constants';
+import { Box, Heading, HStack, VStack } from '@chakra-ui/react';
+import Link from 'next/link';
+import { FaArrowRight } from 'react-icons/fa';
 import ProposalStatus from '../proposal/status';
+import { FormattedAddress } from '../utils/ethereum';
 
-async function GovernorCard() {
+interface GovernorCardProps {
+  isDaoPage?: boolean;
+}
+
+async function GovernorCard(props: GovernorCardProps) {
+  const { isDaoPage } = props;
+
   const proposals = await fetchProposals(
     DAO_ADDRESSES.token,
     'proposalNumber',
@@ -25,17 +31,14 @@ async function GovernorCard() {
       flexDirection={'column'}
       gap={2}
     >
-      <Heading as='h2'>Proposals</Heading>
-      {/* <Box
-        overflow={'auto'}
-        p={4}
-        borderWidth={1}
-        borderRadius={'md'}
-        bg={'bg.subtle'}
-        maxH={'240px'}
-      >
-        <pre>{JSON.stringify(proposals, null, 2)}</pre>
-      </Box> */}
+      <HStack w={'full'} justify={'start'} gap={1}>
+        <Heading as='h2'>Proposals</Heading>
+        {!isDaoPage && (
+          <Link href='/dao'>
+            <FaArrowRight size={12} style={{ marginTop: '4px' }} />
+          </Link>
+        )}
+      </HStack>
       {proposals.map((proposal: Proposal) => (
         <Box
           key={proposal.proposalId}
