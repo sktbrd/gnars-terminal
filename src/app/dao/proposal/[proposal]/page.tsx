@@ -1,5 +1,8 @@
 import { fetchProposals } from '@/app/services/proposal';
+import Markdown from '@/components/proposal/markdown';
+import ProposalStatus from '@/components/proposal/status';
 import { ColorModeButton } from '@/components/ui/color-mode';
+import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
 import {
   Box,
@@ -13,6 +16,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BsGithub } from 'react-icons/bs';
 import { FaArrowLeft } from 'react-icons/fa';
+
+// @fix React Markdown is not rendering with styles
 
 interface ProposalPageProps {
   params: {
@@ -38,6 +43,8 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
   if (proposals.length === 0) {
     return notFound();
   }
+
+  const proposal = proposals[0];
 
   return (
     <Box
@@ -77,6 +84,34 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
               <ColorModeButton variant={'outline'} />
             </HStack>
           </HStack>
+          <Box
+            shadow={'sm'}
+            w={'full'}
+            padding={4}
+            rounded={'md'}
+            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+            display={'flex'}
+            flexDirection={'column'}
+            gap={2}
+          >
+            <HStack>
+              <ProposalStatus proposal={proposal} />
+              <FormattedAddress address={proposal.proposer} />
+            </HStack>
+            <Heading size={'2xl'} as='h2'>
+              {proposal.title}
+            </Heading>
+            <Box
+              key={proposal.proposalId}
+              borderWidth={1}
+              borderRadius={'md'}
+              p={4}
+              mb={2}
+              bg={'bg.subtle'}
+            >
+              <Markdown text={proposal.description} />
+            </Box>
+          </Box>
           <Box
             borderWidth={1}
             borderRadius={'md'}
