@@ -30,7 +30,11 @@ function App() {
             </Heading>
             <HStack>
               <Link href='https://github.com/r4topunk/gnars-terminal'>
-                <IconButton variant={'outline'} colorPalette={'black'}>
+                <IconButton
+                  variant={'outline'}
+                  colorPalette={'black'}
+                  size={'sm'}
+                >
                   <BsGithub style={{ background: 'none' }} />
                 </IconButton>
               </Link>
