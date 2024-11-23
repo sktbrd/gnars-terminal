@@ -1,7 +1,7 @@
 'use client';
 
 import { formatEthAddress } from '@/utils/helpers';
-import { Badge, HStack, Image } from '@chakra-ui/react';
+import { Badge, Code, HStack, Image } from '@chakra-ui/react';
 import { Address } from 'viem';
 import { mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
@@ -30,12 +30,17 @@ export function FormattedAddress({
   return (
     <HStack gap={1} w={'fit'}>
       {textBefore ? <span>{textBefore}</span> : null}
-      <Badge variant={'surface'} colorPalette={ensName ? '' : 'gray'}>
+      <Code
+        size={'sm'}
+        variant={'surface'}
+        colorPalette={ensName ? '' : 'gray'}
+        gap={1}
+      >
         {ensAvatar ? (
           <Image asChild rounded={'full'} w={3}>
             <NextImage
-              width={240}
-              height={240}
+              width={24}
+              height={24}
               src={ensAvatar}
               alt={`ENS avatar for ${ensName}`}
               onError={(e) => {
@@ -45,7 +50,7 @@ export function FormattedAddress({
           </Image>
         ) : null}
         {ensName ? ensName : formatEthAddress(address)}
-      </Badge>
+      </Code>
     </HStack>
   );
 }

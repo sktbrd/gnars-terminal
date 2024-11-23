@@ -31,14 +31,16 @@ async function GovernorCard(props: GovernorCardProps) {
       flexDirection={'column'}
       gap={2}
     >
-      <HStack w={'full'} justify={'start'} gap={1}>
+      {isDaoPage ? (
         <Heading as='h2'>Proposals</Heading>
-        {!isDaoPage && (
-          <Link href='/dao'>
+      ) : (
+        <Link href='/dao'>
+          <HStack w={'full'} justify={'start'} gap={1}>
+            <Heading as='h2'>Proposals</Heading>
             <FaArrowRight size={12} style={{ marginTop: '4px' }} />
-          </Link>
-        )}
-      </HStack>
+          </HStack>
+        </Link>
+      )}
       {proposals.map((proposal: Proposal) => (
         <Box
           key={proposal.proposalId}
@@ -49,11 +51,13 @@ async function GovernorCard(props: GovernorCardProps) {
           bg={'bg.subtle'}
         >
           <VStack gap={2} align={'start'}>
-            <ProposalStatus proposal={proposal} />
+            <HStack>
+              <ProposalStatus proposal={proposal} />
+              <FormattedAddress address={proposal.proposer} />
+            </HStack>
             <Heading as='h3' size='md'>
               #{proposal.proposalNumber}: {proposal.title}
             </Heading>
-            <FormattedAddress address={proposal.proposer} />
           </VStack>
         </Box>
       ))}
