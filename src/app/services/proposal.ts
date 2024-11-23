@@ -19,7 +19,7 @@ export interface Proposal {
   executed: boolean;
   canceled: boolean;
   vetoed: boolean;
-  // description: string;
+  description?: string;
 }
 
 const GET_DATA = gql`
@@ -51,7 +51,7 @@ const GET_DATA = gql`
       canceled
       vetoed
       voteCount
-      # description
+      description
     }
   }
 `;
@@ -60,23 +60,34 @@ export async function fetchProposals(
   address: string,
   orderBy: string,
   orderDirection: string,
-  first: number
+  first: number,
+  where: object = {},
+  showDescription: boolean = false
 ) {
-  const where = { dao: address.toLocaleLowerCase() };
+  const _where = { dao: address.toLocaleLowerCase(), ...where };
 
   try {
-    const { data } = await apolloClient.query({
+    let { data } = await apolloClient.query({
       query: GET_DATA,
       variables: {
-        where,
+        where: _where,
         orderBy,
         orderDirection,
         first,
       },
     });
 
-    return data.proposals as Proposal[];
+    const proposals = data.proposals.map((proposal: Proposal) => {
+      if (!showDescription) {
+        const { description, ...rest } = proposal;
+        return rest;
+      }
+      return proposal;
+    });
+
+    return proposals as Proposal[];
   } catch (error) {
+    console.error(error);
     throw new Error('Erro ao consultar propostas');
   }
 }

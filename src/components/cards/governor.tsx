@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaArrowRight } from 'react-icons/fa';
 import ProposalStatus from '../proposal/status';
 import { FormattedAddress } from '../utils/ethereum';
+import { Link as ChakraLink } from '@chakra-ui/react';
 
 interface GovernorCardProps {
   isDaoPage?: boolean;
@@ -55,9 +56,13 @@ async function GovernorCard(props: GovernorCardProps) {
               <ProposalStatus proposal={proposal} />
               <FormattedAddress address={proposal.proposer} />
             </HStack>
-            <Heading as='h3' size='md'>
-              #{proposal.proposalNumber}: {proposal.title}
-            </Heading>
+            <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
+              <Link href={`/dao/proposal/${proposal.proposalNumber}`}>
+                <Heading as='h3' size='md'>
+                  #{proposal.proposalNumber}: {proposal.title}
+                </Heading>
+              </Link>
+            </ChakraLink>
           </VStack>
         </Box>
       ))}
