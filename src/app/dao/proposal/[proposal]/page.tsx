@@ -10,6 +10,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  Text,
   VStack,
 } from '@chakra-ui/react';
 import Link from 'next/link';
@@ -101,16 +102,68 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             <Heading size={'2xl'} as='h2'>
               {proposal.title}
             </Heading>
-            <Box
-              key={proposal.proposalId}
-              borderWidth={1}
-              borderRadius={'md'}
-              p={4}
-              mb={2}
-              bg={'bg.subtle'}
-            >
-              <Markdown text={proposal.description} />
-            </Box>
+            <HStack>
+              <Box
+                key={proposal.proposalId}
+                borderWidth={1}
+                borderRadius={'md'}
+                px={4}
+                py={2}
+                w={'full'}
+                bg={'bg.subtle'}
+              >
+                <Heading size={'md'}>For</Heading>
+                <Text
+                  fontWeight={'bold'}
+                  color={proposal.forVotes > 0 ? 'green.500' : 'fg.subtle'}
+                >
+                  {proposal.forVotes}
+                </Text>
+              </Box>
+              <Box
+                key={proposal.proposalId}
+                borderWidth={1}
+                borderRadius={'md'}
+                px={4}
+                py={2}
+                w={'full'}
+                bg={'bg.subtle'}
+              >
+                <Heading size={'md'}>Against</Heading>
+                <Text
+                  fontWeight={'bold'}
+                  color={proposal.againstVotes > 0 ? 'red.500' : 'fg.subtle'}
+                >
+                  {proposal.againstVotes}
+                </Text>
+              </Box>
+              <Box
+                key={proposal.proposalId}
+                borderWidth={1}
+                borderRadius={'md'}
+                px={4}
+                py={2}
+                w={'full'}
+                bg={'bg.subtle'}
+              >
+                <Heading size={'md'}>Abstain</Heading>
+                <Text fontWeight={'bold'} color={'fg.subtle'}>
+                  {proposal.abstainVotes}
+                </Text>
+              </Box>
+            </HStack>
+          </Box>
+          <Box
+            shadow={'sm'}
+            w={'full'}
+            padding={4}
+            rounded={'md'}
+            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+            display={'flex'}
+            flexDirection={'column'}
+            gap={2}
+          >
+            <Markdown text={proposal.description} />
           </Box>
           <Box
             borderWidth={1}
