@@ -63,24 +63,13 @@ export default async function AuctionCard() {
         </VStack>
         <Image asChild rounded={'md'} w={'full'} maxW={{ md: '240px' }}>
           <NextImage
-            width={240}
-            height={240}
+            width={1024}
+            height={1024}
             src={activeAuction.token.image}
             alt={`Auction token id ${activeAuction.token.tokenId}`}
           />
         </Image>
       </Stack>
-      {/* <Box
-        overflow={'auto'}
-        p={4}
-        borderWidth={1}
-        borderRadius={'md'}
-        bg={'bg.subtle'}
-        maxH={'240px'}
-        maxW={'full'}
-      >
-        <pre>{JSON.stringify(auctions, null, 2)}</pre>
-      </Box> */}
     </VStack>
   );
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { formatEthAddress } from '@/utils/helpers';
 import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import { base } from 'viem/chains';
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
+import { FormattedAddress } from '../utils/ethereum';
 
 export default function AccountCard() {
   const account = useAccount();
@@ -24,14 +24,14 @@ export default function AccountCard() {
         <Heading as='h2'>Account</Heading>
         {account.isConnected ? (
           <>
-            <div>
-              status: {account.status}
-              <br />
-              address:{' '}
-              {account.address ? formatEthAddress(account.address) : ''}
-              <br />
-              chainId: {account.chainId}
-            </div>
+            <VStack align={'start'} gap={0}>
+              <Text>status: {account.status}</Text>
+              <FormattedAddress
+                address={account.address}
+                textBefore='address: '
+              />
+              <Text>chainId: {activeChain?.id}</Text>
+            </VStack>
             <HStack gap={2}>
               {activeChain?.id !== base.id && (
                 <Button
