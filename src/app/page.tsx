@@ -20,10 +20,10 @@ function App() {
       bg={'bg.panel'}
       colorPalette={'yellow'}
       color={{ base: 'black', _dark: 'white' }}
-      padding={4}
+      paddingBlock={{ base: 2, md: 4 }}
     >
       <Container maxW={'2xl'}>
-        <VStack gap={8} align={'start'}>
+        <VStack gap={4} align={'start'}>
           <HStack w={'full'} justify={'space-between'}>
             <Heading size={'4xl'} as='h1'>
               Gnars Terminal
