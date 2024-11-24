@@ -9,7 +9,7 @@ interface StatusBoxProps {
 
 const StatusBox = ({ colorPalette, children }: StatusBoxProps) => {
   return (
-    <Badge colorPalette={colorPalette} size={'sm'}>
+    <Badge colorPalette={colorPalette} size={'sm'} variant={'surface'}>
       {children}
     </Badge>
   );

@@ -52,7 +52,7 @@ async function GovernorCard(props: GovernorCardProps) {
           bg={'bg.subtle'}
         >
           <VStack gap={2} align={'start'}>
-            <HStack>
+            <HStack gap={1}>
               <ProposalStatus proposal={proposal} />
               <FormattedAddress address={proposal.proposer} />
             </HStack>
