@@ -18,7 +18,7 @@ async function GovernorCard(props: GovernorCardProps) {
     DAO_ADDRESSES.token,
     'proposalNumber',
     'desc',
-    100
+    1000
   );
 
   return (
@@ -42,30 +42,59 @@ async function GovernorCard(props: GovernorCardProps) {
           </HStack>
         </Link>
       )}
-      {proposals.map((proposal: Proposal) => (
-        <Box
-          key={proposal.proposalId}
-          borderWidth={1}
-          borderRadius={'md'}
-          p={4}
-          mb={2}
-          bg={'bg.subtle'}
-        >
-          <VStack gap={2} align={'start'}>
-            <HStack gap={1}>
-              <ProposalStatus proposal={proposal} />
-              <FormattedAddress address={proposal.proposer} />
-            </HStack>
-            <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
-              <Link href={`/dao/proposal/${proposal.proposalNumber}`}>
-                <Heading as='h3' size='md'>
-                  #{proposal.proposalNumber}: {proposal.title}
-                </Heading>
-              </Link>
-            </ChakraLink>
-          </VStack>
-        </Box>
-      ))}
+      {proposals.map((proposal: Proposal) => {
+        const { forVotes, againstVotes, abstainVotes } = proposal;
+
+        const totalVotes = forVotes + againstVotes + abstainVotes;
+
+        const forPercentage =
+          totalVotes > 0 ? (forVotes / totalVotes) * 100 : 0;
+        const againstPercentage =
+          totalVotes > 0 ? (againstVotes / totalVotes) * 100 : 0;
+        const abstainPercentage =
+          totalVotes > 0 ? (abstainVotes / totalVotes) * 100 : 0;
+        return (
+          <Box
+            key={proposal.proposalId}
+            borderWidth={1}
+            rounded={'md'}
+            p={4}
+            mb={2}
+            bg={'bg.subtle'}
+            display={'flex'}
+            gap={2}
+            alignItems={'stretch'}
+          >
+            <Box
+              w={3}
+              bg='gray.200'
+              rounded='xs'
+              display='flex'
+              flexDirection='column'
+              overflow='hidden'
+              alignSelf={'stretch'}
+              mb={1}
+            >
+              <Box bg='green.400' height={`${forPercentage}%`} />
+              <Box bg='yellow.400' height={`${abstainPercentage}%`} />
+              <Box bg='red.400' height={`${againstPercentage}%`} />
+            </Box>
+            <VStack gap={1} align={'start'} flex={1}>
+              <HStack gap={1}>
+                <ProposalStatus proposal={proposal} />
+                <FormattedAddress address={proposal.proposer} />
+              </HStack>
+              <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
+                <Link href={`/dao/proposal/${proposal.proposalNumber}`}>
+                  <Heading as='h3' size='md'>
+                    #{proposal.proposalNumber}: {proposal.title}
+                  </Heading>
+                </Link>
+              </ChakraLink>
+            </VStack>
+          </Box>
+        );
+      })}
     </Box>
   );
 }
