@@ -175,7 +175,7 @@ export default function CastVote({ proposal }: CastVoteProps) {
               onClick={onClickVote}
               w={'full'}
             >
-              Submit
+              {disableFields ? 'Submited' : 'Submit'}
             </Button>
             {txHash && (
               <ChakraLink asChild>
