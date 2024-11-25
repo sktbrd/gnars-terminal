@@ -16,16 +16,17 @@ import {
   useWriteGovernorCastVoteWithReason,
 } from '@/hooks/wagmiGenerated';
 import { HStack, Text, Textarea, VStack } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '../ui/button';
 import { Field } from '../ui/field';
 import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
 
 import { Link as ChakraLink } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import Countdown from 'react-countdown';
 import { LuExternalLink } from 'react-icons/lu';
-import { useAccount } from 'wagmi';
 import { zeroAddress } from 'viem';
+import { useAccount } from 'wagmi';
 
 interface CastVoteProps {
   proposal: Proposal;
@@ -69,10 +70,6 @@ export default function CastVote({ proposal }: CastVoteProps) {
   const userVote = proposal.votes.find(
     (vote) => vote.voter.toLocaleLowerCase() === userAddress
   );
-
-  useEffect(() => {
-    console.log({ votes: proposal.votes, userVote, addr: account.address });
-  }, [account, userVote]);
 
   const { writeContractAsync: writeCastVote } = useWriteGovernorCastVote();
   const { writeContractAsync: writeCastVoteReason } =
@@ -126,7 +123,11 @@ export default function CastVote({ proposal }: CastVoteProps) {
           variant={'solid'}
           disabled={!voteStarted || voteEnded}
         >
-          Submit Votes
+          {voteStarted ? (
+            'Submit Votes'
+          ) : (
+            <Countdown date={parseInt(proposal.voteStart) * 1000} />
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent>
