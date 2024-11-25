@@ -12,30 +12,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  useWriteGovernorCastVote,
-  useWriteGovernorCastVoteWithReason,
-} from '@/hooks/wagmiGenerated';
-import {
-  ButtonProps,
-  HStack,
-  Text,
-  Textarea,
-  useMediaQuery,
-  VStack,
-} from '@chakra-ui/react';
-import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { Button } from '../ui/button';
-import { Field } from '../ui/field';
-import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
-
-import { Link as ChakraLink } from '@chakra-ui/react';
-import NextLink from 'next/link';
-import Countdown from 'react-countdown';
-import { LuExternalLink } from 'react-icons/lu';
-import { zeroAddress } from 'viem';
-import { useAccount } from 'wagmi';
-
-import {
   DrawerBackdrop,
   DrawerBody,
   DrawerCloseTrigger,
@@ -46,6 +22,28 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
+import {
+  useWriteGovernorCastVote,
+  useWriteGovernorCastVoteWithReason,
+} from '@/hooks/wagmiGenerated';
+import {
+  ButtonProps,
+  Link as ChakraLink,
+  HStack,
+  Text,
+  Textarea,
+  useMediaQuery,
+  VStack,
+} from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
+import Countdown from 'react-countdown';
+import { LuExternalLink } from 'react-icons/lu';
+import { zeroAddress } from 'viem';
+import { useAccount } from 'wagmi';
+import { Button } from '../ui/button';
+import { Field } from '../ui/field';
+import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
 
 interface CastVoteProps {
   proposal: Proposal;
@@ -68,6 +66,107 @@ const voteMap = {
   },
 };
 
+interface VoteButtonProps extends ButtonProps {
+  voteStarted: boolean;
+  voteEnded: boolean;
+  voteStart: number;
+}
+
+const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
+  function VoteButton(props, ref) {
+    return (
+      <Button
+        size={'lg'}
+        w={'full'}
+        variant={'solid'}
+        disabled={!props.voteStarted || props.voteEnded}
+        {...props}
+        ref={ref}
+      >
+        {props.voteStarted ? (
+          'Submit Votes'
+        ) : (
+          <Countdown date={props.voteStart} />
+        )}
+      </Button>
+    );
+  }
+);
+
+interface VoteBodyProps {
+  disableFields: boolean;
+  setVote: (vote: Vote) => void;
+  setReason: (reason: string) => void;
+}
+
+const VoteBody = forwardRef<HTMLDivElement, VoteBodyProps>(
+  function VoteBody(props, ref) {
+    return (
+      <VStack gap={4} align='stretch'>
+        <RadioCardRoot defaultValue={'Abstain'} disabled={props.disableFields}>
+          <HStack align='stretch'>
+            <RadioCardItem
+              value={'For'}
+              label={'For'}
+              colorPalette={'green'}
+              onChange={() => props.setVote('For')}
+            />
+            <RadioCardItem
+              value={'Against'}
+              label={'Against'}
+              colorPalette={'red'}
+              onChange={() => props.setVote('Against')}
+            />
+            <RadioCardItem
+              value={'Abstain'}
+              label={'Abstain'}
+              colorPalette={'gray'}
+              onChange={() => props.setVote('Abstain')}
+            />
+          </HStack>
+        </RadioCardRoot>
+        <Field label='Reason'>
+          <Textarea
+            placeholder='Enter your reason here'
+            onChange={(event) => props.setReason(event.target.value)}
+            disabled={props.disableFields}
+          />
+        </Field>
+      </VStack>
+    );
+  }
+);
+
+interface VoteFooterProps {
+  loading: boolean;
+  disableFields: boolean;
+  onClickVote: () => void;
+  txHash: string | null;
+}
+
+const VoteFooter: React.FC<VoteFooterProps> = (props) => {
+  return (
+    <VStack w={'full'}>
+      <Button
+        loading={props.loading}
+        disabled={props.disableFields}
+        onClick={props.onClickVote}
+        w={'full'}
+      >
+        {props.disableFields ? 'Submited' : 'Submit'}
+      </Button>
+      {props.txHash && (
+        <ChakraLink asChild>
+          <NextLink href={`https://basescan.org/tx/${props.txHash}`}>
+            Transaction: {props.txHash.slice(0, 4)}...{props.txHash.slice(-4)}
+            <LuExternalLink />
+          </NextLink>
+        </ChakraLink>
+      )}
+    </VStack>
+  );
+};
+
 export default function CastVote({ proposal }: CastVoteProps) {
   const account = useAccount();
   const userAddress = account.address
@@ -80,22 +179,32 @@ export default function CastVote({ proposal }: CastVoteProps) {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
-    fallback: [false],
+    fallback: [true],
   });
 
-  useEffect(() => {
-    console.log({ isLargerThanMd });
-  }, [isLargerThanMd]);
+  const voteValue = useMemo(
+    () => (vote === 'For' ? 1n : vote === 'Against' ? 0n : 2n),
+    [vote]
+  );
+  const disableFields = useMemo(
+    () => txHash !== null || loading,
+    [txHash, loading]
+  );
+  const voteStarted = useMemo(
+    () => new Date().getTime() > parseInt(proposal.voteStart) * 1000,
+    [proposal.voteStart]
+  );
+  const voteEnded = useMemo(
+    () => new Date().getTime() > parseInt(proposal.voteEnd) * 1000,
+    [proposal.voteEnd]
+  );
 
-  // 0 = Against, 1 = For, 2 = Abstain
-  const voteValue = vote === 'For' ? 1n : vote === 'Against' ? 0n : 2n;
-  const disableFields = txHash !== null || loading;
-  const voteStarted =
-    new Date().getTime() > parseInt(proposal.voteStart) * 1000;
-  const voteEnded = new Date().getTime() > parseInt(proposal.voteEnd) * 1000;
-
-  const userVote = proposal.votes.find(
-    (vote) => vote.voter.toLocaleLowerCase() === userAddress
+  const userVote = useMemo(
+    () =>
+      proposal.votes.find(
+        (vote) => vote.voter.toLocaleLowerCase() === userAddress
+      ),
+    [proposal.votes, userAddress]
   );
 
   const { writeContractAsync: writeCastVote } = useWriteGovernorCastVote();
@@ -127,7 +236,14 @@ export default function CastVote({ proposal }: CastVoteProps) {
     } finally {
       setLoading(false);
     }
-  }, [writeCastVote, vote, reason]);
+  }, [
+    writeCastVote,
+    vote,
+    reason,
+    proposal.proposalId,
+    voteValue,
+    writeCastVoteReason,
+  ]);
 
   if (userVote) {
     return (
@@ -141,101 +257,34 @@ export default function CastVote({ proposal }: CastVoteProps) {
     );
   }
 
-  const VoteButton = forwardRef<HTMLButtonElement, ButtonProps>(
-    function VoteButton(props, ref) {
-      return (
-        <Button
-          size={'lg'}
-          w={'full'}
-          variant={'solid'}
-          disabled={!voteStarted || voteEnded}
-          {...props}
-          ref={ref}
-        >
-          {voteStarted ? (
-            'Submit Votes'
-          ) : (
-            <Countdown date={parseInt(proposal.voteStart) * 1000} />
-          )}
-        </Button>
-      );
-    }
-  );
-
-  const VoteBody = () => {
-    return (
-      <VStack gap={4} align='stretch'>
-        <RadioCardRoot defaultValue={'Abstain'} disabled={disableFields}>
-          <HStack align='stretch'>
-            <RadioCardItem
-              value={'For'}
-              label={'For'}
-              colorPalette={'green'}
-              onChange={() => setVote('For')}
-            />
-            <RadioCardItem
-              value={'Against'}
-              label={'Against'}
-              colorPalette={'red'}
-              onChange={() => setVote('Against')}
-            />
-            <RadioCardItem
-              value={'Abstain'}
-              label={'Abstain'}
-              colorPalette={'gray'}
-              onChange={() => setVote('Abstain')}
-            />
-          </HStack>
-        </RadioCardRoot>
-        <Field label='Reason'>
-          <Textarea
-            placeholder='Enter your reason here'
-            onChange={(event) => setReason(event.target.value)}
-            disabled={disableFields}
-          />
-        </Field>
-      </VStack>
-    );
-  };
-
-  const VoteFooter = () => {
-    return (
-      <VStack w={'full'}>
-        <Button
-          loading={loading}
-          disabled={disableFields}
-          onClick={onClickVote}
-          w={'full'}
-        >
-          {disableFields ? 'Submited' : 'Submit'}
-        </Button>
-        {txHash && (
-          <ChakraLink asChild>
-            <NextLink href={`https://basescan.org/tx/${txHash}`}>
-              Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
-              <LuExternalLink />
-            </NextLink>
-          </ChakraLink>
-        )}
-      </VStack>
-    );
-  };
-
   if (isLargerThanMd) {
     return (
       <DialogRoot placement={'center'} motionPreset='slide-in-bottom'>
         <DialogTrigger asChild>
-          <VoteButton />
+          <VoteButton
+            voteStarted={voteStarted}
+            voteEnded={voteEnded}
+            voteStart={parseInt(proposal.voteStart) * 1000}
+          />
         </DialogTrigger>
         <DialogContent>
           <DialogHeader pb={2}>
             <DialogTitle>Submit Votes</DialogTitle>
           </DialogHeader>
           <DialogBody pb={2}>
-            <VoteBody />
+            <VoteBody
+              disableFields={disableFields}
+              setVote={setVote}
+              setReason={setReason}
+            />
           </DialogBody>
           <DialogFooter>
-            <VoteFooter />
+            <VoteFooter
+              loading={loading}
+              disableFields={disableFields}
+              onClickVote={onClickVote}
+              txHash={txHash}
+            />
           </DialogFooter>
           <DialogCloseTrigger />
         </DialogContent>
@@ -247,17 +296,30 @@ export default function CastVote({ proposal }: CastVoteProps) {
     <DrawerRoot placement={'bottom'}>
       <DrawerBackdrop />
       <DrawerTrigger asChild>
-        <VoteButton />
+        <VoteButton
+          voteStarted={voteStarted}
+          voteEnded={voteEnded}
+          voteStart={parseInt(proposal.voteStart) * 1000}
+        />
       </DrawerTrigger>
       <DrawerContent roundedTop={'md'}>
         <DrawerHeader>
           <DrawerTitle>Submit Votes</DrawerTitle>
         </DrawerHeader>
         <DrawerBody>
-          <VoteBody />
+          <VoteBody
+            disableFields={disableFields}
+            setVote={setVote}
+            setReason={setReason}
+          />
         </DrawerBody>
         <DrawerFooter>
-          <VoteFooter />
+          <VoteFooter
+            loading={loading}
+            disableFields={disableFields}
+            onClickVote={onClickVote}
+            txHash={txHash}
+          />
         </DrawerFooter>
         <DrawerCloseTrigger />
       </DrawerContent>
