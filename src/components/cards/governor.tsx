@@ -82,7 +82,7 @@ async function GovernorCard(props: GovernorCardProps) {
             <VStack gap={1} align={'start'} flex={1}>
               <HStack gap={1}>
                 <ProposalStatus proposal={proposal} />
-                <FormattedAddress address={proposal.proposer} />
+                <FormattedAddress address={proposal.proposer} asLink={false} />
               </HStack>
               <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
                 <Link href={`/dao/proposal/${proposal.proposalNumber}`}>
