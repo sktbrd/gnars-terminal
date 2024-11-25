@@ -607,11 +607,926 @@ export const auctionAbi = [
 ] as const
 
 export const auctionAddress =
-  '0x1EF59B5276466b99D2F6600FFeAf3CCEFea001AB' as const
+  '0x494Eaa55ECF6310658B8fC004b0888DCB698097f' as const
 
 export const auctionConfig = {
   address: auctionAddress,
   abi: auctionAbi,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Governor
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const governorAbi = [
+  {
+    type: 'constructor',
+    inputs: [{ name: '_manager', internalType: 'address', type: 'address' }],
+    stateMutability: 'payable',
+  },
+  { type: 'error', inputs: [], name: 'ADDRESS_ZERO' },
+  { type: 'error', inputs: [], name: 'ALREADY_INITIALIZED' },
+  { type: 'error', inputs: [], name: 'ALREADY_VOTED' },
+  { type: 'error', inputs: [], name: 'BELOW_PROPOSAL_THRESHOLD' },
+  { type: 'error', inputs: [], name: 'CANNOT_DELAY_GOVERNANCE' },
+  { type: 'error', inputs: [], name: 'DELEGATE_CALL_FAILED' },
+  { type: 'error', inputs: [], name: 'EXPIRED_SIGNATURE' },
+  { type: 'error', inputs: [], name: 'INITIALIZING' },
+  { type: 'error', inputs: [], name: 'INVALID_CANCEL' },
+  { type: 'error', inputs: [], name: 'INVALID_DELAYED_GOVERNANCE_EXPIRATION' },
+  { type: 'error', inputs: [], name: 'INVALID_PROPOSAL_THRESHOLD_BPS' },
+  { type: 'error', inputs: [], name: 'INVALID_QUORUM_THRESHOLD_BPS' },
+  { type: 'error', inputs: [], name: 'INVALID_SIGNATURE' },
+  { type: 'error', inputs: [], name: 'INVALID_TARGET' },
+  {
+    type: 'error',
+    inputs: [{ name: 'impl', internalType: 'address', type: 'address' }],
+    name: 'INVALID_UPGRADE',
+  },
+  { type: 'error', inputs: [], name: 'INVALID_VOTE' },
+  { type: 'error', inputs: [], name: 'INVALID_VOTING_DELAY' },
+  { type: 'error', inputs: [], name: 'INVALID_VOTING_PERIOD' },
+  { type: 'error', inputs: [], name: 'NOT_INITIALIZING' },
+  { type: 'error', inputs: [], name: 'ONLY_CALL' },
+  { type: 'error', inputs: [], name: 'ONLY_DELEGATECALL' },
+  { type: 'error', inputs: [], name: 'ONLY_MANAGER' },
+  { type: 'error', inputs: [], name: 'ONLY_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_PENDING_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_PROXY' },
+  { type: 'error', inputs: [], name: 'ONLY_TOKEN_OWNER' },
+  { type: 'error', inputs: [], name: 'ONLY_UUPS' },
+  { type: 'error', inputs: [], name: 'ONLY_VETOER' },
+  { type: 'error', inputs: [], name: 'PROPOSAL_ALREADY_EXECUTED' },
+  { type: 'error', inputs: [], name: 'PROPOSAL_DOES_NOT_EXIST' },
+  {
+    type: 'error',
+    inputs: [{ name: 'proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PROPOSAL_EXISTS',
+  },
+  { type: 'error', inputs: [], name: 'PROPOSAL_LENGTH_MISMATCH' },
+  {
+    type: 'error',
+    inputs: [{ name: 'proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PROPOSAL_NOT_QUEUED',
+  },
+  { type: 'error', inputs: [], name: 'PROPOSAL_TARGET_MISSING' },
+  { type: 'error', inputs: [], name: 'PROPOSAL_UNSUCCESSFUL' },
+  { type: 'error', inputs: [], name: 'UNSAFE_CAST' },
+  { type: 'error', inputs: [], name: 'UNSUPPORTED_UUID' },
+  { type: 'error', inputs: [], name: 'VOTING_NOT_STARTED' },
+  {
+    type: 'error',
+    inputs: [],
+    name: 'WAITING_FOR_TOKENS_TO_CLAIM_OR_EXPIRATION',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'DelayedGovernanceExpirationTimestampUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'canceledOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'pendingOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerPending',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnerUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'targets',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'values',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'calldatas',
+        internalType: 'bytes[]',
+        type: 'bytes[]',
+        indexed: false,
+      },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'descriptionHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'proposal',
+        internalType: 'struct GovernorTypesV1.Proposal',
+        type: 'tuple',
+        components: [
+          { name: 'proposer', internalType: 'address', type: 'address' },
+          { name: 'timeCreated', internalType: 'uint32', type: 'uint32' },
+          { name: 'againstVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'forVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'abstainVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'voteStart', internalType: 'uint32', type: 'uint32' },
+          { name: 'voteEnd', internalType: 'uint32', type: 'uint32' },
+          { name: 'proposalThreshold', internalType: 'uint32', type: 'uint32' },
+          { name: 'quorumVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'executed', internalType: 'bool', type: 'bool' },
+          { name: 'canceled', internalType: 'bool', type: 'bool' },
+          { name: 'vetoed', internalType: 'bool', type: 'bool' },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'ProposalCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalExecuted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      { name: 'eta', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'ProposalQueued',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevBps',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newBps',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalThresholdBpsUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalVetoed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevBps',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newBps',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'QuorumVotesBpsUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'impl',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevVetoer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'newVetoer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'VetoerUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'proposalId',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'support',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'weight',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'VoteCast',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevVotingDelay',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newVotingDelay',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'VotingDelayUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'prevVotingPeriod',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newVotingPeriod',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'VotingPeriodUpdated',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'DOMAIN_SEPARATOR',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_DELAYED_GOVERNANCE_EXPIRATION',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_PROPOSAL_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_QUORUM_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_VOTING_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_VOTING_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_PROPOSAL_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_QUORUM_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_VOTING_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_VOTING_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'VOTE_TYPEHASH',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'acceptOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'burnVetoer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'cancel',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'cancelOwnershipTransfer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proposalId', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_support', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'castVote',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_voter', internalType: 'address', type: 'address' },
+      { name: '_proposalId', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_support', internalType: 'uint256', type: 'uint256' },
+      { name: '_deadline', internalType: 'uint256', type: 'uint256' },
+      { name: '_v', internalType: 'uint8', type: 'uint8' },
+      { name: '_r', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_s', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'castVoteBySig',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proposalId', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_support', internalType: 'uint256', type: 'uint256' },
+      { name: '_reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'castVoteWithReason',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'contractVersion',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'delayedGovernanceExpirationTimestamp',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_targets', internalType: 'address[]', type: 'address[]' },
+      { name: '_values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '_calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_proposer', internalType: 'address', type: 'address' },
+    ],
+    name: 'execute',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getProposal',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct GovernorTypesV1.Proposal',
+        type: 'tuple',
+        components: [
+          { name: 'proposer', internalType: 'address', type: 'address' },
+          { name: 'timeCreated', internalType: 'uint32', type: 'uint32' },
+          { name: 'againstVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'forVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'abstainVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'voteStart', internalType: 'uint32', type: 'uint32' },
+          { name: 'voteEnd', internalType: 'uint32', type: 'uint32' },
+          { name: 'proposalThreshold', internalType: 'uint32', type: 'uint32' },
+          { name: 'quorumVotes', internalType: 'uint32', type: 'uint32' },
+          { name: 'executed', internalType: 'bool', type: 'bool' },
+          { name: 'canceled', internalType: 'bool', type: 'bool' },
+          { name: 'vetoed', internalType: 'bool', type: 'bool' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_account', internalType: 'address', type: 'address' },
+      { name: '_timestamp', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_targets', internalType: 'address[]', type: 'address[]' },
+      { name: '_values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '_calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_proposer', internalType: 'address', type: 'address' },
+    ],
+    name: 'hashProposal',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_treasury', internalType: 'address', type: 'address' },
+      { name: '_token', internalType: 'address', type: 'address' },
+      { name: '_vetoer', internalType: 'address', type: 'address' },
+      { name: '_votingDelay', internalType: 'uint256', type: 'uint256' },
+      { name: '_votingPeriod', internalType: 'uint256', type: 'uint256' },
+      {
+        name: '_proposalThresholdBps',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      { name: '_quorumThresholdBps', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_account', internalType: 'address', type: 'address' }],
+    name: 'nonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pendingOwner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'proposalDeadline',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'proposalEta',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'proposalSnapshot',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalThresholdBps',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'proposalVotes',
+    outputs: [
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_targets', internalType: 'address[]', type: 'address[]' },
+      { name: '_values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '_calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: '_description', internalType: 'string', type: 'string' },
+    ],
+    name: 'propose',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'queue',
+    outputs: [{ name: 'eta', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'quorum',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'quorumThresholdBps',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
+    name: 'safeTransferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'state',
+    outputs: [
+      {
+        name: '',
+        internalType: 'enum GovernorTypesV1.ProposalState',
+        type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'token',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'treasury',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_newDelayedTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'updateDelayedGovernanceExpirationTimestamp',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_newProposalThresholdBps',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'updateProposalThresholdBps',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newQuorumVotesBps', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'updateQuorumThresholdBps',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newVetoer', internalType: 'address', type: 'address' }],
+    name: 'updateVetoer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newVotingDelay', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'updateVotingDelay',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newVotingPeriod', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'updateVotingPeriod',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newImpl', internalType: 'address', type: 'address' }],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newImpl', internalType: 'address', type: 'address' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'veto',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'vetoer',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'votingDelay',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'votingPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+] as const
+
+export const governorAddress =
+  '0x3dd4e53a232B7B715c9ae455f4e732465eD71b4c' as const
+
+export const governorConfig = {
+  address: governorAddress,
+  abi: governorAbi,
 } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1471,7 +2386,7 @@ export const tokenAbi = [
 ] as const
 
 export const tokenAddress =
-  '0x6940100C44D214cD1570b394A1C42949C3eB820d' as const
+  '0x880Fb3Cf5c6Cc2d7DFC13a993E839a9411200C17' as const
 
 export const tokenConfig = { address: tokenAddress, abi: tokenAbi } as const
 
@@ -2170,6 +3085,954 @@ export const useWatchAuctionUpgradedEvent =
     abi: auctionAbi,
     address: auctionAddress,
     eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__
+ */
+export const useReadGovernor = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"DOMAIN_SEPARATOR"`
+ */
+export const useReadGovernorDomainSeparator =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'DOMAIN_SEPARATOR',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MAX_DELAYED_GOVERNANCE_EXPIRATION"`
+ */
+export const useReadGovernorMaxDelayedGovernanceExpiration =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MAX_DELAYED_GOVERNANCE_EXPIRATION',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MAX_PROPOSAL_THRESHOLD_BPS"`
+ */
+export const useReadGovernorMaxProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MAX_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MAX_QUORUM_THRESHOLD_BPS"`
+ */
+export const useReadGovernorMaxQuorumThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MAX_QUORUM_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MAX_VOTING_DELAY"`
+ */
+export const useReadGovernorMaxVotingDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MAX_VOTING_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MAX_VOTING_PERIOD"`
+ */
+export const useReadGovernorMaxVotingPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MAX_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MIN_PROPOSAL_THRESHOLD_BPS"`
+ */
+export const useReadGovernorMinProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MIN_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MIN_QUORUM_THRESHOLD_BPS"`
+ */
+export const useReadGovernorMinQuorumThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MIN_QUORUM_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MIN_VOTING_DELAY"`
+ */
+export const useReadGovernorMinVotingDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MIN_VOTING_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"MIN_VOTING_PERIOD"`
+ */
+export const useReadGovernorMinVotingPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'MIN_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"VOTE_TYPEHASH"`
+ */
+export const useReadGovernorVoteTypehash = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'VOTE_TYPEHASH',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"contractVersion"`
+ */
+export const useReadGovernorContractVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'contractVersion',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"delayedGovernanceExpirationTimestamp"`
+ */
+export const useReadGovernorDelayedGovernanceExpirationTimestamp =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'delayedGovernanceExpirationTimestamp',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"getProposal"`
+ */
+export const useReadGovernorGetProposal = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'getProposal',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"getVotes"`
+ */
+export const useReadGovernorGetVotes = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'getVotes',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"hashProposal"`
+ */
+export const useReadGovernorHashProposal = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'hashProposal',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"nonce"`
+ */
+export const useReadGovernorNonce = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'nonce',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"owner"`
+ */
+export const useReadGovernorOwner = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"pendingOwner"`
+ */
+export const useReadGovernorPendingOwner = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'pendingOwner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalDeadline"`
+ */
+export const useReadGovernorProposalDeadline =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'proposalDeadline',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalEta"`
+ */
+export const useReadGovernorProposalEta = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'proposalEta',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalSnapshot"`
+ */
+export const useReadGovernorProposalSnapshot =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'proposalSnapshot',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalThreshold"`
+ */
+export const useReadGovernorProposalThreshold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'proposalThreshold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalThresholdBps"`
+ */
+export const useReadGovernorProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'proposalThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proposalVotes"`
+ */
+export const useReadGovernorProposalVotes = /*#__PURE__*/ createUseReadContract(
+  { abi: governorAbi, address: governorAddress, functionName: 'proposalVotes' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadGovernorProxiableUuid = /*#__PURE__*/ createUseReadContract(
+  { abi: governorAbi, address: governorAddress, functionName: 'proxiableUUID' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"quorum"`
+ */
+export const useReadGovernorQuorum = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'quorum',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"quorumThresholdBps"`
+ */
+export const useReadGovernorQuorumThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'quorumThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"state"`
+ */
+export const useReadGovernorState = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'state',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"token"`
+ */
+export const useReadGovernorToken = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'token',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"treasury"`
+ */
+export const useReadGovernorTreasury = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'treasury',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"vetoer"`
+ */
+export const useReadGovernorVetoer = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'vetoer',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"votingDelay"`
+ */
+export const useReadGovernorVotingDelay = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'votingDelay',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"votingPeriod"`
+ */
+export const useReadGovernorVotingPeriod = /*#__PURE__*/ createUseReadContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'votingPeriod',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__
+ */
+export const useWriteGovernor = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"acceptOwnership"`
+ */
+export const useWriteGovernorAcceptOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'acceptOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"burnVetoer"`
+ */
+export const useWriteGovernorBurnVetoer = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'burnVetoer',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"cancel"`
+ */
+export const useWriteGovernorCancel = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'cancel',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"cancelOwnershipTransfer"`
+ */
+export const useWriteGovernorCancelOwnershipTransfer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'cancelOwnershipTransfer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVote"`
+ */
+export const useWriteGovernorCastVote = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'castVote',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVoteBySig"`
+ */
+export const useWriteGovernorCastVoteBySig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ */
+export const useWriteGovernorCastVoteWithReason =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"execute"`
+ */
+export const useWriteGovernorExecute = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'execute',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteGovernorInitialize = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'initialize',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"propose"`
+ */
+export const useWriteGovernorPropose = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'propose',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"queue"`
+ */
+export const useWriteGovernorQueue = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'queue',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"safeTransferOwnership"`
+ */
+export const useWriteGovernorSafeTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'safeTransferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useWriteGovernorTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateDelayedGovernanceExpirationTimestamp"`
+ */
+export const useWriteGovernorUpdateDelayedGovernanceExpirationTimestamp =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateDelayedGovernanceExpirationTimestamp',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateProposalThresholdBps"`
+ */
+export const useWriteGovernorUpdateProposalThresholdBps =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateProposalThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateQuorumThresholdBps"`
+ */
+export const useWriteGovernorUpdateQuorumThresholdBps =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateQuorumThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVetoer"`
+ */
+export const useWriteGovernorUpdateVetoer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVetoer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVotingDelay"`
+ */
+export const useWriteGovernorUpdateVotingDelay =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVotingDelay',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVotingPeriod"`
+ */
+export const useWriteGovernorUpdateVotingPeriod =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVotingPeriod',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"upgradeTo"`
+ */
+export const useWriteGovernorUpgradeTo = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteGovernorUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"veto"`
+ */
+export const useWriteGovernorVeto = /*#__PURE__*/ createUseWriteContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'veto',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__
+ */
+export const useSimulateGovernor = /*#__PURE__*/ createUseSimulateContract({
+  abi: governorAbi,
+  address: governorAddress,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"acceptOwnership"`
+ */
+export const useSimulateGovernorAcceptOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'acceptOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"burnVetoer"`
+ */
+export const useSimulateGovernorBurnVetoer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'burnVetoer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"cancel"`
+ */
+export const useSimulateGovernorCancel =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'cancel',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"cancelOwnershipTransfer"`
+ */
+export const useSimulateGovernorCancelOwnershipTransfer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'cancelOwnershipTransfer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVote"`
+ */
+export const useSimulateGovernorCastVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'castVote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVoteBySig"`
+ */
+export const useSimulateGovernorCastVoteBySig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ */
+export const useSimulateGovernorCastVoteWithReason =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"execute"`
+ */
+export const useSimulateGovernorExecute =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'execute',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateGovernorInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"propose"`
+ */
+export const useSimulateGovernorPropose =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'propose',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"queue"`
+ */
+export const useSimulateGovernorQueue = /*#__PURE__*/ createUseSimulateContract(
+  { abi: governorAbi, address: governorAddress, functionName: 'queue' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"safeTransferOwnership"`
+ */
+export const useSimulateGovernorSafeTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'safeTransferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useSimulateGovernorTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateDelayedGovernanceExpirationTimestamp"`
+ */
+export const useSimulateGovernorUpdateDelayedGovernanceExpirationTimestamp =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateDelayedGovernanceExpirationTimestamp',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateProposalThresholdBps"`
+ */
+export const useSimulateGovernorUpdateProposalThresholdBps =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateProposalThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateQuorumThresholdBps"`
+ */
+export const useSimulateGovernorUpdateQuorumThresholdBps =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateQuorumThresholdBps',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVetoer"`
+ */
+export const useSimulateGovernorUpdateVetoer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVetoer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVotingDelay"`
+ */
+export const useSimulateGovernorUpdateVotingDelay =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVotingDelay',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"updateVotingPeriod"`
+ */
+export const useSimulateGovernorUpdateVotingPeriod =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'updateVotingPeriod',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"upgradeTo"`
+ */
+export const useSimulateGovernorUpgradeTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateGovernorUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: governorAbi,
+    address: governorAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link governorAbi}__ and `functionName` set to `"veto"`
+ */
+export const useSimulateGovernorVeto = /*#__PURE__*/ createUseSimulateContract({
+  abi: governorAbi,
+  address: governorAddress,
+  functionName: 'veto',
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__
+ */
+export const useWatchGovernorEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: governorAbi,
+  address: governorAddress,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"DelayedGovernanceExpirationTimestampUpdated"`
+ */
+export const useWatchGovernorDelayedGovernanceExpirationTimestampUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'DelayedGovernanceExpirationTimestampUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchGovernorInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'Initialized',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"OwnerCanceled"`
+ */
+export const useWatchGovernorOwnerCanceledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'OwnerCanceled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"OwnerPending"`
+ */
+export const useWatchGovernorOwnerPendingEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'OwnerPending',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"OwnerUpdated"`
+ */
+export const useWatchGovernorOwnerUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'OwnerUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalCanceled"`
+ */
+export const useWatchGovernorProposalCanceledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalCanceled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalCreated"`
+ */
+export const useWatchGovernorProposalCreatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalCreated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalExecuted"`
+ */
+export const useWatchGovernorProposalExecutedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalExecuted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalQueued"`
+ */
+export const useWatchGovernorProposalQueuedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalQueued',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalThresholdBpsUpdated"`
+ */
+export const useWatchGovernorProposalThresholdBpsUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalThresholdBpsUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"ProposalVetoed"`
+ */
+export const useWatchGovernorProposalVetoedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'ProposalVetoed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"QuorumVotesBpsUpdated"`
+ */
+export const useWatchGovernorQuorumVotesBpsUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'QuorumVotesBpsUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchGovernorUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"VetoerUpdated"`
+ */
+export const useWatchGovernorVetoerUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'VetoerUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"VoteCast"`
+ */
+export const useWatchGovernorVoteCastEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'VoteCast',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"VotingDelayUpdated"`
+ */
+export const useWatchGovernorVotingDelayUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'VotingDelayUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link governorAbi}__ and `eventName` set to `"VotingPeriodUpdated"`
+ */
+export const useWatchGovernorVotingPeriodUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: governorAbi,
+    address: governorAddress,
+    eventName: 'VotingPeriodUpdated',
   })
 
 /**

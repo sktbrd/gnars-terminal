@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client';
-import apolloClient from '@/utils/apollo';
+import apolloClient, { noCacheApolloClient } from '@/utils/apollo';
 import { Address } from 'viem';
 
 export interface Proposal {
-  proposalId: string;
+  proposalId: Address;
   proposalNumber: number;
   title: string;
   proposer: Address;
@@ -67,7 +67,7 @@ export async function fetchProposals(
   const _where = { dao: address.toLocaleLowerCase(), ...where };
 
   try {
-    let { data } = await apolloClient.query({
+    let { data } = await noCacheApolloClient.query({
       query: GET_DATA,
       variables: {
         where: _where,

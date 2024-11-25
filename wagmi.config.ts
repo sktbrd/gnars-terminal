@@ -3,6 +3,7 @@ import { etherscan, react } from '@wagmi/cli/plugins';
 import { Address } from 'viem';
 import AUCTION_ABI from '@/utils/abis/auction';
 import TOKEN_ABI from '@/utils/abis/token';
+import GOVERNOR_ABI from '@/utils/abis/governor';
 
 export default defineConfig(() => {
   const env = loadEnv({
@@ -29,6 +30,11 @@ export default defineConfig(() => {
         name: 'Token',
         abi: TOKEN_ABI,
         address: DAO_ADDRESSES.token,
+      },
+      {
+        name: 'Governor',
+        abi: GOVERNOR_ABI,
+        address: DAO_ADDRESSES.governor,
       },
     ],
     plugins: [react()],

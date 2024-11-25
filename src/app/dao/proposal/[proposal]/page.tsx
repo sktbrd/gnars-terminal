@@ -1,6 +1,9 @@
 import { fetchProposals } from '@/app/services/proposal';
+import AccountCard from '@/components/cards/account';
+import CastVote from '@/components/proposal/castVote';
 import Markdown from '@/components/proposal/markdown';
 import ProposalStatus from '@/components/proposal/status';
+import { Button } from '@/components/ui/button';
 import { ColorModeButton } from '@/components/ui/color-mode';
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
@@ -40,6 +43,8 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
     true
   );
 
+  console.log({ proposals });
+
   if (proposals.length === 0) {
     return notFound();
   }
@@ -68,6 +73,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
           <ColorModeButton variant={'outline'} />
         </HStack>
       </HStack>
+      <AccountCard />
       <Box
         shadow={'sm'}
         w={'full'}
@@ -87,7 +93,6 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
         </Heading>
         <HStack>
           <Box
-            key={proposal.proposalId}
             borderWidth={1}
             borderRadius={'md'}
             px={4}
@@ -104,7 +109,6 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             </Text>
           </Box>
           <Box
-            key={proposal.proposalId}
             borderWidth={1}
             borderRadius={'md'}
             px={4}
@@ -135,6 +139,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             </Text>
           </Box>
         </HStack>
+        <CastVote proposal={proposal} />
       </Box>
       <Box
         shadow={'sm'}
