@@ -6,7 +6,6 @@ import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
 import {
   Box,
-  Container,
   Heading,
   HStack,
   IconButton,
@@ -48,136 +47,118 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
   const proposal = proposals[0];
 
   return (
-    <Box
-      minH={'100vh'}
-      bg={'bg.panel'}
-      colorPalette={'yellow'}
-      color={{ base: 'black', _dark: 'white' }}
-      padding={4}
-    >
-      <Container maxW={'2xl'}>
-        <VStack gap={4} align={'start'}>
-          <HStack w={'full'} justify={'space-between'}>
-            <HStack>
-              <Link href='/'>
-                <IconButton
-                  variant={'ghost'}
-                  colorPalette={'black'}
-                  size={'sm'}
-                >
-                  <FaArrowLeft style={{ background: 'none' }} />
-                </IconButton>
-              </Link>
-              <Heading size={'4xl'} as='h1'>
-                Proposal {params.proposal}
-              </Heading>
-            </HStack>
-            <HStack>
-              <Link href='https://github.com/r4topunk/gnars-terminal'>
-                <IconButton
-                  variant={'outline'}
-                  colorPalette={'black'}
-                  size={'sm'}
-                >
-                  <BsGithub style={{ background: 'none' }} />
-                </IconButton>
-              </Link>
-              <ColorModeButton variant={'outline'} />
-            </HStack>
-          </HStack>
+    <VStack gap={4} align={'start'}>
+      <HStack w={'full'} justify={'space-between'}>
+        <HStack>
+          <Link href='/'>
+            <IconButton variant={'ghost'} colorPalette={'black'} size={'sm'}>
+              <FaArrowLeft style={{ background: 'none' }} />
+            </IconButton>
+          </Link>
+          <Heading size={'4xl'} as='h1'>
+            Proposal {params.proposal}
+          </Heading>
+        </HStack>
+        <HStack>
+          <Link href='https://github.com/r4topunk/gnars-terminal'>
+            <IconButton variant={'outline'} colorPalette={'black'} size={'sm'}>
+              <BsGithub style={{ background: 'none' }} />
+            </IconButton>
+          </Link>
+          <ColorModeButton variant={'outline'} />
+        </HStack>
+      </HStack>
+      <Box
+        shadow={'sm'}
+        w={'full'}
+        padding={4}
+        rounded={'md'}
+        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+        display={'flex'}
+        flexDirection={'column'}
+        gap={2}
+      >
+        <HStack>
+          <ProposalStatus proposal={proposal} />
+          <FormattedAddress address={proposal.proposer} />
+        </HStack>
+        <Heading size={'2xl'} as='h2'>
+          {proposal.title}
+        </Heading>
+        <HStack>
           <Box
-            shadow={'sm'}
-            w={'full'}
-            padding={4}
-            rounded={'md'}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={2}
-          >
-            <HStack>
-              <ProposalStatus proposal={proposal} />
-              <FormattedAddress address={proposal.proposer} />
-            </HStack>
-            <Heading size={'2xl'} as='h2'>
-              {proposal.title}
-            </Heading>
-            <HStack>
-              <Box
-                key={proposal.proposalId}
-                borderWidth={1}
-                borderRadius={'md'}
-                px={4}
-                py={2}
-                w={'full'}
-                bg={'bg.subtle'}
-              >
-                <Heading size={'md'}>For</Heading>
-                <Text
-                  fontWeight={'bold'}
-                  color={proposal.forVotes > 0 ? 'green.500' : 'fg.subtle'}
-                >
-                  {proposal.forVotes}
-                </Text>
-              </Box>
-              <Box
-                key={proposal.proposalId}
-                borderWidth={1}
-                borderRadius={'md'}
-                px={4}
-                py={2}
-                w={'full'}
-                bg={'bg.subtle'}
-              >
-                <Heading size={'md'}>Against</Heading>
-                <Text
-                  fontWeight={'bold'}
-                  color={proposal.againstVotes > 0 ? 'red.500' : 'fg.subtle'}
-                >
-                  {proposal.againstVotes}
-                </Text>
-              </Box>
-              <Box
-                key={proposal.proposalId}
-                borderWidth={1}
-                borderRadius={'md'}
-                px={4}
-                py={2}
-                w={'full'}
-                bg={'bg.subtle'}
-              >
-                <Heading size={'md'}>Abstain</Heading>
-                <Text fontWeight={'bold'} color={'fg.subtle'}>
-                  {proposal.abstainVotes}
-                </Text>
-              </Box>
-            </HStack>
-          </Box>
-          <Box
-            shadow={'sm'}
-            w={'full'}
-            padding={4}
-            rounded={'md'}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={2}
-          >
-            <Markdown text={proposal.description} />
-          </Box>
-          <Box
+            key={proposal.proposalId}
             borderWidth={1}
             borderRadius={'md'}
-            p={4}
-            mb={2}
+            px={4}
+            py={2}
+            w={'full'}
             bg={'bg.subtle'}
-            maxW={'full'}
-            overflow={'auto'}
           >
-            <pre>{JSON.stringify(proposals, null, 2)}</pre>
+            <Heading size={'md'}>For</Heading>
+            <Text
+              fontWeight={'bold'}
+              color={proposal.forVotes > 0 ? 'green.500' : 'fg.subtle'}
+            >
+              {proposal.forVotes}
+            </Text>
           </Box>
-        </VStack>
-      </Container>
-    </Box>
+          <Box
+            key={proposal.proposalId}
+            borderWidth={1}
+            borderRadius={'md'}
+            px={4}
+            py={2}
+            w={'full'}
+            bg={'bg.subtle'}
+          >
+            <Heading size={'md'}>Against</Heading>
+            <Text
+              fontWeight={'bold'}
+              color={proposal.againstVotes > 0 ? 'red.500' : 'fg.subtle'}
+            >
+              {proposal.againstVotes}
+            </Text>
+          </Box>
+          <Box
+            key={proposal.proposalId}
+            borderWidth={1}
+            borderRadius={'md'}
+            px={4}
+            py={2}
+            w={'full'}
+            bg={'bg.subtle'}
+          >
+            <Heading size={'md'}>Abstain</Heading>
+            <Text fontWeight={'bold'} color={'fg.subtle'}>
+              {proposal.abstainVotes}
+            </Text>
+          </Box>
+        </HStack>
+      </Box>
+      <Box
+        shadow={'sm'}
+        w={'full'}
+        padding={4}
+        rounded={'md'}
+        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+        display={'flex'}
+        flexDirection={'column'}
+        gap={2}
+      >
+        <Markdown text={proposal.description} />
+      </Box>
+      <Box
+        borderWidth={1}
+        borderRadius={'md'}
+        p={4}
+        mb={2}
+        bg={'bg.subtle'}
+        maxW={'full'}
+        overflow={'auto'}
+      >
+        <pre>{JSON.stringify(proposals, null, 2)}</pre>
+      </Box>
+    </VStack>
   );
 }

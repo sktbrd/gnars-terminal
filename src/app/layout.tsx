@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { type ReactNode } from 'react';
 import { cookieToInitialState } from 'wagmi';
 import { Providers } from '@/components/layout/providers';
+import { Box, Container } from '@chakra-ui/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +23,17 @@ export default function RootLayout(props: { children: ReactNode }) {
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={inter.className} style={{ minHeight: '100vh' }}>
-        <Providers initialState={initialState}>{props.children}</Providers>
+        <Providers initialState={initialState}>
+          <Box
+            minH={'100vh'}
+            bg={'bg.panel'}
+            colorPalette={'yellow'}
+            color={{ base: 'black', _dark: 'white' }}
+            paddingBlock={{ base: 2, md: 4 }}
+          >
+            <Container maxW={'2xl'}>{props.children}</Container>
+          </Box>
+        </Providers>
       </body>
     </html>
   );
