@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "wagmi generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
