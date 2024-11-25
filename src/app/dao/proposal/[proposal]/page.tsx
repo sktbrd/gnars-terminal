@@ -3,7 +3,6 @@ import AccountCard from '@/components/cards/account';
 import CastVote from '@/components/proposal/castVote';
 import Markdown from '@/components/proposal/markdown';
 import ProposalStatus from '@/components/proposal/status';
-import { Button } from '@/components/ui/button';
 import { ColorModeButton } from '@/components/ui/color-mode';
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
@@ -42,8 +41,6 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
     { proposalNumber },
     true
   );
-
-  console.log({ proposals });
 
   if (proposals.length === 0) {
     return notFound();
@@ -134,7 +131,10 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             bg={'bg.subtle'}
           >
             <Heading size={'md'}>Abstain</Heading>
-            <Text fontWeight={'bold'} color={'fg.subtle'}>
+            <Text
+              fontWeight={'bold'}
+              color={proposal.abstainVotes > 0 ? 'yellow.500' : 'fg.subtle'}
+            >
               {proposal.abstainVotes}
             </Text>
           </Box>

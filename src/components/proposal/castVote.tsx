@@ -15,8 +15,8 @@ import {
   useWriteGovernorCastVote,
   useWriteGovernorCastVoteWithReason,
 } from '@/hooks/wagmiGenerated';
-import { HStack, Textarea, VStack } from '@chakra-ui/react';
-import { useCallback, useState } from 'react';
+import { HStack, Text, Textarea, VStack } from '@chakra-ui/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Field } from '../ui/field';
 import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
@@ -24,6 +24,8 @@ import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { LuExternalLink } from 'react-icons/lu';
+import { useAccount } from 'wagmi';
+import { zeroAddress } from 'viem';
 
 interface CastVoteProps {
   proposal: Proposal;
@@ -31,7 +33,27 @@ interface CastVoteProps {
 
 type Vote = 'For' | 'Against' | 'Abstain';
 
+const voteMap = {
+  FOR: {
+    label: 'For',
+    color: 'green.500',
+  },
+  AGAINST: {
+    label: 'Against',
+    color: 'red.500',
+  },
+  ABSTAIN: {
+    label: 'Abstain',
+    color: 'yellow.500',
+  },
+};
+
 export default function CastVote({ proposal }: CastVoteProps) {
+  const account = useAccount();
+  const userAddress = account.address
+    ? account.address.toLocaleLowerCase()
+    : zeroAddress;
+
   const [vote, setVote] = useState<Vote | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [reason, setReason] = useState<string>('');
@@ -39,8 +61,18 @@ export default function CastVote({ proposal }: CastVoteProps) {
 
   // 0 = Against, 1 = For, 2 = Abstain
   const voteValue = vote === 'For' ? 1n : vote === 'Against' ? 0n : 2n;
-
   const disableFields = txHash !== null || loading;
+  const voteStarted =
+    new Date().getTime() > parseInt(proposal.voteStart) * 1000;
+  const voteEnded = new Date().getTime() > parseInt(proposal.voteEnd) * 1000;
+
+  const userVote = proposal.votes.find(
+    (vote) => vote.voter.toLocaleLowerCase() === userAddress
+  );
+
+  useEffect(() => {
+    console.log({ votes: proposal.votes, userVote, addr: account.address });
+  }, [account, userVote]);
 
   const { writeContractAsync: writeCastVote } = useWriteGovernorCastVote();
   const { writeContractAsync: writeCastVoteReason } =
@@ -73,10 +105,27 @@ export default function CastVote({ proposal }: CastVoteProps) {
     }
   }, [writeCastVote, vote, reason]);
 
+  if (userVote) {
+    return (
+      <Text w={'full'} textAlign={'center'} mt={3} fontWeight={'medium'}>
+        You voted{' '}
+        <Text asChild color={voteMap[userVote.support].color}>
+          <span>{voteMap[userVote.support].label}</span>
+        </Text>{' '}
+        with {userVote.weight} votes
+      </Text>
+    );
+  }
+
   return (
     <DialogRoot placement={'center'} motionPreset='slide-in-bottom'>
       <DialogTrigger asChild>
-        <Button size={'lg'} w={'full'} variant={'solid'}>
+        <Button
+          size={'lg'}
+          w={'full'}
+          variant={'solid'}
+          disabled={!voteStarted || voteEnded}
+        >
           Submit Votes
         </Button>
       </DialogTrigger>
@@ -118,9 +167,6 @@ export default function CastVote({ proposal }: CastVoteProps) {
           </VStack>
         </DialogBody>
         <DialogFooter>
-          {/* <DialogActionTrigger asChild>
-            <Button variant='outline'>Cancel</Button>
-          </DialogActionTrigger> */}
           <VStack w={'full'}>
             <Button
               loading={loading}

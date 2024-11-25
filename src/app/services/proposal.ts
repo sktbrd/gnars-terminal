@@ -20,6 +20,14 @@ export interface Proposal {
   canceled: boolean;
   vetoed: boolean;
   description?: string;
+  votes: Vote[];
+}
+
+interface Vote {
+  weight: string;
+  voter: Address;
+  support: 'FOR' | 'AGAINST' | 'ABSTAIN';
+  reason: string;
 }
 
 const GET_DATA = gql`
@@ -52,6 +60,12 @@ const GET_DATA = gql`
       vetoed
       voteCount
       description
+      votes {
+        weight
+        voter
+        support
+        reason
+      }
     }
   }
 `;
