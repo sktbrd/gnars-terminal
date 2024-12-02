@@ -1,4 +1,4 @@
-import { parseEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 
 const SPARK_TO_ETH_MULTIPLIER = 1e6; // 1 Spark = 10^-6 ETH
 
@@ -16,6 +16,6 @@ function sparksToWei(sparks: number): bigint {
   return parseEther(convertSparksToEth(sparks.toString()));
 }
 
-function weiToSparks(wei: bigint): string {
-  return convertEthToSparks(wei.toString());
+export function weiToSparks(wei: bigint): string {
+  return convertEthToSparks(formatEther(wei));
 }
