@@ -1,8 +1,11 @@
+'use client';
+
 import { ColorModeButton } from '@/components/ui/color-mode';
 import { Heading, HStack, IconButton } from '@chakra-ui/react';
 import Link from 'next/link';
 import { BsGithub } from 'react-icons/bs';
 import ConnectButton from './connect-button';
+import Sparks from './sparks';
 
 export default function Navbar() {
   return (
@@ -20,6 +23,7 @@ export default function Navbar() {
         </Link>
         <ColorModeButton variant={'ghost'} />
         <ConnectButton />
+        <Sparks />
       </HStack>
     </HStack>
   );
