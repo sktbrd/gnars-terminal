@@ -1,23 +1,11 @@
 import { fetchProposals } from '@/app/services/proposal';
-import AccountCard from '@/components/cards/account';
 import CastVote from '@/components/proposal/castVote';
 import Markdown from '@/components/proposal/markdown';
 import ProposalStatus from '@/components/proposal/status';
-import { ColorModeButton } from '@/components/ui/color-mode';
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
-import {
-  Box,
-  Heading,
-  HStack,
-  IconButton,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import Link from 'next/link';
+import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import { notFound } from 'next/navigation';
-import { BsGithub } from 'react-icons/bs';
-import { FaArrowLeft } from 'react-icons/fa';
 
 // @fix React Markdown is not rendering with styles
 
@@ -50,27 +38,6 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
 
   return (
     <VStack gap={4} align={'start'}>
-      <HStack w={'full'} justify={'space-between'}>
-        <HStack>
-          <Link href='/'>
-            <IconButton variant={'ghost'} colorPalette={'black'} size={'sm'}>
-              <FaArrowLeft style={{ background: 'none' }} />
-            </IconButton>
-          </Link>
-          <Heading size={'4xl'} as='h1'>
-            Proposal {params.proposal}
-          </Heading>
-        </HStack>
-        <HStack>
-          <Link href='https://github.com/r4topunk/gnars-terminal'>
-            <IconButton variant={'outline'} colorPalette={'black'} size={'sm'}>
-              <BsGithub style={{ background: 'none' }} />
-            </IconButton>
-          </Link>
-          <ColorModeButton variant={'outline'} />
-        </HStack>
-      </HStack>
-      <AccountCard />
       <Box
         shadow={'sm'}
         w={'full'}
@@ -81,11 +48,16 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
         flexDirection={'column'}
         gap={2}
       >
-        <HStack>
-          <ProposalStatus proposal={proposal} />
-          <FormattedAddress address={proposal.proposer} />
+        <HStack justify={'space-between'}>
+          <Heading size={'md'} as='h2'>
+            Proposal {params.proposal}
+          </Heading>
+          <HStack>
+            <FormattedAddress address={proposal.proposer} />
+            <ProposalStatus proposal={proposal} />
+          </HStack>
         </HStack>
-        <Heading size={'2xl'} as='h2'>
+        <Heading size={'4xl'} as='h1'>
           {proposal.title}
         </Heading>
         <HStack>
