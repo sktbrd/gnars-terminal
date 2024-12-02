@@ -64,10 +64,6 @@ export function AuctionBid(props: BidProps) {
     }
   }, [writeSettle]);
 
-  if (account.isDisconnected) {
-    return null;
-  }
-
   return (
     <VStack align={'stretch'} gap={0} w={'full'}>
       <HStack mt={4} w={'full'}>
@@ -77,18 +73,27 @@ export function AuctionBid(props: BidProps) {
           defaultValue={bidValue}
           step={0.0001}
           onValueChange={(datails) => setBidValue(datails.value)}
+          disabled={account.isDisconnected}
         >
           <NumberInputField />
         </NumberInputRoot>
         <Button
           variant={'subtle'}
           onClick={onClickBid}
-          disabled={!isAuctionRunning || parseEther(bidValue) < winningBid}
+          disabled={
+            account.isDisconnected ||
+            !isAuctionRunning ||
+            parseEther(bidValue) < winningBid
+          }
         >
           Bid
         </Button>
         {!isAuctionRunning && (
-          <Button variant={'subtle'} onClick={onClickSettle}>
+          <Button
+            variant={'subtle'}
+            onClick={onClickSettle}
+            disabled={account.isDisconnected}
+          >
             Settle
           </Button>
         )}
