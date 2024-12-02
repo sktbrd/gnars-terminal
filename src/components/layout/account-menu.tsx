@@ -81,7 +81,7 @@ export default function AccountMenu() {
           _hover={{ bg: 'bg.error', color: 'fg.error' }}
           onClick={() => disconnect()}
         >
-          <LuLogOut width={2} height={2} style={{ marginRight: '4px' }} />
+          <LuLogOut width={2} height={2} />
           Disconnect
         </MenuItem>
       </MenuContent>
