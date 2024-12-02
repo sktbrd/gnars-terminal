@@ -7,6 +7,7 @@ import { type ReactNode } from 'react';
 import { cookieToInitialState } from 'wagmi';
 import { Providers } from '@/components/layout/providers';
 import { Box, Container } from '@chakra-ui/react';
+import Navbar from '@/components/layout/navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,6 +25,7 @@ export default function RootLayout(props: { children: ReactNode }) {
     <html lang='en' suppressHydrationWarning>
       <body className={inter.className} style={{ minHeight: '100vh' }}>
         <Providers initialState={initialState}>
+          <Navbar />
           <Box
             minH={'100vh'}
             bg={'bg.panel'}

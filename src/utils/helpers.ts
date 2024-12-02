@@ -9,7 +9,7 @@ export function toObject(json?: object, space?: number) {
   );
 }
 
-export function formatEthAddress(address?: string): string {
+export function formatEthAddress(address?: string, size: number = 4): string {
   if (!address) address = zeroAddress;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address.slice(0, 2 + size)}...${address.slice(-size)}`;
 }
