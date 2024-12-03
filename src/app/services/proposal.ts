@@ -2,27 +2,39 @@ import { gql } from '@apollo/client';
 import apolloClient, { noCacheApolloClient } from '@/utils/apollo';
 import { Address } from 'viem';
 
-export interface Proposal {
-  proposalId: Address;
-  proposalNumber: number;
-  title: string;
-  proposer: Address;
-  timeCreated: string;
-  againstVotes: number;
-  voteCount: number;
-  quorumVotes: string;
+export type Proposal = {
+  proposalId: `0x${string}`;
+  description: string;
   forVotes: number;
+  againstVotes: number;
   abstainVotes: number;
-  voteStart: string;
-  voteEnd: string;
-  queued: boolean;
-  executed: boolean;
-  canceled: boolean;
-  vetoed: boolean;
-  description?: string;
-  votes: Vote[];
-}
-
+  expiresAt: number | null;
+  proposalNumber: number;
+  proposer: `0x${string}`;
+  quorumVotes: number;
+  snapshotBlockNumber: number;
+  status: string;
+  title: string;
+  transactionHash: `0x${string}`;
+  voteEnd: number;
+  voteStart: number;
+  calldatas: string;
+  descriptionHash: `0x${string}`;
+  executableFrom: number;
+  targets: string[];
+  values: string[];
+  timeCreated: number;
+  dao: {
+    id: `0x${string}`;
+    name: string;
+  };
+  votes: {
+    voter: `0x${string}`;
+    support: number;
+    weight: number;
+    reason: string;
+  }[];
+};
 interface Vote {
   weight: string;
   voter: Address;
@@ -52,6 +64,9 @@ const GET_DATA = gql`
       againstVotes
       forVotes
       abstainVotes
+      calldatas
+      values
+      targets
       voteStart
       voteEnd
       queued
