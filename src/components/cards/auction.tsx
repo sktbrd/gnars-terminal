@@ -1,10 +1,19 @@
 import { fetchAuction } from '@/services/auction';
 import { DAO_ADDRESSES } from '@/utils/constants';
-import { Code, Heading, Image, Stack, Text, VStack } from '@chakra-ui/react';
+import {
+  Badge,
+  Code,
+  Heading,
+  Image,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { default as NextImage } from 'next/image';
 import { formatEther } from 'viem';
 import { AuctionBid } from '../auction/bid';
 import { FormattedAddress } from '../utils/ethereum';
+import { weiToSparks } from '@/utils/spark';
 
 export default async function AuctionCard() {
   const auctions = await fetchAuction(
@@ -37,9 +46,9 @@ export default async function AuctionCard() {
             <VStack align={'start'} gap={1}>
               <Text>
                 Highest bid:{' '}
-                <Code colorPalette={'blue'} variant={'surface'} size={'sm'}>
-                  {formatEther(activeAuction.highestBid.amount)} ETH
-                </Code>
+                <Badge colorPalette={'blue'} variant={'surface'} size={'sm'}>
+                  ✧{weiToSparks(activeAuction.highestBid.amount)}{' '}
+                </Badge>
               </Text>
               <FormattedAddress
                 address={activeAuction.highestBid.bidder}

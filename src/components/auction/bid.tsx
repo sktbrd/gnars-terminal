@@ -4,14 +4,15 @@ import {
   useWriteAuctionCreateBid,
   useWriteAuctionSettleCurrentAndCreateNewAuction,
 } from '@/hooks/wagmiGenerated';
+import { convertSparksToEth } from '@/utils/spark';
 import { Button, Link as ChakraLink, HStack, VStack } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useCallback, useState } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
-import { formatEther, parseEther } from 'viem';
+import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 import { NumberInputField, NumberInputRoot } from '../ui/number-input';
-import { revalidatePath } from 'next/cache';
+import { Tooltip } from '../ui/tooltip';
 
 interface BidProps {
   tokenId: bigint;
@@ -26,16 +27,14 @@ export function AuctionBid(props: BidProps) {
   const [txHash, setTxHash] = useState<string | null>(null);
 
   const account = useAccount();
-  const [bidValue, setBidValue] = useState(
-    formatEther(winningBid + parseEther('0.0001')).toString() || '0.0001'
-  );
+  const [bidValue, setBidValue] = useState('111');
 
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
     try {
       const txHash = await writeBid({
         args: [tokenId],
-        value: parseEther(bidValue),
+        value: parseEther(convertSparksToEth(bidValue)),
       });
       setTxHash(txHash);
     } catch (error) {
@@ -64,31 +63,49 @@ export function AuctionBid(props: BidProps) {
     }
   }, [writeSettle]);
 
-  if (account.isDisconnected) {
-    return null;
-  }
-
   return (
     <VStack align={'stretch'} gap={0} w={'full'}>
       <HStack mt={4} w={'full'}>
+        <Tooltip showArrow content='Sparks'>
+          <ChakraLink
+            asChild
+            variant={'plain'}
+            fontWeight={'bold'}
+            fontSize={'xl'}
+          >
+            <NextLink target='_blank' href={'https://zora.co/writings/sparks'}>
+              ✧
+            </NextLink>
+          </ChakraLink>
+        </Tooltip>
         <NumberInputRoot
           maxW={{ md: '120px' }}
           w={'full'}
           defaultValue={bidValue}
-          step={0.0001}
+          step={111}
           onValueChange={(datails) => setBidValue(datails.value)}
+          disabled={account.isDisconnected}
+          min={0}
         >
           <NumberInputField />
         </NumberInputRoot>
         <Button
           variant={'subtle'}
           onClick={onClickBid}
-          disabled={!isAuctionRunning || parseEther(bidValue) < winningBid}
+          disabled={
+            account.isDisconnected ||
+            !isAuctionRunning ||
+            parseEther(bidValue) < winningBid
+          }
         >
           Bid
         </Button>
         {!isAuctionRunning && (
-          <Button variant={'subtle'} onClick={onClickSettle}>
+          <Button
+            variant={'subtle'}
+            onClick={onClickSettle}
+            disabled={account.isDisconnected}
+          >
             Settle
           </Button>
         )}
