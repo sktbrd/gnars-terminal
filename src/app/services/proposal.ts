@@ -3,37 +3,37 @@ import apolloClient, { noCacheApolloClient } from '@/utils/apollo';
 import { Address } from 'viem';
 
 export type Proposal = {
-  proposalId: `0x${string}`;
+  proposalId: Address;
+  proposalNumber: number;
   description: string;
   forVotes: number;
   againstVotes: number;
   abstainVotes: number;
   expiresAt: number | null;
-  proposalNumber: number;
-  proposer: `0x${string}`;
-  quorumVotes: number;
+  proposer: Address;
   snapshotBlockNumber: number;
   status: string;
   title: string;
-  transactionHash: `0x${string}`;
-  voteEnd: number;
-  voteStart: number;
+  transactionHash: Address
+  voteEnd: string;
+  voteStart: string;
   calldatas: string;
-  descriptionHash: `0x${string}`;
+  descriptionHash: Address;
   executableFrom: number;
   targets: string[];
   values: string[];
   timeCreated: number;
+  executed: boolean;
+  canceled: boolean;
+  queued: boolean;
+  vetoed: boolean;
+  quorumVotes: string;
+  voteCount: number;
   dao: {
     id: `0x${string}`;
     name: string;
   };
-  votes: {
-    voter: `0x${string}`;
-    support: number;
-    weight: number;
-    reason: string;
-  }[];
+  votes: Vote[];
 };
 interface Vote {
   weight: string;
