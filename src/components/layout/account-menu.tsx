@@ -67,7 +67,7 @@ export default function AccountMenu() {
         </MenuItem>
         <MenuItem value='color-mode' onClick={toggleColorMode}>
           <ColorModeIcon />
-          Toogle Color Mode
+          Toggle Color Mode
         </MenuItem>
         <Link target='_blank' href='https://github.com/r4topunk/gnars-terminal'>
           <MenuItem value='github'>
