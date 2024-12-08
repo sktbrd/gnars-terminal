@@ -1,28 +1,22 @@
 import { fetchProposals } from '@/app/services/proposal';
 import CastVote from '@/components/proposal/castVote';
-import Markdown from '@/components/proposal/markdown';
 import ProposalStatus from '@/components/proposal/status';
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { DAO_ADDRESSES } from '@/utils/constants';
 import {
   Box,
-  Center,
   Heading,
   HStack,
-  IconButton,
-  Tabs,
   Text,
   VStack,
+  Tabs,
 } from '@chakra-ui/react';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BsGithub } from 'react-icons/bs';
-import { FaArrowLeft } from 'react-icons/fa';
 import { LuCheckSquare, LuFolder, LuUser } from 'react-icons/lu';
-import { json } from 'stream/consumers';
 
-
-// @fix React Markdown is not rendering with styles
+import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
+import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
+import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
 
 interface ProposalPageProps {
   params: {
@@ -52,7 +46,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
   const proposal = proposals[0];
 
   return (
-    <VStack gap={4} align={'start'}>
+    <VStack gap={4} align={'start'} w="full">
       <Box
         shadow={'sm'}
         w={'full'}
@@ -63,7 +57,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
         flexDirection={'column'}
         gap={2}
       >
-        <HStack justify={'space-between'}>
+        <HStack justify={'space-between'} w="full">
           <Heading size={'md'} as='h2'>
             Proposal {params.proposal}
           </Heading>
@@ -85,10 +79,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             bg={'bg.subtle'}
           >
             <Heading size={'md'}>For</Heading>
-            <Text
-              fontWeight={'bold'}
-              color={proposal.forVotes > 0 ? 'green.500' : 'fg.subtle'}
-            >
+            <Text fontWeight={'bold'} color={proposal.forVotes > 0 ? 'green.500' : 'fg.subtle'}>
               {proposal.forVotes}
             </Text>
           </Box>
@@ -101,10 +92,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             bg={'bg.subtle'}
           >
             <Heading size={'md'}>Against</Heading>
-            <Text
-              fontWeight={'bold'}
-              color={proposal.againstVotes > 0 ? 'red.500' : 'fg.subtle'}
-            >
+            <Text fontWeight={'bold'} color={proposal.againstVotes > 0 ? 'red.500' : 'fg.subtle'}>
               {proposal.againstVotes}
             </Text>
           </Box>
@@ -118,10 +106,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
             bg={'bg.subtle'}
           >
             <Heading size={'md'}>Abstain</Heading>
-            <Text
-              fontWeight={'bold'}
-              color={proposal.abstainVotes > 0 ? 'yellow.500' : 'fg.subtle'}
-            >
+            <Text fontWeight={'bold'} color={proposal.abstainVotes > 0 ? 'yellow.500' : 'fg.subtle'}>
               {proposal.abstainVotes}
             </Text>
           </Box>
@@ -129,80 +114,49 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
         <CastVote proposal={proposal} />
       </Box>
 
-      <Tabs.Root lazyMount defaultValue="description" variant={"enclosed"}>
-        <Center>
-          <Tabs.List>
-            <Tabs.Trigger value="description">
-              <LuUser />
-              Description
-            </Tabs.Trigger>
-            <Tabs.Trigger value="votes">
-              <LuFolder />
-              Votes
-            </Tabs.Trigger>
-            <Tabs.Trigger value="transactions">
-              <LuCheckSquare />
-              Transactions
-            </Tabs.Trigger>
-          </Tabs.List>
-        </Center>
+      <Tabs.Root lazyMount defaultValue="description" variant="enclosed" w="full">
+        <Tabs.List display="flex" justifyContent="center" gap={4}>
+          <Tabs.Trigger value="description" display="flex" alignItems="center">
+            <LuUser />
+            <Text ml={2}>Description</Text>
+          </Tabs.Trigger>
+          <Tabs.Trigger value="votes" display="flex" alignItems="center">
+            <LuFolder />
+            <Text ml={2}>Votes</Text>
+          </Tabs.Trigger>
+          <Tabs.Trigger value="transactions" display="flex" alignItems="center">
+            <LuCheckSquare />
+            <Text ml={2}>Transactions</Text>
+          </Tabs.Trigger>
+          <Tabs.Indicator />
+        </Tabs.List>
+
         <Tabs.Content value="description">
-          <Box
-            shadow={'sm'}
-            w={'full'}
-            padding={4}
-            rounded={'md'}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={2}
-          >
-            <Markdown text={proposal.description} />
-          </Box>
+          <ProposalDescriptionContent proposal={proposal} />
         </Tabs.Content>
+
         <Tabs.Content value="votes">
-          <Box
-            shadow={'sm'}
-            w={'full'}
-            padding={4}
-            rounded={'md'}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={2}
-          >
-            {proposal.votes.map((vote, index) => (
-              <Box key={index} borderWidth={1} borderRadius={'md'} px={4} py={2} w={'full'} bg={'bg.subtle'}>
-                <Text>Voter: {vote.voter}</Text>
-                <Text>Support: {vote.support}</Text>
-                <Text>Weight: {vote.weight}</Text>
-                <Text>Reason: {vote.reason}</Text>
-              </Box>
-            ))}
-          </Box>
+          <ProposalVotesContent proposal={proposal} />
         </Tabs.Content>
+
         <Tabs.Content value="transactions">
+          {/* Example of handling long text by wrapping or scrolling */}
           <Box
             shadow={'sm'}
             maxW={'100%'}
-            minW={'100%'}
             padding={4}
             rounded={'md'}
             _dark={{ borderColor: 'yellow', borderWidth: 1 }}
             display={'flex'}
             flexDirection={'column'}
             gap={2}
-            flexWrap={'wrap'}
+            whiteSpace="pre-wrap"    // Allows wrapping
+            wordBreak="break-all"    // Break words if needed
           >
             {proposal.calldatas}
           </Box>
         </Tabs.Content>
-
-
       </Tabs.Root>
-
-
-
     </VStack>
   );
 }
