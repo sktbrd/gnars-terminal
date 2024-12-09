@@ -1,9 +1,14 @@
-import { Proposal } from '@/app/services/proposal';
 import { Box, VStack, Heading, Text } from '@chakra-ui/react';
+import { decodeUsdcTransaction } from './transactions/utils/decodeUsdcTransaction';
 import EthTransferTransaction from './transactions/EthTransferTransaction';
+import { Address } from 'viem';
 
 interface ProposalTransactionsContentProps {
-    proposal: Proposal;
+    proposal: {
+        targets: string[];
+        values: string[];
+        calldatas: string[] | string; // Allow both string[] and delimited string
+    };
 }
 
 function TransactionItem({
@@ -14,30 +19,73 @@ function TransactionItem({
 }: {
     index: number;
     target: string;
-    value: BigInt;
-    calldata: string;
+    value: string;
+    calldata: Address;
 }) {
-    // Normalize calldata to ensure it is consistent
-    const normalizedCalldata = calldata === '0' ? '0x' : calldata;
+    // Normalize calldata to ensure consistency
+    const normalizedCalldata =
+        calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
 
-    if (normalizedCalldata === '0x') {
-        // ETH Transfer transaction
-        return <EthTransferTransaction toAddress={target as `0x${string}`} value={value} />;
+    // Validate calldata before decoding
+    const isCalldataValid = normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
+
+    // Identify USDC transaction by decoding calldata (only if calldata is valid)
+    const usdcTransaction = isCalldataValid
+        ? decodeUsdcTransaction(normalizedCalldata)
+        : null;
+    if (usdcTransaction) {
+        const { to, value: decodedValue } = usdcTransaction;
+
+        // Format USDC value (divide by 10^6)
+        const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 6)).toString();
+
+        return (
+            <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
+                <Heading size="sm" mb={2}>
+                    Transaction {index + 1}: USDC Transfer
+                </Heading>
+                <Text>
+                    <strong>To:</strong> {to}
+                </Text>
+                <Text>
+                    <strong>Value:</strong> {formattedValue} USDC
+                </Text>
+            </Box>
+        );
     }
 
-    // Render generic transaction details for other types
-    let transactionType = 'Generic Transfer';
-    if (target === process.env.USDC_ADDRESS) {
-        transactionType = 'USDC Transaction';
-    } else if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
+    // Handle Ethereum transfer transaction based on normalized calldata and target
+    if (normalizedCalldata === '0x' && value !== '0') {
+        return (
+            <EthTransferTransaction
+                toAddress={target as `0x${string}`}
+                value={BigInt(value)}
+            />
+        );
+    }
+
+    // Handle hardcoded targets (e.g., Mint Batch)
+    let transactionType = 'Generic Transfer'; // Default type
+    if (target === "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17") {
         transactionType = 'Mint Batch';
-    } else if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
+    } else if (target === "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c") {
         transactionType = 'Droposal';
     }
 
-    console.log('TransactionItem:', { index, target, value, calldata: normalizedCalldata }, transactionType);
+    console.log(
+        'Transaction type:',
+        transactionType,
+        'Target:',
+        target,
+        'Value:',
+        value,
+        'Calldata:',
+        normalizedCalldata
+    );
+
+    // Fallback for unsupported transaction types
     return (
-        <Box p={4}>
+        <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
             <Heading size="sm" mb={2}>
                 Transaction {index + 1}: {transactionType}
             </Heading>
@@ -45,7 +93,7 @@ function TransactionItem({
                 <strong>Target:</strong> {target}
             </Text>
             <Text>
-                <strong>Value:</strong> {value.toString()} wei
+                <strong>Value:</strong> {value} wei
             </Text>
             <Text>
                 <strong>Calldata:</strong> {normalizedCalldata}
@@ -57,7 +105,24 @@ function TransactionItem({
 export default function ProposalTransactionsContent({ proposal }: ProposalTransactionsContentProps) {
     const { targets, values, calldatas } = proposal;
 
-    if (!targets || !values || !calldatas || targets.length === 0) {
+    // Parse `calldatas`: split if it’s a string, or use it directly if it’s an array
+    const parsedCalldatas = typeof calldatas === 'string' ? calldatas.split(':') : calldatas;
+
+    console.log('Parsed Proposal Transactions:', {
+        targets,
+        values,
+        parsedCalldatas,
+    });
+
+    if (
+        !targets ||
+        !values ||
+        !parsedCalldatas ||
+        targets.length === 0 ||
+        targets.length !== values.length ||
+        targets.length !== parsedCalldatas.length
+    ) {
+        console.error('Proposal data is inconsistent or missing!');
         return (
             <Box
                 shadow="sm"
@@ -91,8 +156,8 @@ export default function ProposalTransactionsContent({ proposal }: ProposalTransa
                     key={index}
                     index={index}
                     target={target}
-                    value={BigInt(values[index])}
-                    calldata={calldatas[index]}
+                    value={values[index]}
+                    calldata={parsedCalldatas[index] as Address} // Ensure calldata is of type `0x${string}`
                 />
             ))}
         </Box>
