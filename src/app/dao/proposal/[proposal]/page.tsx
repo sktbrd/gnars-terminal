@@ -1,4 +1,4 @@
-import { fetchProposals } from '@/app/services/proposal';
+import { fetchProposals, Proposal } from '@/app/services/proposal';
 import CastVote from '@/components/proposal/castVote';
 import ProposalStatus from '@/components/proposal/status';
 import { FormattedAddress } from '@/components/utils/ethereum';
@@ -12,15 +12,16 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import { notFound } from 'next/navigation';
-import { LuCheckSquare, LuFolder, LuUser } from 'react-icons/lu';
+import { LuScroll, LuVote } from 'react-icons/lu';
 
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
+import { FaEthereum } from 'react-icons/fa6';
 
 interface ProposalPageProps {
   params: {
-    proposal: string;
+    proposal: Proposal['proposalId'];
   };
 }
 
@@ -117,15 +118,15 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
       <Tabs.Root lazyMount defaultValue="description" variant="enclosed" w="full">
         <Tabs.List display="flex" justifyContent="center" gap={4}>
           <Tabs.Trigger value="description" display="flex" alignItems="center">
-            <LuUser />
+            <LuScroll />
             <Text ml={2}>Description</Text>
           </Tabs.Trigger>
           <Tabs.Trigger value="votes" display="flex" alignItems="center">
-            <LuFolder />
+            <LuVote />
             <Text ml={2}>Votes</Text>
           </Tabs.Trigger>
           <Tabs.Trigger value="transactions" display="flex" alignItems="center">
-            <LuCheckSquare />
+            <FaEthereum />
             <Text ml={2}>Transactions</Text>
           </Tabs.Trigger>
           <Tabs.Indicator />
@@ -140,22 +141,9 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
         </Tabs.Content>
 
         <Tabs.Content value="transactions">
-          {/* Example of handling long text by wrapping or scrolling */}
-          <Box
-            shadow={'sm'}
-            maxW={'100%'}
-            padding={4}
-            rounded={'md'}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={2}
-            whiteSpace="pre-wrap"    // Allows wrapping
-            wordBreak="break-all"    // Break words if needed
-          >
-            {proposal.calldatas}
-          </Box>
+          <ProposalTransactionsContent proposal={proposal} />
         </Tabs.Content>
+
       </Tabs.Root>
     </VStack>
   );
