@@ -4,6 +4,7 @@ import EthTransferTransaction from './transactions/EthTransferTransaction';
 import { Address } from 'viem';
 import { FormattedAddress } from '../utils/ethereum';
 import USDCTransaction from './transactions/USDCTransaction';
+import MintBatchTransaction from './transactions/MintBatchTransaction';
 
 interface ProposalTransactionsContentProps {
     proposal: {
@@ -35,6 +36,7 @@ function TransactionItem({
     const usdcTransaction = isCalldataValid
         ? decodeUsdcTransaction(normalizedCalldata)
         : null;
+
     if (usdcTransaction) {
         const { to, value: decodedValue } = usdcTransaction;
 
@@ -50,7 +52,7 @@ function TransactionItem({
         );
     }
 
-    // Handle Ethereum transfer transaction based on normalized calldata and target
+    // Handle Ethereum transfer transaction
     if (normalizedCalldata === '0x' && value !== '0') {
         return (
             <EthTransferTransaction
@@ -60,30 +62,16 @@ function TransactionItem({
         );
     }
 
-    // Handle hardcoded targets (e.g., Mint Batch)
-    let transactionType = 'Generic Transfer'; // Default type
-    if (target === "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17") {
-        transactionType = 'Mint Batch';
-    } else if (target === "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c") {
-        transactionType = 'Droposal';
+    // Handle mint batch transaction
+    if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
+        return <MintBatchTransaction calldata={normalizedCalldata} index={index} />;
     }
-
-    console.log(
-        'Transaction type:',
-        transactionType,
-        'Target:',
-        target,
-        'Value:',
-        value,
-        'Calldata:',
-        normalizedCalldata
-    );
 
     // Fallback for unsupported transaction types
     return (
         <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
             <Heading size="sm" mb={2}>
-                Transaction {index + 1}: {transactionType}
+                Transaction {index + 1}: Generic Transfer
             </Heading>
             <Text>
                 <strong>Target:</strong> {target}
@@ -97,18 +85,12 @@ function TransactionItem({
         </Box>
     );
 }
-
 export default function ProposalTransactionsContent({ proposal }: ProposalTransactionsContentProps) {
     const { targets, values, calldatas } = proposal;
 
     // Parse `calldatas`: split if it’s a string, or use it directly if it’s an array
     const parsedCalldatas = typeof calldatas === 'string' ? calldatas.split(':') : calldatas;
 
-    console.log('Parsed Proposal Transactions:', {
-        targets,
-        values,
-        parsedCalldatas,
-    });
 
     if (
         !targets ||

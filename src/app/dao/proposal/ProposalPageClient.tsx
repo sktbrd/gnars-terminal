@@ -7,7 +7,7 @@ import { FormattedAddress } from '@/components/utils/ethereum';
 import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LuScroll, LuVote } from 'react-icons/lu';
+import { LuArchive, LuScroll, LuVote } from 'react-icons/lu';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
@@ -128,6 +128,10 @@ export default function ProposalPageClient({
                         <FaEthereum />
                         <Text ml={2}>Transactions</Text>
                     </Tabs.Trigger>
+                    <Tabs.Trigger value="propdates" display="flex" alignItems="center">
+                        <LuArchive />
+                        <Text ml={2}>Propdates</Text>
+                    </Tabs.Trigger>
                     <Tabs.Indicator />
                 </Tabs.List>
 
@@ -139,6 +143,9 @@ export default function ProposalPageClient({
                 </Tabs.Content>
                 <Tabs.Content value="transactions">
                     <ProposalTransactionsContent proposal={proposal} />
+                </Tabs.Content>
+                <Tabs.Content value="propdates">
+                    <Text>Soon...</Text>
                 </Tabs.Content>
             </Tabs.Root>
         </VStack>
