@@ -2,6 +2,8 @@ import { Box, VStack, Heading, Text } from '@chakra-ui/react';
 import { decodeUsdcTransaction } from './transactions/utils/decodeUsdcTransaction';
 import EthTransferTransaction from './transactions/EthTransferTransaction';
 import { Address } from 'viem';
+import { FormattedAddress } from '../utils/ethereum';
+import USDCTransaction from './transactions/USDCTransaction';
 
 interface ProposalTransactionsContentProps {
     proposal: {
@@ -40,17 +42,11 @@ function TransactionItem({
         const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 6)).toString();
 
         return (
-            <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
-                <Heading size="sm" mb={2}>
-                    Transaction {index + 1}: USDC Transfer
-                </Heading>
-                <Text>
-                    <strong>To:</strong> {to}
-                </Text>
-                <Text>
-                    <strong>Value:</strong> {formattedValue} USDC
-                </Text>
-            </Box>
+            <USDCTransaction
+                index={index}
+                to={to}
+                value={formattedValue}
+            />
         );
     }
 

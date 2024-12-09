@@ -1,3 +1,4 @@
+import { FormattedAddress } from '@/components/utils/ethereum';
 import { Box, Text, Heading, VStack } from '@chakra-ui/react';
 import { formatEther } from 'viem';
 
@@ -44,8 +45,9 @@ const EthTransferTransaction: React.FC<EthTransferTransactionProps> = ({ toAddre
                 <Text>
                     <strong>Value:</strong> {formattedValue} ETH
                 </Text>
-                <Text>
-                    <strong>To:</strong> {toAddress}
+                <Text display="flex" alignItems="center">
+                    <strong>To:</strong>
+                    <FormattedAddress address={toAddress} />
                 </Text>
             </VStack>
         </Box>
