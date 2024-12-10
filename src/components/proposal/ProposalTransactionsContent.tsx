@@ -6,6 +6,7 @@ import { FormattedAddress } from '../utils/ethereum';
 import USDCTransaction from './transactions/USDCTransaction';
 import MintBatchTransaction from './transactions/MintBatchTransaction';
 
+
 interface ProposalTransactionsContentProps {
     proposal: {
         targets: string[];
@@ -52,7 +53,7 @@ function TransactionItem({
         );
     }
 
-    // Handle Ethereum transfer transaction
+
     if (normalizedCalldata === '0x' && value !== '0') {
         return (
             <EthTransferTransaction
@@ -62,16 +63,27 @@ function TransactionItem({
         );
     }
 
+
     // Handle mint batch transaction
     if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
         return <MintBatchTransaction calldata={normalizedCalldata} index={index} />;
     }
+    // Handle hardcoded targets (e.g., Mint Batch)
+    let transactionType = 'Generic Transfer'; // Default type
+    if (target === "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17") {
+        transactionType = 'Mint Batch';
+    } else if (target === "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c") {
+        transactionType = 'Droposal';
+    }
+
 
     // Fallback for unsupported transaction types
     return (
         <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
             <Heading size="sm" mb={2}>
-                Transaction {index + 1}: Generic Transfer
+
+                Transaction {index + 1}: {transactionType}
+
             </Heading>
             <Text>
                 <strong>Target:</strong> {target}
@@ -85,6 +97,7 @@ function TransactionItem({
         </Box>
     );
 }
+
 export default function ProposalTransactionsContent({ proposal }: ProposalTransactionsContentProps) {
     const { targets, values, calldatas } = proposal;
 

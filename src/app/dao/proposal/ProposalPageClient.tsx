@@ -132,6 +132,7 @@ export default function ProposalPageClient({
                         <LuArchive />
                         <Text ml={2}>Propdates</Text>
                     </Tabs.Trigger>
+
                     <Tabs.Indicator />
                 </Tabs.List>
 
@@ -147,6 +148,7 @@ export default function ProposalPageClient({
                 <Tabs.Content value="propdates">
                     <Text>Soon...</Text>
                 </Tabs.Content>
+
             </Tabs.Root>
         </VStack>
     );
