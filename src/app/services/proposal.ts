@@ -14,7 +14,7 @@ export type Proposal = {
   snapshotBlockNumber: number;
   status: string;
   title: string;
-  transactionHash: Address;
+  transactionHash: Address
   voteEnd: string;
   voteStart: string;
   calldatas: string;
@@ -35,6 +35,7 @@ export type Proposal = {
   };
   votes: Vote[];
 };
+
 
 export type ProposalWithThumbnail = Proposal & {
   thumbnail?: string;

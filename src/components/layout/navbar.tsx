@@ -1,15 +1,7 @@
 'use client';
 
 import { ColorModeButton } from '@/components/ui/color-mode';
-import {
-  Heading,
-  HStack,
-  IconButton,
-  Image,
-  Stack,
-  Text,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Heading, HStack, IconButton, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
 import Link from 'next/link';
 import { BsGithub } from 'react-icons/bs';
 import ConnectButton from './connect-button';

@@ -5,6 +5,8 @@ import { Address } from 'viem';
 import { FormattedAddress } from '../utils/ethereum';
 import USDCTransaction from './transactions/USDCTransaction';
 import MintBatchTransaction from './transactions/MintBatchTransaction';
+import DroposalTransaction from './transactions/DroposalTransaction';
+import NftTransferTransaction from './transactions/NFTTrasnfer';
 
 
 interface ProposalTransactionsContentProps {
@@ -54,6 +56,7 @@ function TransactionItem({
     }
 
 
+
     if (normalizedCalldata === '0x' && value !== '0') {
         return (
             <EthTransferTransaction
@@ -63,17 +66,48 @@ function TransactionItem({
         );
     }
 
-
-    // Handle mint batch transaction
-    if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
-        return <MintBatchTransaction calldata={normalizedCalldata} index={index} />;
+    // Handle Droposal transaction
+    if (target === "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c") {
+        return <DroposalTransaction calldata={calldata} index={index} />;
     }
-    // Handle hardcoded targets (e.g., Mint Batch)
-    let transactionType = 'Generic Transfer'; // Default type
-    if (target === "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17") {
-        transactionType = 'Mint Batch';
-    } else if (target === "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c") {
-        transactionType = 'Droposal';
+
+    // Handle transactions for target contract 0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17
+    if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
+        const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector
+
+        if (functionSignature === '0x23b872dd') {
+            // Handle NFT Transfer (ERC721 transferFrom)
+            return (
+                <NftTransferTransaction
+                    calldata={normalizedCalldata}
+                    index={index}
+                />
+            );
+        }
+
+        if (functionSignature === '0xd52fbd91') {
+            // Handle MintBatch transaction
+            return (
+                <MintBatchTransaction
+                    calldata={normalizedCalldata}
+                    index={index}
+                />
+            );
+        }
+        // Fallback for unrecognized calldata
+        return (
+            <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
+                <Heading size="sm" mb={2}>
+                    Transaction {index + 1}: Unrecognized Transaction
+                </Heading>
+                <Text>
+                    <strong>Target:</strong> {target}
+                </Text>
+                <Text>
+                    <strong>Calldata:</strong> {normalizedCalldata}
+                </Text>
+            </Box>
+        );
     }
 
 
@@ -81,9 +115,7 @@ function TransactionItem({
     return (
         <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
             <Heading size="sm" mb={2}>
-
-                Transaction {index + 1}: {transactionType}
-
+                Transaction {index + 1}: {"Generic Transaction"}
             </Heading>
             <Text>
                 <strong>Target:</strong> {target}
@@ -98,11 +130,14 @@ function TransactionItem({
     );
 }
 
+
 export default function ProposalTransactionsContent({ proposal }: ProposalTransactionsContentProps) {
     const { targets, values, calldatas } = proposal;
-
-    // Parse `calldatas`: split if it’s a string, or use it directly if it’s an array
+    // Parse and normalize calldatas
     const parsedCalldatas = typeof calldatas === 'string' ? calldatas.split(':') : calldatas;
+    const normalizedCalldatas = parsedCalldatas.map(calldata =>
+        calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata
+    );
 
 
     if (
@@ -148,7 +183,7 @@ export default function ProposalTransactionsContent({ proposal }: ProposalTransa
                     index={index}
                     target={target}
                     value={values[index]}
-                    calldata={parsedCalldatas[index] as Address} // Ensure calldata is of type `0x${string}`
+                    calldata={normalizedCalldatas[index] as Address}
                 />
             ))}
         </Box>
