@@ -15,6 +15,10 @@ import {
 import { default as NextImage } from 'next/image';
 import { AuctionBid } from '../auction/bid';
 import { FormattedAddress } from '../utils/ethereum';
+import {
+  useWatchAuctionAuctionBidEvent,
+  useWatchAuctionAuctionSettledEvent,
+} from '@/hooks/wagmiGenerated';
 
 export default function AuctionCard({
   defaultAuction,
@@ -22,6 +26,22 @@ export default function AuctionCard({
   defaultAuction: Auction;
 }) {
   const { data: activeAuction, refetch } = useLastAuction(defaultAuction);
+
+  useWatchAuctionAuctionBidEvent({
+    onLogs(logs) {
+      // @todo: remove logs
+      console.log('AuctionBidEvent', logs);
+      refetch();
+    },
+  });
+
+  useWatchAuctionAuctionSettledEvent({
+    onLogs(logs) {
+      // @todo: remove logs
+      console.log('AuctionSettledEvent', logs);
+      refetch();
+    },
+  });
 
   if (!activeAuction) {
     return (
