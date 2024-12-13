@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { formatEthAddress } from '@/utils/helpers';
 import { base, mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 import {
@@ -11,7 +12,6 @@ import {
   useEnsName,
 } from 'wagmi';
 import { Avatar } from '../ui/avatar';
-import { FormattedAddress } from '../utils/ethereum';
 
 function ConnectButton() {
   const { isConnected, address, isConnecting } = useAccount();
@@ -55,16 +55,16 @@ function ConnectButton() {
 
   if (isLoadingAvatar || !ensAvatar) {
     return (
-      <Button size={'xs'} variant={'ghost'}>
-        <FormattedAddress address={address} />
+      <Button size={'xs'} variant={'subtle'}>
+        {ensName || formatEthAddress(address, 3)}
       </Button>
     );
   }
 
   return (
-    <Button size={'xs'} variant={'ghost'} onClick={() => disconnect()}>
+    <Button size={'xs'} variant={'subtle'} onClick={() => disconnect()}>
       <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
-      <FormattedAddress address={address} />
+      {ensName || formatEthAddress(address, 3)}
     </Button>
   );
 }
