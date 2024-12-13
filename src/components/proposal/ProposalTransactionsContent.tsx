@@ -159,31 +159,14 @@ export default function ProposalTransactionsContent({
   ) {
     console.error('Proposal data is inconsistent or missing!');
     return (
-      <Box
-        shadow='sm'
-        maxW='100%'
-        minW='100%'
-        p={4}
-        rounded='md'
-        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-      >
+      <Box maxW='100%' minW='100%' p={2}>
         <Text>No transactions available for this proposal.</Text>
       </Box>
     );
   }
 
   return (
-    <Box
-      shadow='sm'
-      maxW='100%'
-      minW='100%'
-      p={4}
-      rounded='md'
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-    >
-      <Heading size='md' mb={4}>
-        Transactions
-      </Heading>
+    <Box maxW='100%' minW='100%' p={2}>
       <VStack gap={2} align={'stretch'}>
         {targets.map((target, index) => (
           <TransactionItem

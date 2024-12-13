@@ -15,7 +15,7 @@ export default function NftTransferTransaction({
       borderWidth='1px'
       borderRadius='md'
       p={4}
-      _dark={{ bg: 'gray.800', borderColor: 'yellow.500' }}
+      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
     >
       <Heading size='sm' mb={2}>
         Transaction {index + 1}: NFT Transfer

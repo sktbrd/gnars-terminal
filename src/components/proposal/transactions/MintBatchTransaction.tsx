@@ -1,5 +1,6 @@
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { Box, Heading, Image, Text, VStack } from '@chakra-ui/react';
+import { default as NextImage } from 'next/image';
 import Link from 'next/link';
 import { Address, decodeFunctionData } from 'viem';
 
@@ -52,7 +53,7 @@ export default function MintBatchTransaction({
       borderWidth='1px'
       borderRadius='md'
       p={4}
-      _dark={{ bg: 'gray.800', borderColor: 'yellow.500' }}
+      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
     >
       {/* Title Section */}
       <Heading size='sm' mb={3}>
@@ -63,12 +64,20 @@ export default function MintBatchTransaction({
       <Box display='flex' alignItems='center' gap={4}>
         {/* Image Section */}
         <Image
-          src='https://www.skatehive.app/loading.gif'
-          alt='Mint Batch'
-          width={64}
-          height={64}
-          style={{ objectFit: 'contain', borderRadius: '8px' }}
-        />
+          asChild
+          borderRadius='8px'
+          boxSize={32}
+          border='1px solid'
+          borderColor='gray.200'
+        >
+          <NextImage
+            src='https://www.skatehive.app/loading.gif'
+            alt='Mint Batch'
+            width={256}
+            height={256}
+            style={{ objectFit: 'contain', borderRadius: '8px' }}
+          />
+        </Image>
 
         {/* Details Section */}
         <VStack align='start' gap={2}>

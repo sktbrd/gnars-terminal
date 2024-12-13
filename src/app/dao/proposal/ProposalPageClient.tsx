@@ -71,8 +71,16 @@ export default function ProposalPageClient({
         display='flex'
         flexDirection='column'
         gap={2}
+        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
       >
-        <HStack justify='space-between' w='full'>
+        <HStack
+          justify='space-between'
+          w='full'
+          data-state='open'
+          _open={{
+            animation: 'fade-in 300ms ease-out',
+          }}
+        >
           <HStack>
             {proposalNumber > 1 && (
               <Tooltip content='Previous Proposal'>
@@ -103,11 +111,23 @@ export default function ProposalPageClient({
           </HStack>
         </HStack>
 
-        <Heading size='4xl' as='h1'>
+        <Heading
+          size='4xl'
+          as='h1'
+          data-state='open'
+          _open={{
+            animation: 'fade-in 400ms ease-out',
+          }}
+        >
           {proposal.title || 'No Title Available'}
         </Heading>
 
-        <HStack>
+        <HStack
+          data-state='open'
+          _open={{
+            animation: 'fade-in 500ms ease-out',
+          }}
+        >
           <Box
             borderWidth={1}
             borderRadius='md'
@@ -163,45 +183,63 @@ export default function ProposalPageClient({
       </Box>
 
       {/* Tabs */}
-      <Tabs.Root
-        value={tabMap[activeTab]}
-        onValueChange={handleTabChange}
-        variant='enclosed'
-        w='full'
+      <Box
+        shadow={'sm'}
+        w={'full'}
+        padding={4}
+        pt={2}
+        rounded={'md'}
+        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
       >
-        <Tabs.List display='flex' justifyContent='center' gap={4}>
-          <Tabs.Trigger value='description' display='flex' alignItems='center'>
-            <LuScroll />
-            <Text ml={2}>Description</Text>
-          </Tabs.Trigger>
-          <Tabs.Trigger value='votes' display='flex' alignItems='center'>
-            <LuVote />
-            <Text ml={2}>Votes</Text>
-          </Tabs.Trigger>
-          <Tabs.Trigger value='transactions' display='flex' alignItems='center'>
-            <FaEthereum />
-            <Text ml={2}>Transactions</Text>
-          </Tabs.Trigger>
-          <Tabs.Trigger value='propdates' display='flex' alignItems='center'>
-            <LuArchive />
-            <Text ml={2}>Propdates</Text>
-          </Tabs.Trigger>
-
-          <Tabs.Indicator />
-        </Tabs.List>
-        <Tabs.Content value='description'>
-          <ProposalDescriptionContent proposal={proposal} />
-        </Tabs.Content>
-        <Tabs.Content value='votes'>
-          <ProposalVotesContent proposal={proposal} />
-        </Tabs.Content>
-        <Tabs.Content value='transactions'>
-          <ProposalTransactionsContent proposal={proposal} />
-        </Tabs.Content>
-        <Tabs.Content value='propdates'>
-          <Text>Soon...</Text>
-        </Tabs.Content>
-      </Tabs.Root>
+        <Tabs.Root
+          value={tabMap[activeTab]}
+          onValueChange={handleTabChange}
+          w='full'
+          gap={0}
+          fitted
+          lazyMount
+        >
+          <Tabs.List>
+            <Tabs.Trigger
+              value='description'
+              display='flex'
+              alignItems='center'
+              border={0}
+            >
+              <LuScroll />
+              <Text>Description</Text>
+            </Tabs.Trigger>
+            <Tabs.Trigger value='votes' display='flex' alignItems='center'>
+              <LuVote />
+              <Text>Votes</Text>
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value='transactions'
+              display='flex'
+              alignItems='center'
+            >
+              <FaEthereum />
+              <Text>Transactions</Text>
+            </Tabs.Trigger>
+            <Tabs.Trigger value='propdates' display='flex' alignItems='center'>
+              <LuArchive />
+              <Text>Propdates</Text>
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value='description' pt={2}>
+            <ProposalDescriptionContent proposal={proposal} />
+          </Tabs.Content>
+          <Tabs.Content value='votes' pt={2}>
+            <ProposalVotesContent proposal={proposal} />
+          </Tabs.Content>
+          <Tabs.Content value='transactions' pt={2}>
+            <ProposalTransactionsContent proposal={proposal} />
+          </Tabs.Content>
+          <Tabs.Content value='propdates' pt={2}>
+            <Text>Soon...</Text>
+          </Tabs.Content>
+        </Tabs.Root>
+      </Box>
     </VStack>
   );
 }
