@@ -2,11 +2,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Box, Card, Code, HStack, Stack, Text, VStack } from '@chakra-ui/react';
 import { FormattedAddress } from '../utils/ethereum';
 
-enum VoteSupport {
-  FOR = 'FOR',
-  AGAINST = 'AGAINST',
-  ABSTAIN = 'ABSTAIN',
-}
+export type VoteSupport = 'FOR' | 'AGAINST' | 'ABSTAIN';
 
 interface Vote {
   voter: string;
@@ -42,11 +38,11 @@ export default function ProposalVotesContent({
                     variant='surface'
                     size={'sm'}
                     colorPalette={
-                      vote.support === VoteSupport.FOR
+                      vote.support === 'FOR'
                         ? 'green'
-                        : vote.support === VoteSupport.AGAINST
+                        : vote.support === 'AGAINST'
                           ? 'red'
-                          : vote.support === VoteSupport.ABSTAIN
+                          : vote.support === 'ABSTAIN'
                             ? 'yellow'
                             : 'gray'
                     }
