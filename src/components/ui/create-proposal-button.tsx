@@ -1,35 +1,46 @@
-'use client'
+'use client';
 
-// Create Proposal Button 
+// Create Proposal Button
 
-import React from 'react';
+import {
+  useReadGovernorProposalThreshold,
+  useReadTokenGetVotes,
+  useReadTokenTotalSupply,
+} from '@/hooks/wagmiGenerated';
 import { useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/react';
-import { useReadGovernorGetVotes } from '@/hooks/wagmiGenerated';
-import { useReadGovernorProposalThreshold } from '@/hooks/wagmiGenerated';
-import { useReadTokenTotalSupply } from '@/hooks/wagmiGenerated';
 import { LuPencilLine } from 'react-icons/lu';
+import { zeroAddress } from 'viem';
+import { useAccount } from 'wagmi';
+import { Button } from './button';
+import { Tooltip } from './tooltip';
 
-
-function CheckIfProposalCanSubmitProposal() {
-    const { data: votes } = useReadGovernorGetVotes();
-    const { data: threshold } = useReadGovernorProposalThreshold();
-    const { data: totalSupply } = useReadTokenTotalSupply();
-    const [canSubmit, setCanSubmit] = useState(false);
-    useEffect(() => {
-        if (votes && threshold && totalSupply) {
-            setCanSubmit(votes >= threshold && votes >= totalSupply / 10n);
-        }
-    }, [votes, threshold, totalSupply]);
-    console.log(canSubmit, votes, threshold, totalSupply);
-    return canSubmit;
+function checkIfProposalCanSubmitProposal() {
+  const account = useAccount();
+  const { data: votes } = useReadTokenGetVotes({
+    args: [account.address || zeroAddress],
+  });
+  // const { data: threshold } = useReadGovernorProposalThreshold();
+  const threshold = 10n;
+  const [canSubmit, setCanSubmit] = useState(false);
+  useEffect(() => {
+    if (votes && threshold !== undefined) {
+      setCanSubmit(votes >= threshold);
+    }
+  }, [votes, threshold]);
+  console.log({ canSubmit, votes, threshold });
+  return { canSubmit, votes, threshold };
 }
 
 export default function CreateProposalButton() {
-    const canSubmit = CheckIfProposalCanSubmitProposal();
-    return (
-        <Button colorScheme='blue' variant='outline' disabled={!canSubmit}>
-            <LuPencilLine />
-        </Button>
-    );
+  const { canSubmit, votes, threshold } = checkIfProposalCanSubmitProposal();
+  return (
+    <Tooltip
+      content={`Token threshold not met, you have ${votes}/${threshold} votes`}
+      disabled={canSubmit}
+    >
+      <Button variant='subtle' disabled={!canSubmit}>
+        <LuPencilLine /> New proposal
+      </Button>
+    </Tooltip>
+  );
 }

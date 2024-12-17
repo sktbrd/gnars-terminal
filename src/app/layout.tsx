@@ -43,7 +43,7 @@ export default function RootLayout(props: { children: ReactNode }) {
             color={{ base: 'black', _dark: 'white' }}
             paddingBlock={{ base: 2, md: 4 }}
           >
-            <Container maxW={'2xl'}>{props.children}</Container>
+            <Container maxW={'breakpoint-2xl'}>{props.children}</Container>
           </Box>
         </Providers>
       </body>
