@@ -49,69 +49,8 @@ export default function Navbar() {
             objectFit='contain'
           />
         </Image>
-        <Link
-          data-state='open'
-          _open={{
-            animation: 'fade-in 300ms ease-out',
-          }}
-          asChild
-          gap={'0.5'}
-        >
-          <NextLink href='/' style={{ width: '100%' }}>
-            <LuHome />
-            HOME
-          </NextLink>
-        </Link>
-        <Link
-          data-state='open'
-          _open={{
-            animation: 'fade-in 600ms ease-out',
-          }}
-          _hidden={{
-            animation: 'fade-out 600ms ease-in',
-          }}
-          asChild
-          gap={'0.5'}
-        >
-          <NextLink href='/dao' style={{ width: '100%' }}>
-            <MdOutlineHowToVote />
-            DAO
-          </NextLink>
-        </Link>
-        <Link
-          data-state='open'
-          _open={{
-            animation: 'fade-in 900ms ease-out',
-          }}
-          _hidden={{
-            animation: 'fade-out 300ms ease-in',
-          }}
-          gap={'0.5'}
-          asChild
-        >
-          <NextLink href='/about' style={{ width: '100%' }}>
-            <IoDocumentTextOutline />
-            ABOUT
-          </NextLink>
-        </Link>
-        <Link
-          data-state='open'
-          _open={{
-            animation: 'fade-in 900ms ease-out',
-          }}
-          _hidden={{
-            animation: 'fade-out 300ms ease-in',
-          }}
-          gap={'0.5'}
-          asChild
-        >
-          <NextLink href='#' style={{ width: '100%' }}>
-            <LuArchive />
-            PROPDATES
-          </NextLink>
-        </Link>
+        <NavbarLinks isLargerThanMd={isLargerThanMd} />
       </Stack>
-
       {isLargerThanMd ? (
         <HStack>
           <NextLink href='https://github.com/r4topunk/gnars-terminal'>
@@ -128,4 +67,72 @@ export default function Navbar() {
       )}
     </HStack>
   );
+}
+
+function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
+  return isLargerThanMd ? (
+    <>
+      <Link
+        data-state='open'
+        _open={{
+          animation: 'fade-in 300ms ease-out',
+        }}
+        asChild
+        gap={'0.5'}
+      >
+        <NextLink href='/' style={{ width: '100%' }}>
+          <LuHome />
+          HOME
+        </NextLink>
+      </Link>
+      <Link
+        data-state='open'
+        _open={{
+          animation: 'fade-in 600ms ease-out',
+        }}
+        _hidden={{
+          animation: 'fade-out 600ms ease-in',
+        }}
+        asChild
+        gap={'0.5'}
+      >
+        <NextLink href='/dao' style={{ width: '100%' }}>
+          <MdOutlineHowToVote />
+          DAO
+        </NextLink>
+      </Link>
+      <Link
+        data-state='open'
+        _open={{
+          animation: 'fade-in 900ms ease-out',
+        }}
+        _hidden={{
+          animation: 'fade-out 300ms ease-in',
+        }}
+        gap={'0.5'}
+        asChild
+      >
+        <NextLink href='/about' style={{ width: '100%' }}>
+          <IoDocumentTextOutline />
+          ABOUT
+        </NextLink>
+      </Link>
+      <Link
+        data-state='open'
+        _open={{
+          animation: 'fade-in 900ms ease-out',
+        }}
+        _hidden={{
+          animation: 'fade-out 300ms ease-in',
+        }}
+        gap={'0.5'}
+        asChild
+      >
+        <NextLink href='#' style={{ width: '100%' }}>
+          <LuArchive />
+          PROPDATES
+        </NextLink>
+      </Link>
+    </>
+  ) : null;
 }
