@@ -11,9 +11,11 @@ import Navbar from '@/components/layout/navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// Update the metadata without themeColor
 export const metadata: Metadata = {
   title: 'Gnars Terminal',
   description: 'Gnars Dao Essentials Tools Backup',
+  metadataBase: new URL('https://termignar.vercel.app/'), // Replace with your domain
   openGraph: {
     images: [
       {
@@ -26,13 +28,19 @@ export const metadata: Metadata = {
   },
 };
 
+// Add viewport configuration for themeColor
+export const viewport = {
+  themeColor: '#FFD700', // Replace with your desired color
+};
+
 export default function RootLayout(props: { children: ReactNode }) {
   const initialState = cookieToInitialState(
     getConfig(),
-    headers().get('cookie')
+    headers().get('cookie') // Fetch cookie headers dynamically
   );
+
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className} style={{ minHeight: '100vh' }}>
         <Providers initialState={initialState}>
           <Navbar />

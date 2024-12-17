@@ -13,3 +13,6 @@ export const DAO_ADDRESSES = {
   treasury: process.env.NEXT_PUBLIC_TREASURY as Address,
   governor: process.env.NEXT_PUBLIC_GOVERNOR as Address,
 };
+
+export const USDC_CONTRACT_ADDRESS = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+export const SENDIT_CONTRACT_ADDRESS = "0xba5b9b2d2d06a9021eb3190ea5fb0e02160839a4"

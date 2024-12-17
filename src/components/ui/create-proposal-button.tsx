@@ -1,46 +1,59 @@
 'use client';
-
-// Create Proposal Button
-
-import {
-  useReadGovernorProposalThreshold,
-  useReadTokenGetVotes,
-  useReadTokenTotalSupply,
-} from '@/hooks/wagmiGenerated';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button } from '@chakra-ui/react';
 import { LuPencilLine } from 'react-icons/lu';
-import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
-import { Button } from './button';
-import { Tooltip } from './tooltip';
+import { Address } from 'viem';
+import { useRouter } from 'next/navigation'; // Use Next.js navigation
+import { useReadGovernorGetVotes, useReadGovernorProposalThreshold } from '@/hooks/wagmiGenerated';
 
-function checkIfProposalCanSubmitProposal() {
-  const account = useAccount();
-  const { data: votes } = useReadTokenGetVotes({
-    args: [account.address || zeroAddress],
-  });
-  // const { data: threshold } = useReadGovernorProposalThreshold();
-  const threshold = 10n;
+function useCanSubmitProposal() {
+  const { address } = useAccount();
   const [canSubmit, setCanSubmit] = useState(false);
+  const [currentTimestamp, setCurrentTimestamp] = useState<BigInt | null>(null);
+
+  // Update the current timestamp
   useEffect(() => {
-    if (votes && threshold !== undefined) {
-      setCanSubmit(votes >= threshold);
+    const timestamp = Math.floor(Date.now() / 1000); // Convert to seconds
+    setCurrentTimestamp(BigInt(timestamp));
+  }, []);
+
+  // Read votes dynamically
+  const { data: votes } = useReadGovernorGetVotes({
+    args: address && currentTimestamp ? [address as Address, currentTimestamp as bigint] : undefined,
+  });
+
+  // Read proposal threshold
+  const { data: threshold } = useReadGovernorProposalThreshold();
+
+  useEffect(() => {
+    if (votes && threshold) {
+      setCanSubmit(BigInt(votes) >= BigInt(threshold));
     }
   }, [votes, threshold]);
-  console.log({ canSubmit, votes, threshold });
-  return { canSubmit, votes, threshold };
+
+  return canSubmit;
 }
 
 export default function CreateProposalButton() {
-  const { canSubmit, votes, threshold } = checkIfProposalCanSubmitProposal();
+  const canSubmit = useCanSubmitProposal();
+  const router = useRouter(); // Initialize router
+
+  const handleClick = () => {
+    if (canSubmit) {
+      router.push('/create-proposal'); // Navigate to the create proposal page
+    }
+  };
+
   return (
-    <Tooltip
-      content={`Token threshold not met, you have ${votes}/${threshold} votes`}
-      disabled={canSubmit}
+    <Button
+      colorScheme="blue"
+      variant="outline"
+      disabled={!canSubmit}
+      onClick={handleClick} // Handle navigation
     >
-      <Button variant='subtle' disabled={!canSubmit}>
-        <LuPencilLine /> New proposal
-      </Button>
-    </Tooltip>
+      <LuPencilLine />
+    </Button>
   );
 }
+
