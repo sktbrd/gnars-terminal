@@ -1,7 +1,8 @@
+import { fetchAllPropDates } from '@/services/supabase/propdates';
 import { supabase } from '@/utils/database/supabase_server';
+import { Box } from '@chakra-ui/react';
 
 export default async function PropdatesPage() {
-  const { data, error } = await supabase.from('proposals').select();
-
-  return <div>{JSON.stringify(data, null, 2)}</div>;
+  const {data} = await fetchAllPropDates();
+  return <Box>{JSON.stringify(data, null, 2)}</Box>;
 }

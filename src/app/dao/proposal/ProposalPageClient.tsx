@@ -8,6 +8,7 @@ import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
 import ProposalStatus from '@/components/proposal/status';
 import { Tooltip } from '@/components/ui/tooltip';
 import { FormattedAddress } from '@/components/utils/ethereum';
+import { CompletePropDate } from '@/utils/database/types';
 import {
   Box,
   Container,
@@ -35,12 +36,14 @@ interface ProposalPageClientProps {
   proposal: Proposal;
   proposalNumber: number;
   latestProposalNumber: number;
+  // propdates: CompletePropDate[] | null
 }
 
 export default function ProposalPageClient({
   proposal,
   proposalNumber,
   latestProposalNumber,
+  // propdates = [],
 }: ProposalPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -14,30 +14,27 @@ export type Database = {
           auction: string | null
           created_at: string
           governor: string | null
-          id: number
           metadata: string | null
           name: string | null
-          token: string | null
+          token: string
           treasury: string | null
         }
         Insert: {
           auction?: string | null
           created_at?: string
           governor?: string | null
-          id?: number
           metadata?: string | null
           name?: string | null
-          token?: string | null
+          token: string
           treasury?: string | null
         }
         Update: {
           auction?: string | null
           created_at?: string
           governor?: string | null
-          id?: number
           metadata?: string | null
           name?: string | null
-          token?: string | null
+          token?: string
           treasury?: string | null
         }
         Relationships: []
@@ -113,24 +110,24 @@ export type Database = {
       }
       propdates: {
         Row: {
-          author: string | null
+          author: string
           created_at: string
           id: number
-          proposal: string | null
+          proposal: string
           text: string
         }
         Insert: {
-          author?: string | null
+          author: string
           created_at?: string
           id?: number
-          proposal?: string | null
+          proposal: string
           text: string
         }
         Update: {
-          author?: string | null
+          author?: string
           created_at?: string
           id?: number
-          proposal?: string | null
+          proposal?: string
           text?: string
         }
         Relationships: [
@@ -153,21 +150,21 @@ export type Database = {
       proposals: {
         Row: {
           created_at: string
-          dao: number | null
+          dao: string
           id: string
-          proposer: string | null
+          proposer: string
         }
         Insert: {
           created_at?: string
-          dao?: number | null
+          dao: string
           id: string
-          proposer?: string | null
+          proposer: string
         }
         Update: {
           created_at?: string
-          dao?: number | null
+          dao?: string
           id?: string
-          proposer?: string | null
+          proposer?: string
         }
         Relationships: [
           {
@@ -182,7 +179,7 @@ export type Database = {
             columns: ["dao"]
             isOneToOne: false
             referencedRelation: "dao"
-            referencedColumns: ["id"]
+            referencedColumns: ["token"]
           },
         ]
       }

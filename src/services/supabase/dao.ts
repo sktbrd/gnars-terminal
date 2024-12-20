@@ -39,7 +39,10 @@ export const createDao = async (dao: DAO): Promise<true> => {
 };
 
 export const updateDao = async (dao: DAO): Promise<true> => {
-  const { error } = await supabase.from('dao').update(dao).eq('id', dao.id);
+  const { error } = await supabase
+    .from('dao')
+    .update(dao)
+    .eq('token', dao.token);
 
   if (error) {
     throw new Error(`Error updating dao: ${error.message}`);
