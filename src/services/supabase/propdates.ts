@@ -22,12 +22,14 @@ export const fetchAllPropDates = async (): Promise<{
 
 export const fetchAllPropDatesByProposalId = async (
   proposal: Address
-): Promise<{ data: PropDate[] | null; error: PostgrestError | null }> => {
+): Promise<{
+  data: PropDateInterface[] | null;
+  error: PostgrestError | null;
+}> => {
   const { data, error } = await supabase
     .from('propdates')
     .select('*, proposal:proposals(*), author:users!propdates_author_fkey(*)')
     .eq('proposal', proposal)
-    .eq('dao', DAO_ADDRESSES.token)
     .order('created_at', { ascending: false });
 
   return { data, error };

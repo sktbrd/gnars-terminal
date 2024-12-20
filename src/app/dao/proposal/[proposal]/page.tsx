@@ -28,14 +28,16 @@ export default async function ProposalPage({ params }: { params: { proposal: str
   // Fetch the latest proposal for navigation
   const latestProposals = await fetchProposals(DAO_ADDRESSES.token, 'proposalNumber', 'desc', 1);
   const latestProposalNumber = latestProposals[0]?.proposalNumber || proposalNumber;
+  console.log(proposal.proposalId)
   const {data, error} = await fetchAllPropDatesByProposalId(proposal.proposalId);
+  console.log(data)
 
   return (
     <ProposalPageClient
       proposal={proposal}
       proposalNumber={proposalNumber}
       latestProposalNumber={latestProposalNumber}
-      // propdates={data}
+      propdates={data}
     />
   );
 }
