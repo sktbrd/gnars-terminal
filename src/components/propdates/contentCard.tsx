@@ -1,12 +1,17 @@
 'use client';
 
 import { PropDateInterface } from '@/utils/database/interfaces';
-import { Box, Button, Card, HStack, Stack, Text, VStack } from '@chakra-ui/react';
-import { normalize } from 'path';
+import {
+  Box,
+  Button,
+  Card,
+  HStack,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import { Address } from 'viem';
-import { mainnet } from 'viem/chains';
-import { useEnsAvatar, useEnsName } from 'wagmi';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
 import { FormattedAddress } from '../utils/ethereum';
@@ -19,7 +24,7 @@ export default function PropdatesContentCardList({
   propdates,
 }: PropdatesContentCardProps) {
   return (
-    <Stack gap={2} px={2} w='full'>
+    <Stack gap={2} w='full'>
       {propdates.map((propdate) => (
         <PropdatesContentCardContent key={propdate.id} propdate={propdate} />
       ))}
@@ -33,25 +38,16 @@ function PropdatesContentCardContent({
   propdate: PropDateInterface;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { data: ensName } = useEnsName({
-    address: propdate.author.e_address as Address,
-    chainId: mainnet.id,
-  });
-
-  const { data: ensAvatar } = useEnsAvatar({
-    name: ensName ? normalize(ensName) : undefined,
-    chainId: mainnet.id,
-  });
 
   return (
     <Card.Root size='md' borderRadius='lg' variant='outline'>
-      <Card.Body>
+      <Card.Body p={4}>
         <VStack gap={3} align='stretch'>
           <HStack gap={4}>
             <EnsAvatar address={propdate.author.e_address as Address} />
             <HStack justify={'space-between'} w='full'>
               <FormattedAddress address={propdate.author.e_address} />
-              <Text color='gray.500' fontSize={"sm"}>
+              <Text color='gray.500' fontSize={'sm'}>
                 {new Date(propdate.created_at).toLocaleDateString()}
               </Text>
             </HStack>

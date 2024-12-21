@@ -11,11 +11,11 @@ export const fetchAllPropDates = async (): Promise<{
 }> => {
   const { data, error } = await supabase
     .from('propdates')
-    .select('*, proposal:proposals(*), author:users!propdates_author_fkey(*)')
+    .select(
+      '*, proposal:proposals!inner(*), author:users!propdates_author_fkey(*)'
+    )
     .eq('proposal.dao', DAO_ADDRESSES.token)
     .order('created_at', { ascending: false });
-
-  console.log(data);
 
   return { data, error };
 };

@@ -37,7 +37,7 @@ interface ProposalPageClientProps {
   proposal: Proposal;
   proposalNumber: number;
   latestProposalNumber: number;
-  propdates: PropDateInterface[] | null
+  propdates: PropDateInterface[] | null;
 }
 
 export default function ProposalPageClient({
@@ -67,7 +67,7 @@ export default function ProposalPageClient({
   };
 
   return (
-    <Container maxW="container.lg" px={{ base: "0", md: "20%" }}>
+    <Container maxW='container.lg' px={{ base: '0', md: '20%' }}>
       <VStack gap={4} align={'start'} w='full'>
         {/* Proposal Details */}
         <Box
@@ -229,7 +229,11 @@ export default function ProposalPageClient({
                 <FaEthereum />
                 <Text>Transactions</Text>
               </Tabs.Trigger>
-              <Tabs.Trigger value='propdates' display='flex' alignItems='center'>
+              <Tabs.Trigger
+                value='propdates'
+                display='flex'
+                alignItems='center'
+              >
                 <LuArchive />
                 <Text>Propdates</Text>
               </Tabs.Trigger>
@@ -244,11 +248,13 @@ export default function ProposalPageClient({
               <ProposalTransactionsContent proposal={proposal} />
             </Tabs.Content>
             <Tabs.Content value='propdates' pt={2}>
-              {
-                propdates ? 
-                <PropdatesContentCard propdates={propdates} /> : 
-                <Text>No PropDates yet</Text>
-              }
+              {propdates?.length ? (
+                <PropdatesContentCard propdates={propdates} />
+              ) : (
+                <Text mt={2} textAlign={'center'} w={'full'}>
+                  No propdates yet
+                </Text>
+              )}
             </Tabs.Content>
           </Tabs.Root>
         </Box>
