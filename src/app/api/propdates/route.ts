@@ -4,7 +4,11 @@ import {
   fetchProposalById,
   validateProposalExists,
 } from '@/services/supabase/proposals';
-import { createUser, fetchUserByAddress } from '@/services/supabase/users';
+import {
+  createUser,
+  fetchUserByAddress,
+  validateUserExists,
+} from '@/services/supabase/users';
 import { DAO_ADDRESSES } from '@/utils/constants';
 import { PropDateInsert } from '@/utils/database/types';
 import { NextRequest, NextResponse } from 'next/server';
@@ -27,7 +31,7 @@ export async function POST(request: NextRequest) {
       author,
     };
 
-    const dbAuthor = await fetchUserByAddress(author);
+    const dbAuthor = await validateUserExists(author);
     if (!dbAuthor) {
       await createUser({ e_address: author });
     }

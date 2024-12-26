@@ -14,6 +14,18 @@ export const fetchAllUsers = async (): Promise<User[]> => {
   return data;
 };
 
+export const validateUserExists = async (
+  e_address: string
+): Promise<boolean> => {
+  const { data } = await supabase
+    .from('users')
+    .select('*')
+    .eq('e_address', e_address)
+    .single();
+
+  return !!data;
+};
+
 export const fetchUserByAddress = async (e_address: string): Promise<User> => {
   const { data, error } = await supabase
     .from('users')
