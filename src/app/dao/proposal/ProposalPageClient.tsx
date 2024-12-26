@@ -1,7 +1,6 @@
 'use client';
 
 import { Proposal } from '@/app/services/proposal';
-import PropdatesContentCard from '@/components/propdates/contentCard';
 import PropdatesTimeline from '@/components/propdates/timeline';
 import CastVote from '@/components/proposal/castVote';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
@@ -38,7 +37,7 @@ interface ProposalPageClientProps {
   proposal: Proposal;
   proposalNumber: number;
   latestProposalNumber: number;
-  propdates: PropDateInterface[] | null;
+  propdates: PropDateInterface[];
   editors: Editor[] | null;
 }
 
@@ -46,11 +45,14 @@ export default function ProposalPageClient({
   proposal,
   proposalNumber,
   latestProposalNumber,
-  propdates = [],
+  propdates: defaultPropdates = [],
   editors = [],
 }: ProposalPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [propdates, setPropdates] =
+    useState<PropDateInterface[]>(defaultPropdates);
 
   const tabMap = ['description', 'votes', 'transactions', 'propdates'];
 
@@ -253,6 +255,7 @@ export default function ProposalPageClient({
             <Tabs.Content value='propdates' pt={2}>
               {propdates?.length && editors ? (
                 <PropdatesTimeline
+                  setPropdates={setPropdates}
                   proposal={proposal}
                   propdates={propdates}
                   editors={editors}

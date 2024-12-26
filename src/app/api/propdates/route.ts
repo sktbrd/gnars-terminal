@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       author,
     };
 
-    const { success, error } = await createPropDate(propDate);
+    const { success, error, data } = await createPropDate(propDate);
 
     if (!success) {
       return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: 'Internal server error' },

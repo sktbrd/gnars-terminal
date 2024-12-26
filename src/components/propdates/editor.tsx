@@ -1,20 +1,26 @@
+import { PropDateInterface } from '@/utils/database/interfaces';
 import { Textarea, VStack } from '@chakra-ui/react';
-import React from 'react';
-import { Button } from '../ui/button';
-import { useForm, Controller } from 'react-hook-form';
+import { Dispatch, SetStateAction } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useAccount } from 'wagmi';
+import { Button } from '../ui/button';
 
 interface FormData {
   content: string;
 }
 
-function PropdatesEditor({ propdateId }: { propdateId: string }) {
+interface PropdatesEditorProps {
+  propdateId: string;
+  setPropdates: Dispatch<SetStateAction<PropDateInterface[]>>;
+}
+
+function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
   const { control, handleSubmit } = useForm<FormData>();
   const { address } = useAccount();
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     console.log('Submitted update:', data);
-    fetch('/api/propdates', {
+    const res = await fetch('/api/propdates', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,6 +40,9 @@ function PropdatesEditor({ propdateId }: { propdateId: string }) {
       .catch((error) => {
         console.error('Error:', error);
       });
+
+    setPropdates((prevPropdates) => [...res.data, ...prevPropdates]);
+    console.log('Response:', res);
   };
 
   return (

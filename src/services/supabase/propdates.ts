@@ -62,8 +62,11 @@ export const fetchPropDateById = async (
 };
 
 export const createPropDate = async (propDate: PropDateInsert) => {
-  const { error } = await supabase.from('propdates').insert([propDate]);
-  return { success: !error, error };
+  const { data, error } = await supabase
+    .from('propdates')
+    .insert([propDate])
+    .select('*, author:users!propdates_author_fkey(*)');
+  return { success: !error, error, data };
 };
 
 export const updatePropDate = async (propDate: PropDate) => {
