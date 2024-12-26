@@ -51,8 +51,9 @@ export default function ProposalPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [propdates, setPropdates] =
-    useState<PropDateInterface[]>(defaultPropdates);
+  const [propdates, setPropdates] = useState<PropDateInterface[]>(
+    defaultPropdates || []
+  );
 
   const tabMap = ['description', 'votes', 'transactions', 'propdates'];
 
@@ -253,18 +254,12 @@ export default function ProposalPageClient({
               <ProposalTransactionsContent proposal={proposal} />
             </Tabs.Content>
             <Tabs.Content value='propdates' pt={2}>
-              {propdates?.length && editors ? (
-                <PropdatesTimeline
-                  setPropdates={setPropdates}
-                  proposal={proposal}
-                  propdates={propdates}
-                  editors={editors}
-                />
-              ) : (
-                <Text mt={2} textAlign={'center'} w={'full'}>
-                  No propdates yet
-                </Text>
-              )}
+              <PropdatesTimeline
+                setPropdates={setPropdates}
+                proposal={proposal}
+                propdates={propdates}
+                editors={editors || []}
+              />
             </Tabs.Content>
           </Tabs.Root>
         </Box>

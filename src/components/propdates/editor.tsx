@@ -19,7 +19,6 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
   const { address } = useAccount();
 
   const onSubmit = async (data: FormData) => {
-    console.log('Submitted update:', data);
     const res = await fetch('/api/propdates', {
       method: 'POST',
       headers: {

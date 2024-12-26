@@ -1,10 +1,11 @@
 import { Proposal } from '@/app/services/proposal';
 import { Editor, PropDateInterface } from '@/utils/database/interfaces';
-import { VStack } from '@chakra-ui/react';
+import { Text, VStack } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
 import { useAccount } from 'wagmi';
 import { PropdatesContentCardContent } from './contentCard';
 import PropdatesEditor from './editor';
+import { isAddressEqual, zeroAddress } from 'viem';
 
 interface PropdatesTimelineProps {
   proposal: Proposal;
@@ -20,7 +21,10 @@ function PropdatesTimeline({
   editors,
 }: PropdatesTimelineProps) {
   const { address } = useAccount();
-  const isEditor = editors.some((editor) => editor.user === address);
+  console.log({ proposal });
+  const isEditor =
+    editors.some((editor) => editor.user === address) ||
+    isAddressEqual(proposal.proposer, address || zeroAddress);
 
   return (
     <VStack gap={4}>
@@ -30,11 +34,20 @@ function PropdatesTimeline({
           setPropdates={setPropdates}
         />
       )}
-      <VStack gap={2} w='full'>
-        {propdates.map((propdate) => (
-          <PropdatesContentCardContent key={propdate.id} propdate={propdate} />
-        ))}
-      </VStack>
+      {propdates.length ? (
+        <VStack gap={2} w='full'>
+          {propdates.map((propdate) => (
+            <PropdatesContentCardContent
+              key={propdate.id}
+              propdate={propdate}
+            />
+          ))}
+        </VStack>
+      ) : (
+        <Text mt={2} textAlign={'center'} w={'full'}>
+          No propdates yet
+        </Text>
+      )}
     </VStack>
   );
 }

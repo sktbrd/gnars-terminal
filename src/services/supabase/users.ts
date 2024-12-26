@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/database/supabase_server';
-import { User } from '@/utils/database/types';
+import { User, UserInsert } from '@/utils/database/types';
 
 export const fetchAllUsers = async (): Promise<User[]> => {
   const { data, error } = await supabase
@@ -28,7 +28,7 @@ export const fetchUserByAddress = async (e_address: string): Promise<User> => {
   return data;
 };
 
-export const createUser = async (user: User): Promise<true> => {
+export const createUser = async (user: UserInsert): Promise<true> => {
   const { error } = await supabase.from('users').insert([user]);
 
   if (error) {
