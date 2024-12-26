@@ -1,5 +1,22 @@
 import { supabase } from '@/utils/database/supabase_server';
 import { Editor } from '@/utils/database/types';
+import { Address } from 'viem';
+
+export const fetchAllEditorsByProposalId = async (
+  proposalId: Address
+): Promise<Editor[]> => {
+  const { data, error } = await supabase
+    .from('editors')
+    .select('*')
+    .eq('proposal', proposalId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`Error fetching editors: ${error.message}`);
+  }
+
+  return data;
+};
 
 export const fetchAllEditors = async (): Promise<Editor[]> => {
   const { data, error } = await supabase

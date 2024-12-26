@@ -2,6 +2,7 @@
 
 import { Proposal } from '@/app/services/proposal';
 import PropdatesContentCard from '@/components/propdates/contentCard';
+import PropdatesTimeline from '@/components/propdates/timeline';
 import CastVote from '@/components/proposal/castVote';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
@@ -9,7 +10,7 @@ import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
 import ProposalStatus from '@/components/proposal/status';
 import { Tooltip } from '@/components/ui/tooltip';
 import { FormattedAddress } from '@/components/utils/ethereum';
-import { PropDateInterface } from '@/utils/database/interfaces';
+import { Editor, PropDateInterface } from '@/utils/database/interfaces';
 import {
   Box,
   Container,
@@ -38,6 +39,7 @@ interface ProposalPageClientProps {
   proposalNumber: number;
   latestProposalNumber: number;
   propdates: PropDateInterface[] | null;
+  editors: Editor[] | null;
 }
 
 export default function ProposalPageClient({
@@ -45,6 +47,7 @@ export default function ProposalPageClient({
   proposalNumber,
   latestProposalNumber,
   propdates = [],
+  editors = [],
 }: ProposalPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -248,8 +251,8 @@ export default function ProposalPageClient({
               <ProposalTransactionsContent proposal={proposal} />
             </Tabs.Content>
             <Tabs.Content value='propdates' pt={2}>
-              {propdates?.length ? (
-                <PropdatesContentCard propdates={propdates} />
+              {propdates?.length && editors ? (
+                <PropdatesTimeline propdates={propdates} editors={editors} />
               ) : (
                 <Text mt={2} textAlign={'center'} w={'full'}>
                   No propdates yet

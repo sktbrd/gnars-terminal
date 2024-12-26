@@ -32,7 +32,7 @@ export default function PropdatesContentCardList({
   );
 }
 
-function PropdatesContentCardContent({
+export function PropdatesContentCardContent({
   propdate,
 }: {
   propdate: PropDateInterface;
@@ -40,7 +40,7 @@ function PropdatesContentCardContent({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Card.Root size='md' borderRadius='lg' variant='outline'>
+    <Card.Root size='md' borderRadius='lg' variant='outline' w={'full'}>
       <Card.Body p={4}>
         <VStack gap={3} align='stretch'>
           <HStack gap={4}>
