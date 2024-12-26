@@ -1,7 +1,7 @@
 import { DAO_ADDRESSES } from '@/utils/constants';
 import { PropDateInterface } from '@/utils/database/interfaces';
 import { supabase } from '@/utils/database/supabase_server';
-import { PropDate } from '@/utils/database/types';
+import { PropDate, PropDateInsert } from '@/utils/database/types';
 import { PostgrestError } from '@supabase/supabase-js';
 import { Address } from 'viem';
 
@@ -61,9 +61,8 @@ export const fetchPropDateById = async (
   return { data, error };
 };
 
-export const createPropDate = async (propDate: PropDate) => {
+export const createPropDate = async (propDate: PropDateInsert) => {
   const { error } = await supabase.from('propdates').insert([propDate]);
-
   return { success: !error, error };
 };
 

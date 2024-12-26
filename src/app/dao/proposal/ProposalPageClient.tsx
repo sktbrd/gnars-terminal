@@ -252,7 +252,11 @@ export default function ProposalPageClient({
             </Tabs.Content>
             <Tabs.Content value='propdates' pt={2}>
               {propdates?.length && editors ? (
-                <PropdatesTimeline propdates={propdates} editors={editors} />
+                <PropdatesTimeline
+                  proposal={proposal}
+                  propdates={propdates}
+                  editors={editors}
+                />
               ) : (
                 <Text mt={2} textAlign={'center'} w={'full'}>
                   No propdates yet

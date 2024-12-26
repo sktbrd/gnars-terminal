@@ -1,6 +1,9 @@
 import { Database } from './database.types';
 
 export type PropDate = Database['public']['Tables']['propdates']['Row'];
+export type PropDateInsert =
+  Database['public']['Tables']['propdates']['Insert'];
+
 export type Editor = Database['public']['Tables']['editors']['Row'];
 export type Proposal = Database['public']['Tables']['proposals']['Row'];
 export type Like = Database['public']['Tables']['likes']['Row'];
