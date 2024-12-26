@@ -37,7 +37,7 @@ interface ProposalPageClientProps {
   proposal: Proposal;
   proposalNumber: number;
   latestProposalNumber: number;
-  propdates: PropDateInterface[];
+  propdates: PropDateInterface[] | null;
   editors: Editor[] | null;
 }
 
