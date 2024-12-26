@@ -41,8 +41,8 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
         console.error('Error:', error);
       });
 
+    control._reset();
     setPropdates((prevPropdates) => [...res.data, ...prevPropdates]);
-    console.log('Response:', res);
   };
 
   return (
