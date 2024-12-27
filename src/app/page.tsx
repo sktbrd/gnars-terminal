@@ -6,10 +6,12 @@ import { Status } from '@/components/proposal/status';
 import { fetchAuction } from '@/services/auction';
 import { DAO_ADDRESSES } from '@/utils/constants';
 import { Grid, GridItem, VStack } from '@chakra-ui/react';
+import { headers } from 'next/headers';
 
 export const revalidate = 0;
 
 async function App() {
+  headers();
   const auctions = await fetchAuction(
     DAO_ADDRESSES.token,
     'endTime',

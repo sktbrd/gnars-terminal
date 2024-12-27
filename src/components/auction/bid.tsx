@@ -31,7 +31,7 @@ export function AuctionBid(props: BidProps) {
   const [txHash, setTxHash] = useState<string | null>(null);
 
   const account = useAccount();
-  const [bidValue, setBidValue] = useState('111');
+  const [bidValue, setBidValue] = useState('111111');
 
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
@@ -83,35 +83,48 @@ export function AuctionBid(props: BidProps) {
 
   return (
     <VStack align={'stretch'} gap={0} w={'full'}>
-      <HStack mt={4} w={'100%'} >
+      {txHash && (
+        <HStack maxW={'full'}>
+          <ChakraLink asChild>
+            <NextLink href={`https://basescan.org/tx/${txHash}`}>
+              Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
+              <LuExternalLink />
+            </NextLink>
+          </ChakraLink>
+        </HStack>
+      )}
+      <VStack w={'100%'} align={'stretch'} gap={2}>
         {isAuctionRunning ? (
           <>
-            <Tooltip showArrow content='Sparks'>
-              <ChakraLink
-                asChild
-                variant={'plain'}
-                fontWeight={'bold'}
-                fontSize={'xl'}
-              >
-                <NextLink
-                  target='_blank'
-                  href={'https://zora.co/writings/sparks'}
+            <HStack w={'100%'}>
+              <Tooltip showArrow content='Sparks'>
+                <ChakraLink
+                  asChild
+                  variant={'plain'}
+                  fontWeight={'bold'}
+                  fontSize={'2xl'}
                 >
-                  ✧
-                </NextLink>
-              </ChakraLink>
-            </Tooltip>
-            <NumberInputRoot
-
-              w={'100%'}
-              defaultValue={bidValue}
-              step={111}
-              onValueChange={(datails) => setBidValue(datails.value)}
-              disabled={account.isDisconnected}
-              min={0}
-            >
-              <NumberInputField />
-            </NumberInputRoot>
+                  <NextLink
+                    target='_blank'
+                    href={'https://zora.co/writings/sparks'}
+                  >
+                    ✧
+                  </NextLink>
+                </ChakraLink>
+              </Tooltip>
+              <NumberInputRoot
+                w={'100%'}
+                fontFamily={'mono'}
+                size={'lg'}
+                defaultValue={bidValue}
+                step={111111}
+                onValueChange={(datails) => setBidValue(datails.value)}
+                disabled={account.isDisconnected}
+                min={0}
+              >
+                <NumberInputField />
+              </NumberInputRoot>
+            </HStack>
             <Button
               variant={'surface'}
               onClick={onClickBid}
@@ -121,7 +134,7 @@ export function AuctionBid(props: BidProps) {
                 parseEther(bidValue) < winningBid
               }
             >
-              Bid
+              Place Bid
             </Button>
           </>
         ) : (
@@ -134,17 +147,7 @@ export function AuctionBid(props: BidProps) {
             Settle auction
           </Button>
         )}
-      </HStack>
-      <HStack maxW={'full'}>
-        {txHash && (
-          <ChakraLink asChild>
-            <NextLink href={`https://basescan.org/tx/${txHash}`}>
-              Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
-              <LuExternalLink />
-            </NextLink>
-          </ChakraLink>
-        )}
-      </HStack>
+      </VStack>
     </VStack>
   );
 }
