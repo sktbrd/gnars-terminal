@@ -9,8 +9,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { PropDateInterface } from '@/utils/database/interfaces';
-import { useDialog, VStack } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { VStack } from '@chakra-ui/react';
+import { Dispatch, SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAccount } from 'wagmi';
 import Editor from '../create-proposal/Editor';
