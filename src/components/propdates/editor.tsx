@@ -1,9 +1,21 @@
 import { PropDateInterface } from '@/utils/database/interfaces';
-import { Textarea, VStack } from '@chakra-ui/react';
+import { Box, Textarea, VStack } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAccount } from 'wagmi';
 import { Button } from '../ui/button';
+import Editor from '../create-proposal/Editor';
+import {
+  DialogActionTrigger,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface FormData {
   content: string;
@@ -45,24 +57,46 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
   };
 
   return (
-    <VStack align={'end'} gap={2} w={'full'} asChild>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          name='content'
-          control={control}
-          defaultValue=''
-          rules={{ required: 'Update content is required' }}
-          render={({ field, fieldState }) => (
-            <Textarea
-              {...field}
-              placeholder='Write your proposal updates'
-              minH={'140px'}
-            />
-          )}
-        />
-        <Button type='submit'>Submit</Button>
-      </form>
-    </VStack>
+    <DialogRoot size={'lg'}>
+      <DialogTrigger asChild>
+        <Button w={'full'} variant='surface'>
+          Create new Propdate
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogHeader>
+            <DialogTitle>Create new Propdate</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <VStack align={'stretch'} gap={2} w={'full'} asChild>
+              <Controller
+                name='content'
+                control={control}
+                defaultValue=''
+                rules={{ required: 'Update content is required' }}
+                render={({ field }) => (
+                  <Editor
+                    value={field.value}
+                    onChange={(content) => {
+                      field.onChange(content);
+                    }}
+                    height={400}
+                  />
+                )}
+              />
+              {/* <Button type='submit'>Submit</Button> */}
+            </VStack>
+          </DialogBody>
+          <DialogFooter>
+            <DialogActionTrigger asChild>
+              <Button variant='outline'>Cancel</Button>
+            </DialogActionTrigger>
+            <Button type='submit'>Create</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </DialogRoot>
   );
 }
 
