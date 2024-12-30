@@ -1,14 +1,6 @@
-import { PropDateInterface } from '@/utils/database/interfaces';
-import { Box, Textarea, VStack } from '@chakra-ui/react';
-import { Dispatch, SetStateAction } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { useAccount } from 'wagmi';
-import { Button } from '../ui/button';
-import Editor from '../create-proposal/Editor';
 import {
   DialogActionTrigger,
   DialogBody,
-  DialogCloseTrigger,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -16,6 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { PropDateInterface } from '@/utils/database/interfaces';
+import { useDialog, VStack } from '@chakra-ui/react';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useAccount } from 'wagmi';
+import Editor from '../create-proposal/Editor';
+import { Button } from '../ui/button';
 
 interface FormData {
   content: string;
@@ -27,7 +26,7 @@ interface PropdatesEditorProps {
 }
 
 function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
-  const { control, handleSubmit } = useForm<FormData>();
+  const { control, handleSubmit, formState } = useForm<FormData>();
   const { address } = useAccount();
 
   const onSubmit = async (data: FormData) => {
@@ -52,12 +51,11 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
         console.error('Error:', error);
       });
 
-    control._reset();
     setPropdates((prevPropdates) => [...res.data, ...prevPropdates]);
   };
 
   return (
-    <DialogRoot size={'lg'}>
+    <DialogRoot size={'lg'} onExitComplete={() => control._reset()}>
       <DialogTrigger asChild>
         <Button w={'full'} variant='surface'>
           Create new Propdate
@@ -85,14 +83,25 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
                   />
                 )}
               />
-              {/* <Button type='submit'>Submit</Button> */}
             </VStack>
           </DialogBody>
           <DialogFooter>
-            <DialogActionTrigger asChild>
-              <Button variant='outline'>Cancel</Button>
-            </DialogActionTrigger>
-            <Button type='submit'>Create</Button>
+            {formState.isSubmitted ? (
+              <DialogActionTrigger asChild>
+                <Button variant='outline'>Close</Button>
+              </DialogActionTrigger>
+            ) : formState.isSubmitting ? (
+              <Button variant='outline' disabled>
+                Submitting...
+              </Button>
+            ) : (
+              <>
+                <DialogActionTrigger asChild>
+                  <Button variant='outline'>Cancel</Button>
+                </DialogActionTrigger>
+                <Button type='submit'>Submit</Button>
+              </>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

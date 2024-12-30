@@ -36,6 +36,7 @@ const Editor: React.FC<EditorProps> = ({
       tabSize={4}
       hideToolbar={false}
       data-color-mode={colorMode}
+      aria-disabled={true}
     />
     // </div>
   );
