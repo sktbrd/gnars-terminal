@@ -1,16 +1,5 @@
-'use client';
-
 import { PropDateInterface } from '@/utils/database/interfaces';
-import {
-  Box,
-  Button,
-  Card,
-  HStack,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { useState } from 'react';
+import { Box, Card, HStack, Stack, Text, VStack } from '@chakra-ui/react';
 import { Address } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
@@ -37,8 +26,6 @@ export function PropdatesContentCardContent({
 }: {
   propdate: PropDateInterface;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   return (
     <Card.Root size='md' borderRadius='lg' variant='outline' w={'full'}>
       <Card.Body p={4}>
@@ -57,14 +44,10 @@ export function PropdatesContentCardContent({
             _dark={{ bg: 'bg.emphasized' }}
             p={3}
             borderRadius='md'
-            maxHeight={isExpanded ? 'none' : '200px'}
             overflow='hidden'
           >
             <Markdown text={propdate.text} />
           </Box>
-          <Button onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? 'Collapse' : `Read more`}
-          </Button>
         </VStack>
       </Card.Body>
     </Card.Root>
