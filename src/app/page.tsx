@@ -8,7 +8,7 @@ import { DAO_ADDRESSES } from '@/utils/constants';
 import { Grid, GridItem, VStack } from '@chakra-ui/react';
 import { headers } from 'next/headers';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 async function App() {
   headers();
