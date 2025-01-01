@@ -1,5 +1,6 @@
 import { supabase } from '@/utils/database/supabase_server';
-import { Like } from '@/utils/database/types';
+import { Like, LikeInsert } from '@/utils/database/types';
+import { PostgrestError } from '@supabase/supabase-js';
 
 export const fetchAllLikes = async (): Promise<Like[]> => {
   const { data, error } = await supabase
@@ -15,10 +16,7 @@ export const fetchAllLikes = async (): Promise<Like[]> => {
 };
 
 // Since 'likes' might have a composite key, adjust the fetch by ID accordingly
-export const fetchLikeById = async (
-  propdate: number,
-  user: string
-): Promise<Like> => {
+export const fetchLikeById = async (propdate: number, user: string) => {
   const { data, error } = await supabase
     .from('likes')
     .select('*')
@@ -26,14 +24,10 @@ export const fetchLikeById = async (
     .eq('user', user)
     .single();
 
-  if (error) {
-    throw new Error(`Error fetching like: ${error.message}`);
-  }
-
-  return data;
+  return { data, error };
 };
 
-export const createLike = async (like: Like): Promise<true> => {
+export const createLike = async (like: LikeInsert): Promise<true> => {
   const { error } = await supabase.from('likes').insert([like]);
 
   if (error) {
@@ -59,5 +53,3 @@ export const deleteLike = async (
 
   return true;
 };
-
-// Note: Update operation might not be necessary for likes as it's typically a toggle action
