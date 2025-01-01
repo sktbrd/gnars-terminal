@@ -9,6 +9,7 @@ export const metadata = {
 
 export default async function PropdatesPage() {
   const { data } = await fetchAllPropDates();
+  console.log(data ? data[29] : null);
   return (
     <Container p={0} maxW='breakpoint-lg'>
       <VStack gap={{ base: 2, md: 4 }} align={'start'}>

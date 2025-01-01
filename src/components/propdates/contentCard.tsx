@@ -4,6 +4,7 @@ import { Address } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
 import { FormattedAddress } from '../utils/ethereum';
+import PropdatesLike from './like';
 
 interface PropdatesContentCardProps {
   propdates: PropDateInterface[];
@@ -33,10 +34,13 @@ export function PropdatesContentCardContent({
           <HStack gap={4}>
             <EnsAvatar address={propdate.author.e_address as Address} />
             <HStack justify={'space-between'} w='full'>
-              <FormattedAddress address={propdate.author.e_address} />
-              <Text color='gray.500' fontSize={'sm'}>
-                {new Date(propdate.created_at).toLocaleDateString()}
-              </Text>
+              <HStack>
+                <FormattedAddress address={propdate.author.e_address} />
+                <Text color='gray.500' fontSize={'sm'}>
+                  {new Date(propdate.created_at).toLocaleDateString()}
+                </Text>
+              </HStack>
+              <PropdatesLike propdate={propdate} />
             </HStack>
           </HStack>
           <Box

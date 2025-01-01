@@ -1,9 +1,14 @@
+import { Address } from 'viem';
+
 export interface PropDateInterface {
   created_at: string;
   id: number;
   text: string;
   proposal: Proposal;
   author: User;
+  likes: {
+    user: string;
+  }[];
 }
 
 export interface Editor {

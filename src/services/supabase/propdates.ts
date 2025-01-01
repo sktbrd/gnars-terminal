@@ -12,7 +12,7 @@ export const fetchAllPropDates = async (): Promise<{
   const { data, error } = await supabase
     .from('propdates')
     .select(
-      '*, proposal:proposals!inner(*), author:users!propdates_author_fkey(*)'
+      '*, proposal:proposals!inner(*), author:users!propdates_author_fkey(*), likes(user)'
     )
     .eq('proposal.dao', DAO_ADDRESSES.token)
     .order('created_at', { ascending: false });
@@ -28,7 +28,9 @@ export const fetchAllPropDatesByProposalId = async (
 }> => {
   const { data, error } = await supabase
     .from('propdates')
-    .select('*, proposal:proposals(*), author:users!propdates_author_fkey(*)')
+    .select(
+      '*, proposal:proposals(*), author:users!propdates_author_fkey(*), likes(user)'
+    )
     .eq('proposal', proposal)
     .order('created_at', { ascending: false });
 
