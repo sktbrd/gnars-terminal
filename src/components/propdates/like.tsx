@@ -6,6 +6,7 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 import { Button } from '../ui/button';
 import { useCallback, useState } from 'react';
+import { toaster } from '@/components/ui/toaster';
 
 interface PropdatesLikeProps {
   propdate: PropDateInterface;
@@ -19,42 +20,64 @@ function PropdatesLike({ propdate }: PropdatesLikeProps) {
   const propdateLiked =
     likes.some((like) => like.user === address) || userLiked;
 
-  const handleLike = async () => {
-    if (!address) return;
-
+  const handleLike = useCallback(async () => {
     const isLiking = !propdateLiked;
-    setUserLiked(isLiking);
-    setLikes((prevLikes) =>
-      isLiking
-        ? [...prevLikes, { user: address }]
-        : prevLikes.filter((like) => like.user !== address)
-    );
-    try {
-      const response = await fetch('/api/propdates/likes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propdate: propdate.id, user: address }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error(data.error);
+
+    const promise = new Promise<void>(async (resolve, reject) => {
+      if (!address) return;
+
+      setUserLiked(isLiking);
+      setLikes((prevLikes) =>
+        isLiking
+          ? [...prevLikes, { user: address }]
+          : prevLikes.filter((like) => like.user !== address)
+      );
+      try {
+        const response = await fetch('/api/propdates/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ propdate: propdate.id, user: address }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          console.error(data.error);
+          setUserLiked(!isLiking);
+          setLikes((prevLikes) =>
+            isLiking
+              ? prevLikes.filter((like) => like.user !== address)
+              : [...prevLikes, { user: address }]
+          );
+          reject(data.error);
+        } else {
+          resolve();
+        }
+      } catch (error) {
         setUserLiked(!isLiking);
         setLikes((prevLikes) =>
           isLiking
             ? prevLikes.filter((like) => like.user !== address)
             : [...prevLikes, { user: address }]
         );
+        console.error(error);
+        reject(error);
       }
-    } catch (error) {
-      setUserLiked(!isLiking);
-      setLikes((prevLikes) =>
-        isLiking
-          ? prevLikes.filter((like) => like.user !== address)
-          : [...prevLikes, { user: address }]
-      );
-      console.error(error);
-    }
-  };
+    });
+    const action = isLiking ? 'liked' : 'unliked';
+    toaster.promise(promise, {
+      success: {
+        title: `Successfully ${action}!`,
+        description: `You have successfully ${action}`,
+      },
+      error: {
+        title: `${isLiking ? 'Like' : 'Unlike'} failed`,
+        description: `Something went wrong while trying to ${isLiking ? 'like' : 'unlike'}`,
+      },
+      loading: {
+        title: `${isLiking ? 'Liking' : 'Unliking'}...`,
+        description: `Please wait while we ${isLiking ? 'like' : 'unlike'}`,
+      },
+    });
+  }, [address, propdateLiked]);
 
   return (
     <Button
