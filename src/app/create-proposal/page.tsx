@@ -89,7 +89,7 @@ const CreateProposalPage = () => {
         return calldata;
     };
 
-    const onSubmit = useCallback((data: FormData) => {
+    const onSubmit = useCallback(async (data: FormData) => {
         const description = `${data.proposalTitle}&&${data.editorContent}`;
         console.log("Form data:", data);
         console.log("Transactions:", transactions);
@@ -105,8 +105,8 @@ const CreateProposalPage = () => {
                 };
             }
             else if (transaction.type === "SEND NFT") {
-
-                const recipient = transaction.details.address;
+                console.log("Transaction: ", transaction);
+                const recipient = transaction.details.toAddress;
                 const tokenId = transaction.details.tokenID;
                 console.log("Transaction: ", transaction);
                 console.log("Transaction details:", transaction.details);
@@ -202,26 +202,42 @@ const CreateProposalPage = () => {
                     name,
                     symbol,
                     description,
-                    media,
+                    animationURI,
+                    imageURI,
                     editionSize,
                     royalty,
                     payoutAddress,
                     adminAddress,
-                    saleConfig, // Added field from TransactionItem
+                    saleConfig,
                 } = transaction.details;
+
+                // Convert price to 18 decimal units
+                const priceInWei = BigInt(Math.floor(parseFloat(transaction.details.price) * 10 ** 18).toString());
+
+                const saleConfigTuple = [
+                    BigInt(saleConfig.publicSalePrice),
+                    saleConfig.maxSalePurchasePerAddress || 1000000, // Default to a large number of sales
+                    BigInt(saleConfig.publicSaleStart),
+                    BigInt(saleConfig.publicSaleEnd),
+                    BigInt(saleConfig.presaleStart),
+                    BigInt(saleConfig.presaleEnd),
+                    saleConfig.presaleMerkleRoot,
+                ];
 
                 const args = [
                     name,
                     symbol,
-                    BigInt(editionSize),
-                    parseInt(royalty),
+                    BigInt(Math.min(Number(editionSize), 1000)), // Lower the edition size to a maximum of 1000
+                    Math.min(parseInt(royalty), 1000), // Cap royalty at 1000 bps (10%)
                     payoutAddress,
                     adminAddress,
-                    saleConfig, // Pass structured saleConfig
+                    saleConfigTuple, // pass as array
                     description,
-                    "", // animationURI (default empty)
-                    "", // imageURI (default empty)
+                    animationURI,
+                    imageURI,
                 ];
+
+                console.log("DROPOSAL MINT args:", args);
 
                 const encodedCalldata = encodeFunctionData({
                     abi: DroposalABI,
@@ -230,7 +246,7 @@ const CreateProposalPage = () => {
                 });
 
                 return {
-                    target: tokenAddress as Address, // Contract address
+                    target: "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c" as Address,
                     value: "0",
                     calldata: encodedCalldata,
                 };
@@ -249,16 +265,25 @@ const CreateProposalPage = () => {
         });
 
         console.log(governorAddress);
-        writeProposal({
-            args: [
-                preparedTransactions.map((transaction) => transaction.target),
-                preparedTransactions.map((transaction) => transaction.value),
-                preparedTransactions.map((transaction) => transaction.calldata as `0x${string}`),
-                description,
-            ],
-        });
+        console.log(preparedTransactions.map((transaction) => transaction.target));
+        console.log(preparedTransactions.map((transaction) => transaction.calldata));
 
-        alert("Proposal prepared! Check the console for details.");
+        try {
+            await writeProposal({
+                args: [
+                    preparedTransactions.map((transaction) => transaction.target),
+                    preparedTransactions.map((transaction) => transaction.value),
+                    preparedTransactions.map((transaction) => transaction.calldata as `0x${string}`),
+                    description,
+                ],
+            });
+            console.log("Proposal submitted successfully!", preparedTransactions);
+            alert("Proposal prepared! Check the console for details.");
+        } catch (error) {
+            console.error("Error submitting proposal:", error);
+            console.error("Stack trace:", (error as any).stack);
+            alert("Failed to submit proposal. Check the console for details.");
+        }
     }, [transactions]);
 
     const isTitleValid = proposalTitle?.length > 5;

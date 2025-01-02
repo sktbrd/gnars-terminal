@@ -8,6 +8,7 @@ import { USDC_CONTRACT_ADDRESS } from "@/utils/constants";
 import { isAddress } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
 import GnarReserveInfo from "./GnarReserveInfo";
+import { validate } from "graphql";
 
 type TransactionItemProps = {
     type: string;
@@ -38,6 +39,8 @@ type DroposalMintDetails = {
         presaleMerkleRoot: string;
     };
     editionType: string;
+    animationURI?: string;
+    imageURI?: string;
 };
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel }) => {
@@ -66,37 +69,38 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             case "SEND USDC":
             case "SEND IT":
                 return [
-                    { name: "amount", placeholder: "Enter amount" },
+                    { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
                     { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "SEND NFT":
                 return [
-                    { name: "tokenID", placeholder: "Enter token ID" },
+                    { name: "tokenID", placeholder: "Enter token ID", validate: (value: string) => !isNaN(Number(value)) || "Invalid token ID." },
                     { name: "address", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "AIRDROP RANDOM GNAR":
                 return [
-                    { name: "toAddress", placeholder: "Address" },
-                    { name: "amount", placeholder: "Amount" }
+                    { name: "toAddress", placeholder: "Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
+                    { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." }
                 ];
             case "DROPOSAL MINT":
                 return [
-                    { name: "name", placeholder: "Name" },
-                    { name: "symbol", placeholder: "Symbol" },
-                    { name: "description", placeholder: "Description" },
-                    { name: "media", placeholder: "Media URL", type: "file" },
-                    { name: "price", placeholder: "Price (ETH)" },
-                    ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text" }] : []),
-                    { name: "startTime", placeholder: "Start Time", type: "date" },
-                    { name: "endTime", placeholder: "End Time", type: "date" },
-                    { name: "mintLimit", placeholder: "Mint Limit Per Address" },
-                    { name: "royalty", placeholder: "Royalty (%)" },
+                    { name: "name", placeholder: "Name", validate: (value: string) => value.trim() !== "" || "Name is required." },
+                    { name: "symbol", placeholder: "Symbol", validate: (value: string) => value.trim() !== "" || "Symbol is required." },
+                    { name: "description", placeholder: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
+                    { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => value.trim() !== "" || "Animation URI is required." },
+                    { name: "imageURI", placeholder: "Image URI", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
+                    { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value)) || "Invalid price." },
+                    ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text", validate: (value: string) => !isNaN(Number(value)) || "Invalid edition size." }] : []),
+                    { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value)) || "Invalid start time." },
+                    { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value)) || "Invalid end time." },
+                    { name: "mintLimit", placeholder: "Mint Limit Per Address", validate: (value: string) => !isNaN(Number(value)) || "Invalid mint limit." },
+                    { name: "royalty", placeholder: "Royalty (%)", validate: (value: string) => !isNaN(Number(value)) || "Invalid royalty." },
                     { name: "payoutAddress", placeholder: "Payout Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
                     { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
                 ];
             case "CUSTOM TRANSACTION":
                 return [
-                    { name: "customData", placeholder: "Enter custom transaction data" }
+                    { name: "customData", placeholder: "Enter custom transaction data", validate: (value: string) => value.trim() !== "" || "Custom data is required." }
                 ];
             default:
                 return [];
@@ -123,11 +127,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         } else if (type === "DROPOSAL MINT") {
             const parseToBigInt = (value: string) => {
                 if (!value || isNaN(Number(value))) return BigInt(0);
-                return BigInt(value);
+                return BigInt(Math.floor(Number(value) * 10 ** 18).toString());
             };
 
             const saleConfig = {
-                publicSalePrice: parseToBigInt(transaction.details.price), // Validate price
+                publicSalePrice: parseToBigInt(transaction.details.price), // Convert price to 18 decimal units
                 maxSalePurchasePerAddress: 2,
                 publicSaleStart: parseToBigInt(transaction.details.startTime),
                 publicSaleEnd: parseToBigInt(transaction.details.endTime),
@@ -141,7 +145,8 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 symbol: transaction.details.symbol || "",
                 description: transaction.details.description || "",
                 price: transaction.details.price || "0",
-                media: file ? file.name : transaction.details.media || "",
+                animationURI: transaction.details.animationURI || "",
+                imageURI: transaction.details.imageURI || "",
                 editionSize: editionType === "Open" ? UNLIMITED_EDITION_SIZE : transaction.details.editionSize,
                 startTime: transaction.details.startTime || "0",
                 endTime: transaction.details.endTime || "0",
