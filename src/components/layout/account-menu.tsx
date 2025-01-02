@@ -26,6 +26,7 @@ import { Text } from '@chakra-ui/react';
 import { ColorModeIcon, useColorMode } from '../ui/color-mode';
 import Link from 'next/link';
 import { BsGithub } from 'react-icons/bs';
+import { FormattedAddress } from '../utils/ethereum';
 
 export default function AccountMenu() {
   const { toggleColorMode, colorMode } = useColorMode();
@@ -57,11 +58,11 @@ export default function AccountMenu() {
           {ensAvatar ? (
             <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
           ) : null}
-          {ensName || formatEthAddress(address, 3)}
+          {FormattedAddress({ address })}
         </Button>
       </MenuTrigger>
       <MenuContent>
-        <MenuItem value='balance' gap={1}>
+        {/* <MenuItem value='balance' gap={1}>
           <LuSparkle width={2} height={2} style={{ marginRight: '4px' }} />{' '}
           Balance: {weiToSparks(balance?.value || 0n)}
         </MenuItem>
@@ -74,7 +75,11 @@ export default function AccountMenu() {
             <BsGithub style={{ background: 'none' }} />
             View Github
           </MenuItem>
-        </Link>
+        </Link> */}
+        <MenuItem value='wallet' gap={1}>
+          <LuSparkle width={2} height={2} style={{ marginRight: '4px' }} />{' '}
+          My Wallet
+        </MenuItem>
         <MenuItem
           value='disconnect'
           color='fg.error'

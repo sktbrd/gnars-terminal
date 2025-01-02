@@ -58,8 +58,10 @@ export default function Navbar() {
             </IconButton>
           </NextLink>
           <ColorModeButton variant={'ghost'} />
-          <ConnectButton />
+          <AccountMenu />
+          {/* <ConnectButton /> */}
           <Sparks />
+
         </HStack>
       ) : (
         <AccountMenu />
