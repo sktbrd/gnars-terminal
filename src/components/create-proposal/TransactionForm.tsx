@@ -30,7 +30,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
 
     const handleAdd = () => {
         const details = { ...formData };
+        // Ensure animationURI can be empty
+        if (type === "DROPOSAL MINT" && !formData.animationURI) {
+            details.animationURI = "";
+        }
         onAdd({ type, details });
+    };
+
+    const isFormValid = () => {
+        return fields.every(field => {
+            if (field.name === "animationURI") {
+                return true; // Allow animationURI to be empty
+            }
+            return field.type !== "file" && formData[field.name]?.trim() && !errors[field.name];
+        });
     };
 
     return (
@@ -85,12 +98,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                 <Button
                     colorScheme="teal"
                     onClick={handleAdd}
-                    disabled={
-                        fields.some(field =>
-                            field.type !== "file" &&
-                            !formData[field.name]?.trim() || errors[field.name]
-                        ) || (fields.some(field => field.type === "file") && !onFileChange)
-                    }                >
+                    disabled={!isFormValid()}
+                >
                     Add Transaction
                 </Button>
             </HStack>

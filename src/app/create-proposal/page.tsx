@@ -54,6 +54,7 @@ const CreateProposalPage = () => {
     const proposalTitle = watch("proposalTitle");
     const editorContent = watch("editorContent");
     const ReadGovernorTreasure = useReadGovernorTreasury();
+    const [currentStep, setCurrentStep] = useState(0);
     const handleAddTransaction = useCallback(() => {
         setShowTransactionOptions(true);
     }, []);
@@ -291,7 +292,7 @@ const CreateProposalPage = () => {
     return (
         <Container maxW="container.lg" px={{ base: "0", md: "20%" }}>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <StepsRoot defaultValue={0} count={3}>
+                <StepsRoot defaultStep={0} count={3} step={currentStep} onStepChange={(details) => setCurrentStep(details.step)}>
                     <StepsList>
                         <StepsItem index={0} icon={<LuFileText />} />
                         <StepsItem index={1} icon={<LuPlus />} />
@@ -395,17 +396,28 @@ const CreateProposalPage = () => {
                     {/* Navigation Buttons */}
                     <Group mt={6} justify="space-between">
                         <StepsPrevTrigger asChild>
-                            <Button variant="outline" size="sm">Previous</Button>
+                            <div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    Previous
+                                </Button>
+                            </div>
                         </StepsPrevTrigger>
                         <StepsNextTrigger asChild>
-                            <Button
-                                variant="solid"
-                                size="sm"
-                                colorScheme="teal"
-                                disabled={!isTitleValid && !transactions.length}
-                            >
-                                Next
-                            </Button>
+                            <div>
+                                {currentStep < 3 && (
+                                    <Button
+                                        variant="solid"
+                                        size="sm"
+                                        colorScheme="teal"
+                                        disabled={!isTitleValid && !transactions.length}
+                                    >
+                                        Next
+                                    </Button>
+                                )}
+                            </div>
                         </StepsNextTrigger>
                     </Group>
                 </StepsRoot>

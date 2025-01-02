@@ -87,7 +87,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     { name: "name", placeholder: "Name", validate: (value: string) => value.trim() !== "" || "Name is required." },
                     { name: "symbol", placeholder: "Symbol", validate: (value: string) => value.trim() !== "" || "Symbol is required." },
                     { name: "description", placeholder: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
-                    { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => value.trim() !== "" || "Animation URI is required." },
+                    { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => true }, // Animation URI is optional
                     { name: "imageURI", placeholder: "Image URI", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
                     { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value)) || "Invalid price." },
                     ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text", validate: (value: string) => !isNaN(Number(value)) || "Invalid edition size." }] : []),
