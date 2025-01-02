@@ -58,7 +58,7 @@ export default function AccountMenu() {
           {ensAvatar ? (
             <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
           ) : null}
-          {FormattedAddress({ address })}
+          <FormattedAddress address={address} />
         </Button>
       </MenuTrigger>
       <MenuContent>
