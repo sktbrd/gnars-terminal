@@ -8,6 +8,7 @@ import { cookieToInitialState } from 'wagmi';
 import { Providers } from '@/components/layout/providers';
 import { Box, Container } from '@chakra-ui/react';
 import Navbar from '@/components/layout/navbar';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -53,6 +54,7 @@ export default function RootLayout(props: { children: ReactNode }) {
           >
             <Container maxW={'breakpoint-2xl'}>{props.children}</Container>
           </Box>
+          <Toaster />
         </Providers>
       </body>
     </html>

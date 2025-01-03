@@ -12,15 +12,16 @@ import {
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { BsGithub } from 'react-icons/bs';
+import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
 import AccountMenu from './account-menu';
 import ConnectButton from './connect-button';
 import Sparks from './sparks';
-import { FaEthereum, FaHome, FaVoteYea } from 'react-icons/fa';
 
 export default function Navbar() {
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
-    fallback: [true],
+    fallback: [false],
+    ssr: false,
   });
 
   return (
@@ -78,6 +79,9 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
         _open={{
           animation: 'fade-in 300ms ease-out',
         }}
+        _hidden={{
+          animation: 'fade-out 300ms ease-in',
+        }}
         asChild
         gap={'0.5'}
       >
@@ -108,10 +112,26 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
           animation: 'fade-in 900ms ease-out',
         }}
         _hidden={{
-          animation: 'fade-out 300ms ease-in',
+          animation: 'fade-out 900ms ease-in',
         }}
-        gap={'0.5'}
         asChild
+        gap={'0.5'}
+      >
+        <NextLink href='/propdates' style={{ width: '100%' }}>
+          <FaNewspaper />
+          PROPDATES
+        </NextLink>
+      </Link>
+      <Link
+        data-state='open'
+        _open={{
+          animation: 'fade-in 1200ms ease-out',
+        }}
+        _hidden={{
+          animation: 'fade-out 1200ms ease-in',
+        }}
+        asChild
+        gap={'0.5'}
       >
         <NextLink href='/treasure' style={{ width: '100%' }}>
           <FaEthereum />
@@ -121,10 +141,10 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
       <Link
         data-state='open'
         _open={{
-          animation: 'fade-in 900ms ease-out',
+          animation: 'fade-in 1500ms ease-out',
         }}
         _hidden={{
-          animation: 'fade-out 300ms ease-in',
+          animation: 'fade-out 1500ms ease-in',
         }}
         gap={'0.5'}
         asChild
