@@ -79,7 +79,7 @@ const CreateProposalPage = () => {
     // Helper function for USDC transfer calldata encoding
     const encodeUSDCTransfer = (recipient: string, amount: string, decimals: number) => {
         // Calculate the token amount based on decimals
-        const adjustedAmount = BigInt(amount) * BigInt(10 ** decimals);
+        const adjustedAmount = BigInt(amount);
         // Encode the function data
         const calldata = encodeFunctionData({
             abi: USDC_ABI,
@@ -100,19 +100,14 @@ const CreateProposalPage = () => {
             if (transaction.type === "SEND ETH") {
                 console.log("Transaction details:", transaction.details);
                 return {
-                    target: transaction.details.address, // Target is destination wallet
+                    target: transaction.details.toAddress, // Target is destination wallet
                     value: transaction.details.amount, // ETH amount
                     calldata: "0x", // No calldata for ETH
                 };
             }
             else if (transaction.type === "SEND NFT") {
-                console.log("Transaction: ", transaction);
                 const recipient = transaction.details.toAddress;
                 const tokenId = transaction.details.tokenID;
-                console.log("Transaction: ", transaction);
-                console.log("Transaction details:", transaction.details);
-                console.log("Recipient:", recipient);
-                console.log("Token ID:", tokenId);
                 const encodedCalldata = encodeFunctionData({
                     abi: tokenAbi,
                     functionName: "transferFrom",
@@ -136,8 +131,10 @@ const CreateProposalPage = () => {
             }
             else if (transaction.type === "SEND USDC") {
                 const usdcAddress = USDC_CONTRACT_ADDRESS
+                console.log("Transaction: ", transaction);
+                console.log('amount:', transaction.details.amount);
                 const encodedCalldata = encodeUSDCTransfer(
-                    transaction.details.address,
+                    transaction.details.toAddress,
                     transaction.details.amount,
                     transaction.details.decimals
                 );
@@ -152,7 +149,7 @@ const CreateProposalPage = () => {
             else if (transaction.type === "SEND IT") {
                 const recipient = transaction.details.toAddress;
                 const amount = transaction.details.amount;
-                const adjustedAmount = BigInt(amount) * BigInt(10 ** 18);
+                const adjustedAmount = BigInt(amount);
                 console.log("Transaction: ", transaction);
                 console.log("Recipient:", recipient);
                 console.log("Amount:", amount);
@@ -163,7 +160,7 @@ const CreateProposalPage = () => {
                         //to
                         recipient as Address,
                         //amount
-                        adjustedAmount.toString(),
+                        adjustedAmount.toString(), // Convert BigInt to string
                     ],
                 });
                 console.log("Encoded calldata:", encodedCalldata);

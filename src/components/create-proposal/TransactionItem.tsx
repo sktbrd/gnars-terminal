@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { VStack, Text, HStack, SimpleGrid } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio"
 import TransactionForm from "./TransactionForm";
-import { USDC_CONTRACT_ADDRESS } from "@/utils/constants";
+import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constants";
 import { isAddress } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
 import GnarReserveInfo from "./GnarReserveInfo";
@@ -54,7 +54,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             case "SEND USDC":
                 return { tokenAddress: USDC_CONTRACT_ADDRESS, decimals: 6 };
             case "SEND IT":
-                return { tokenAddress: "0xba5b9b2d2d06a9021eb3190ea5fb0e02160839a4", decimals: 18 };
+                return { tokenAddress: SENDIT_CONTRACT_ADDRESS, decimals: 18 };
             default:
                 return { tokenAddress: "", decimals: 18 };
         }
@@ -75,7 +75,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             case "SEND NFT":
                 return [
                     { name: "tokenID", placeholder: "Enter token ID", validate: (value: string) => !isNaN(Number(value)) || "Invalid token ID." },
-                    { name: "address", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
+                    { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "AIRDROP RANDOM GNAR":
                 return [
@@ -89,14 +89,14 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     { name: "description", placeholder: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
                     { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => true }, // Animation URI is optional
                     { name: "imageURI", placeholder: "Image URI", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
-                    { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value)) || "Invalid price." },
-                    ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text", validate: (value: string) => !isNaN(Number(value)) || "Invalid edition size." }] : []),
-                    { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value)) || "Invalid start time." },
-                    { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value)) || "Invalid end time." },
-                    { name: "mintLimit", placeholder: "Mint Limit Per Address", validate: (value: string) => !isNaN(Number(value)) || "Invalid mint limit." },
-                    { name: "royalty", placeholder: "Royalty (%)", validate: (value: string) => !isNaN(Number(value)) || "Invalid royalty." },
-                    { name: "payoutAddress", placeholder: "Payout Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
-                    { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
+                    { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid price." },
+                    ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid edition size." }] : []),
+                    { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid start time." },
+                    { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid end time." },
+                    { name: "mintLimit", placeholder: "Mint Limit Per Address", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid mint limit." },
+                    { name: "royalty", placeholder: "Royalty (%)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid royalty." },
+                    { name: "payoutAddress", placeholder: "Payout Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
+                    { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
                 ];
             case "CUSTOM TRANSACTION":
                 return [
@@ -123,6 +123,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 tokenAddress,
                 decimals,
             };
+            console.log("DETAILS:", details);
             onAdd({ type: `${transaction.type}`, details });
         } else if (type === "DROPOSAL MINT") {
             const parseToBigInt = (value: string) => {

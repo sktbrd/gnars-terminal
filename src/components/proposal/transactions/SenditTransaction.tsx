@@ -8,6 +8,7 @@ interface SenditTransactionProps {
 }
 
 const SenditTransaction: React.FC<SenditTransactionProps> = ({ index, to, value }) => {
+
     return (
         <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
             <Heading size="sm" mb={2}>

@@ -7,6 +7,8 @@ import MintBatchTransaction from './transactions/MintBatchTransaction';
 import DroposalTransaction from './transactions/DroposalTransaction';
 import NftTransferTransaction from './transactions/NFTTrasnfer';
 import SenditTransaction from './transactions/SenditTransaction';
+import { tokenAddress } from '@/hooks/wagmiGenerated';
+import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
 
 
 interface ProposalTransactionsContentProps {
@@ -36,7 +38,10 @@ function TransactionItem({
   const isCalldataValid = normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
   console.log(target)
 
-  if (target === '0xba5b9b2d2d06a9021eb3190ea5fb0e02160839a4') {
+  if (target === SENDIT_CONTRACT_ADDRESS) {
+    console.log('Sendit Transaction')
+    console.log('calldata:', normalizedCalldata);
+    console.log('value:', value);
     // Decode Sendit Token transaction
     const senditTransaction = isCalldataValid
       ? decodeSenditTransaction(normalizedCalldata)
@@ -79,9 +84,6 @@ function TransactionItem({
   }
 
 
-
-
-
   if (normalizedCalldata === '0x' && value !== '0') {
     return (
       <EthTransferTransaction
@@ -96,8 +98,8 @@ function TransactionItem({
     return <DroposalTransaction calldata={calldata} index={index} />;
   }
 
-  // Handle transactions for target contract 0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17
-  if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
+  // Handle transactions for target contract
+  if (target === tokenAddress) {
     const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector
 
     if (functionSignature === '0x23b872dd') {

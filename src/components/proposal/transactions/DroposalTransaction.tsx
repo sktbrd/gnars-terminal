@@ -82,6 +82,7 @@ export default function DroposalTransaction({
 
   // Helper function to format IPFS URIs
   function formatURI(uri: string): string {
+    uri = uri.trim();
     if (uri.startsWith('ipfs://')) {
       return `https://gateway.pinata.cloud/ipfs/${uri.slice(7)}`;
     }
