@@ -97,9 +97,10 @@ function TransactionItem({
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
     return <DroposalTransaction calldata={calldata} index={index} />;
   }
-
+  console.log('target:', target)
+  console.log(tokenAddress)
   // Handle transactions for target contract
-  if (target === tokenAddress) {
+  if (target.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase()) {
     const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector
 
     if (functionSignature === '0x23b872dd') {
