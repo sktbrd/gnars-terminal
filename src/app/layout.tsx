@@ -9,6 +9,7 @@ import { Providers } from '@/components/layout/providers';
 import { Box, Container } from '@chakra-ui/react';
 import Navbar from '@/components/layout/navbar';
 import { Toaster } from '@/components/ui/toaster';
+import Head from 'next/head';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,6 +43,9 @@ export default function RootLayout(props: { children: ReactNode }) {
 
   return (
     <html lang='en' suppressHydrationWarning>
+      <Head>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <body className={inter.className} style={{ minHeight: '100vh' }}>
         <Providers initialState={initialState}>
           <Navbar />
