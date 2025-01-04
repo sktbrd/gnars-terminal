@@ -147,7 +147,11 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
         gap={'0.5'}
         asChild
       >
-        <NextLink href='https://gnars.center' style={{ width: '100%' }}>
+        <NextLink
+          target='_blank'
+          href='https://gnars.center'
+          style={{ width: '100%' }}
+        >
           <IoDocumentText />
           ABOUT
         </NextLink>
