@@ -15,7 +15,6 @@ import { BsGithub } from 'react-icons/bs';
 import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
 import AccountMenu from './account-menu';
-import ConnectButton from './connect-button';
 import Sparks from './sparks';
 
 export default function Navbar() {
