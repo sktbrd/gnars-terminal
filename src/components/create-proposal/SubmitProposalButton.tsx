@@ -27,30 +27,24 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
     const ReadGovernorTreasure = useReadGovernorTreasury();
     const router = useRouter();
 
-    const encodeUSDCTransfer = (recipient: string, amount: string, decimals: number) => {
+    const encodeUSDCTransfer = (recipient: string, amount: string) => {
         const adjustedAmount = BigInt(amount);
-        const calldata = encodeFunctionData({
+        return encodeFunctionData({
             abi: USDC_ABI,
             functionName: "transfer",
             args: [recipient, adjustedAmount],
         });
-        console.log("Encoded calldata:", calldata);
-        return calldata;
     };
 
-    const onSubmit = useCallback(async () => {
-        const description = `${proposalTitle}&&${editorContent}`;
-        console.log("Transactions:", transactions);
-
-        const preparedTransactions = transactions.map((transaction) => {
-            if (transaction.type === "SEND ETH") {
+    const prepareTransaction = (transaction: any) => {
+        switch (transaction.type) {
+            case "SEND ETH":
                 return {
                     target: transaction.details.toAddress,
                     value: transaction.details.amount,
                     calldata: "0x",
                 };
-            } else if (transaction.type === "SEND NFT") {
-                console.log("Transaction:", transaction);
+            case "SEND NFT":
                 const recipient = transaction.details.toAddress;
                 const tokenId = transaction.details.tokenID;
                 const encodedCalldata = encodeFunctionData({
@@ -62,53 +56,50 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                         tokenId,
                     ],
                 });
-                console.log("Encoded calldata:", encodedCalldata);
-                console.log(ReadGovernorTreasure.data);
                 return {
                     target: tokenAddress as Address,
                     value: "0",
                     calldata: encodedCalldata,
                 };
-            } else if (transaction.type === "SEND USDC") {
+            case "SEND USDC":
                 const usdcAddress = USDC_CONTRACT_ADDRESS;
-                const encodedCalldata = encodeUSDCTransfer(
+                const encodedCalldataUSDC = encodeUSDCTransfer(
                     transaction.details.toAddress,
-                    transaction.details.amount,
-                    transaction.details.decimals
+                    transaction.details.amount
                 );
                 return {
                     target: usdcAddress,
                     value: "0",
-                    calldata: encodedCalldata,
+                    calldata: encodedCalldataUSDC,
                 };
-            } else if (transaction.type === "SEND IT") {
-                const recipient = transaction.details.toAddress;
-                const amount = transaction.details.amount;
-                const adjustedAmount = BigInt(amount);
-                const encodedCalldata = encodeFunctionData({
+            case "SEND IT":
+                const recipientIT = transaction.details.toAddress;
+                const amountIT = transaction.details.amount;
+                const adjustedAmountIT = BigInt(amountIT);
+                const encodedCalldataIT = encodeFunctionData({
                     abi: SENDIT_ABI,
                     functionName: "transfer",
-                    args: [recipient, adjustedAmount.toString()],
+                    args: [recipientIT, adjustedAmountIT.toString()],
                 });
                 return {
                     target: SENDIT_CONTRACT_ADDRESS,
                     value: "0",
-                    calldata: encodedCalldata,
+                    calldata: encodedCalldataIT,
                 };
-            } else if (transaction.type === "AIRDROP RANDOM GNAR") {
-                const recipient = transaction.details.toAddress;
-                const amount = transaction.details.amount;
-                const encodedCalldata = encodeFunctionData({
+            case "AIRDROP RANDOM GNAR":
+                const recipientGnar = transaction.details.toAddress;
+                const amountGnar = transaction.details.amount;
+                const encodedCalldataGnar = encodeFunctionData({
                     abi: tokenAbi,
                     functionName: "mintBatchTo",
-                    args: [amount, recipient as Address],
+                    args: [amountGnar, recipientGnar as Address],
                 });
                 return {
                     target: tokenAddress as Address,
                     value: "0",
-                    calldata: encodedCalldata,
+                    calldata: encodedCalldataGnar,
                 };
-            } else if (transaction.type === "DROPOSAL MINT") {
+            case "DROPOSAL MINT":
                 const {
                     name,
                     symbol,
@@ -121,8 +112,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     adminAddress,
                     saleConfig,
                 } = transaction.details;
-
-                const priceInWei = BigInt(Math.floor(parseFloat(transaction.details.price) * 10 ** 18).toString());
 
                 const saleConfigTuple = [
                     BigInt(saleConfig.publicSalePrice),
@@ -147,7 +136,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     imageURI,
                 ];
 
-                const encodedCalldata = encodeFunctionData({
+                const encodedCalldataDroposal = encodeFunctionData({
                     abi: DroposalABI,
                     functionName: "createEdition",
                     args,
@@ -156,12 +145,16 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 return {
                     target: "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c",
                     value: "0",
-                    calldata: encodedCalldata,
+                    calldata: encodedCalldataDroposal,
                 };
-            } else {
+            default:
                 return { target: "", value: "", calldata: "" };
-            }
-        });
+        }
+    };
+
+    const onSubmit = useCallback(async () => {
+        const description = `${proposalTitle}&&${editorContent}`;
+        const preparedTransactions = transactions.map(prepareTransaction);
 
         const loadingToast = toaster.create({
             description: "Submitting proposal...",
@@ -190,13 +183,10 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 type: "success",
             });
 
-            console.log("Proposal submitted successfully!", preparedTransactions);
-
         } catch (error) {
             toaster.dismiss(loadingToast);
 
             const errorMessage = (error as any).message || "Failed to submit proposal. Check the console for details.";
-
             const userDeniedMessage = "User denied transaction signature.";
             const displayMessage = errorMessage.includes(userDeniedMessage)
                 ? userDeniedMessage
@@ -209,7 +199,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
             });
 
             console.error("Error submitting proposal:", error);
-            console.error("Stack trace:", (error as any).stack);
         }
     }, [transactions, proposalTitle, editorContent, writeProposal, ReadGovernorTreasure.data, router]);
 
