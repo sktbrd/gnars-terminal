@@ -7,6 +7,8 @@ import SENDIT_ABI from "@/components/proposal/transactions/utils/SENDIT_abi";
 import DroposalABI from "@/components/proposal/transactions/utils/droposalABI";
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constants";
 import { tokenAbi, tokenAddress } from "@/hooks/wagmiGenerated";
+import { toaster } from "@/components/ui/toaster";
+import { useRouter } from "next/navigation";
 
 interface SubmitProposalButtonProps {
     isTitleValid: boolean;
@@ -23,6 +25,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
 }) => {
     const { writeContractAsync: writeProposal } = useWriteGovernorPropose();
     const ReadGovernorTreasure = useReadGovernorTreasury();
+    const router = useRouter();
 
     const encodeUSDCTransfer = (recipient: string, amount: string, decimals: number) => {
         const adjustedAmount = BigInt(amount);
@@ -160,6 +163,11 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
             }
         });
 
+        const loadingToast = toaster.create({
+            description: "Submitting proposal...",
+            type: "loading",
+        });
+
         try {
             await writeProposal({
                 args: [
@@ -169,14 +177,41 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     description,
                 ],
             });
+
+            toaster.dismiss(loadingToast);
+
+            toaster.create({
+                title: "Success",
+                description: (
+                    <span onClick={() => router.push("/proposal-page")}>
+                        Proposal submitted successfully! Click here to view.
+                    </span>
+                ),
+                type: "success",
+            });
+
             console.log("Proposal submitted successfully!", preparedTransactions);
-            alert("Proposal prepared! Check the console for details.");
+
         } catch (error) {
+            toaster.dismiss(loadingToast);
+
+            const errorMessage = (error as any).message || "Failed to submit proposal. Check the console for details.";
+
+            const userDeniedMessage = "User denied transaction signature.";
+            const displayMessage = errorMessage.includes(userDeniedMessage)
+                ? userDeniedMessage
+                : errorMessage;
+
+            toaster.create({
+                title: "Error",
+                description: displayMessage,
+                type: "error",
+            });
+
             console.error("Error submitting proposal:", error);
             console.error("Stack trace:", (error as any).stack);
-            alert("Failed to submit proposal. Check the console for details.");
         }
-    }, [transactions, proposalTitle, editorContent, writeProposal, ReadGovernorTreasure.data]);
+    }, [transactions, proposalTitle, editorContent, writeProposal, ReadGovernorTreasure.data, router]);
 
     return (
         <Button
