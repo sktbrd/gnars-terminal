@@ -15,7 +15,7 @@ interface PropdatesLikeProps {
 function PropdatesLike({ propdate }: PropdatesLikeProps) {
   const { address } = useAccount();
   const [userLiked, setUserLiked] = useState(false);
-  const [likes, setLikes] = useState<{ user: string }[]>(propdate.likes);
+  const [likes, setLikes] = useState<{ user: string }[]>(propdate.likes || []);
 
   const propdateLiked =
     likes.some((like) => like.user === address) || userLiked;

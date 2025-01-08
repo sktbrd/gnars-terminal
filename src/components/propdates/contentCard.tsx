@@ -1,32 +1,31 @@
+'use client';
+
+import { Proposal } from '@/app/services/proposal';
 import { PropDateInterface } from '@/utils/database/interfaces';
-import {
-  Badge,
-  Box,
-  Card,
-  Code,
-  HStack,
-  Link,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { Address } from 'viem';
+import { Box, Card, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react';
+import { default as NextLink } from 'next/link';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { FaEdit } from 'react-icons/fa';
+import { Address, isAddressEqual } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
 import { FormattedAddress } from '../utils/ethereum';
+import PropdatesEditor from './editor';
 import PropdatesLike from './like';
-import { default as NextLink } from 'next/link';
-import { Proposal } from '@/app/services/proposal';
+import { useAccount } from 'wagmi';
+import { isAddressEqualTo } from '@/utils/ethereum';
 
 interface PropdatesContentCardProps {
-  propdates: PropDateInterface[];
+  _propdates: PropDateInterface[];
   proposals: Proposal[];
 }
 
 export default function PropdatesContentCardList({
-  propdates,
+  _propdates,
   proposals,
 }: PropdatesContentCardProps) {
+  const [propdates, setPropdates] = useState(_propdates);
+
   return (
     <Stack gap={2} w='full'>
       {propdates.map((propdate) => {
@@ -38,6 +37,7 @@ export default function PropdatesContentCardList({
             key={propdate.id}
             propdate={propdate}
             proposal={proposal}
+            setPropdates={setPropdates}
           />
         );
       })}
@@ -48,10 +48,16 @@ export default function PropdatesContentCardList({
 export function PropdatesContentCardContent({
   propdate,
   proposal,
+  setPropdates,
 }: {
   propdate: PropDateInterface;
   proposal?: Proposal;
+  setPropdates?: Dispatch<SetStateAction<PropDateInterface[]>>;
 }) {
+  const { address } = useAccount();
+  const showEditButton =
+    !!setPropdates && isAddressEqualTo(propdate.author.e_address, address);
+
   return (
     <Card.Root size='md' borderRadius='lg' variant='outline' w={'full'}>
       <Card.Body p={4}>
@@ -87,7 +93,24 @@ export function PropdatesContentCardContent({
             >
               <Markdown text={propdate.text} />
             </Box>
-            <HStack w={'full'} justify={'end'}>
+            <HStack
+              w={'full'}
+              justify={showEditButton ? 'space-between' : 'end'}
+            >
+              {showEditButton && (
+                <PropdatesEditor
+                  proposalId={propdate.proposal.id}
+                  setPropdates={setPropdates}
+                  existingPropdate={propdate}
+                  buttonProps={{ variant: 'ghost', size: 'sm' }}
+                  buttonInnerChildren={
+                    <>
+                      <FaEdit />
+                      <Text>Edit</Text>
+                    </>
+                  }
+                />
+              )}
               <PropdatesLike propdate={propdate} />
             </HStack>
           </VStack>

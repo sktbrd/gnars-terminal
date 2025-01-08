@@ -1,6 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { formatEthAddress } from '@/utils/helpers';
+import { Text } from '@chakra-ui/react';
 import { base, mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 import {
@@ -62,9 +64,9 @@ function ConnectButton() {
   }
 
   return (
-    <Button size={'xs'} variant={'subtle'} onClick={() => disconnect()}>
+    <Button gap={2} size={'xs'} variant={'subtle'} onClick={() => disconnect()}>
       <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
-      <FormattedAddress address={address} />
+      <Text>{ensName || formatEthAddress(address)}</Text>
     </Button>
   );
 }
