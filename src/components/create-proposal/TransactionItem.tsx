@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { VStack, Text, HStack, SimpleGrid } from "@chakra-ui/react";
+import { VStack, Text, HStack, SimpleGrid, Button } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio"
 import TransactionForm from "./TransactionForm";
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constants";
 import { isAddress } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
 import GnarReserveInfo from "./GnarReserveInfo";
-import { validate } from "graphql";
+import { FaCheck, FaSpinner } from "react-icons/fa";
 
 type TransactionItemProps = {
     type: string;
@@ -46,6 +46,7 @@ type DroposalMintDetails = {
 const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel }) => {
     const [file, setFile] = useState<File | null>(null);
     const [editionType, setEditionType] = useState<string>("Fixed");
+    const [simulationResult, setSimulationResult] = useState<"success" | "fail" | "pending" | null>(null);
 
     const getTokenDetails = (type: string) => {
         switch (type) {
@@ -165,7 +166,20 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         }
     };
 
-
+    const handleSimulate = async () => {
+        setSimulationResult("pending"); // Set simulation result to pending
+        const response = await fetch('/api/simulate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ type, details: FormData }),
+        });
+        const result = await response.json();
+        console.log("Simulation response:", result); // Add detailed logging
+        const success = result.transaction?.status === true;
+        setSimulationResult(success ? "success" : "fail");
+    };
 
     return (
         <VStack gap={4} align="stretch" p={4} borderWidth="1px" borderRadius="md">
@@ -200,6 +214,14 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 onCancel={onCancel}
                 onFileChange={handleFileChange}
             />
+            <HStack justify="space-between">
+                <Button colorScheme="blue" onClick={handleSimulate}>
+                    Simulate
+                </Button>
+                {simulationResult === "pending" && <FaSpinner color="blue" />}
+                {simulationResult === "success" && <FaCheck color="green" />}
+                {simulationResult === "fail" && <FaSpinner color="red" />}
+            </HStack>
         </VStack>
     );
 };

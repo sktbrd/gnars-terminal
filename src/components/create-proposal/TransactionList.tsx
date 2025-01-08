@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { VStack, Box, Text, Button, HStack, Flex, Image } from "@chakra-ui/react";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import { transactionOptions } from "./TransactionTypes";
+import { FaCheck, FaSpinner } from "react-icons/fa";
+import { governorAddress } from "@/hooks/wagmiGenerated";
+import { toaster } from "@/components/ui/toaster";
+
 type TransactionDetails = Record<string, string | number | React.ReactNode>;
 
 type TransactionListProps = {
@@ -11,6 +15,7 @@ type TransactionListProps = {
 
 const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelete }) => {
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [simulationResult, setSimulationResult] = useState<"success" | "fail" | null>(null);
 
     const toggleExpand = (index: number) => {
         setExpandedIndex(expandedIndex === index ? null : index);
@@ -19,6 +24,61 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
     const getTransactionImage = (type: string) => {
         const transaction = transactionOptions.find(option => option.name === type);
         return transaction ? transaction.image : "";
+    };
+
+    const handleSimulate = async (type: string, details: TransactionDetails) => {
+        console.log("Simulating transaction:", type, details);
+        const simulationToast = toaster.create({
+            description: "Simulating transaction...",
+            type: "loading",
+        });
+        try {
+            const fromAddress = governorAddress;
+            const response = await fetch('/api/simulate', { // Corrected path
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ type, details: { ...details, fromAddress } }),
+            });
+
+            if (!response.ok) {
+                const errorDetails = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorDetails)}`);
+            }
+            const result = await response.json();
+            setSimulationResult(result.success ? "success" : "fail");
+            console.log("Simulation response:", result);
+
+            toaster.dismiss(simulationToast);
+            toaster.create({
+                title: result.success ? "Success" : "Failure",
+                description: (
+                    <span>
+                        {result.message}
+                        {result.simulationUrl && (
+                            <>
+                                {" "}
+                                <a href={result.simulationUrl} target="_blank" rel="noopener noreferrer">
+                                    View Simulation
+                                </a>
+                            </>
+                        )}
+                    </span>
+                ),
+                type: result.success ? "success" : "error",
+            });
+        } catch (error) {
+            console.error("Simulation error:", error);
+            setSimulationResult("fail");
+
+            toaster.dismiss(simulationToast);
+            toaster.create({
+                title: "Error",
+                description: `Failed to simulate transaction. ${(error as Error).message}`,
+                type: "error",
+            });
+        }
     };
 
     return (
@@ -75,10 +135,15 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                         ))}
                                     </VStack>
                                 </HStack>
-                                <Flex justify="flex-end">
-                                    <Button colorScheme="red" size="sm" mt={2} onClick={() => onDelete(idx)}>
+                                <Flex justify="space-between" mt={2}>
+                                    <Button colorScheme="red" size="sm" onClick={() => onDelete(idx)}>
                                         Delete
                                     </Button>
+                                    <Button colorScheme="blue" size="sm" onClick={() => handleSimulate(tx.type, tx.details)}>
+                                        Simulate
+                                    </Button>
+                                    {simulationResult === "success" && <FaCheck color="green" />}
+                                    {simulationResult === "fail" && <FaSpinner color="red" />}
                                 </Flex>
                             </Box>
                         )}

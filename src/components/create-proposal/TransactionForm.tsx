@@ -1,7 +1,6 @@
 import React from "react";
 import { VStack, Input, Button, HStack, Text } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field"; // Assuming this exists
-import { isAddress } from 'viem';
 
 type TransactionFormProps = {
     type: string;
