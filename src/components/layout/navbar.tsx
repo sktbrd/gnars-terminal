@@ -21,7 +21,7 @@ import Sparks from './sparks';
 export default function Navbar() {
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
     fallback: [false],
-    ssr: false,
+    ssr: true,
   });
 
   return (

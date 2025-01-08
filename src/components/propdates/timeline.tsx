@@ -1,3 +1,5 @@
+'use client';
+
 import { Proposal } from '@/app/services/proposal';
 import { Editor, PropDateInterface } from '@/utils/database/interfaces';
 import { Text, VStack } from '@chakra-ui/react';
@@ -6,6 +8,7 @@ import { useAccount } from 'wagmi';
 import { PropdatesContentCardContent } from './contentCard';
 import PropdatesEditor from './editor';
 import { isAddressEqual, zeroAddress } from 'viem';
+import { FaEdit } from 'react-icons/fa';
 
 interface PropdatesTimelineProps {
   proposal: Proposal;
@@ -30,8 +33,15 @@ function PropdatesTimeline({
     <VStack gap={4}>
       {isEditor && (
         <PropdatesEditor
-          propdateId={proposal.proposalId}
+          proposalId={proposal.proposalId}
           setPropdates={setPropdates}
+          buttonProps={{ variant: 'surface', size: 'sm', w: 'full' }}
+          buttonInnerChildren={
+            <>
+              <FaEdit />
+              <Text>Create new Propdate</Text>
+            </>
+          }
         />
       )}
       {propdates.length ? (
@@ -40,6 +50,7 @@ function PropdatesTimeline({
             <PropdatesContentCardContent
               key={propdate.id}
               propdate={propdate}
+              setPropdates={setPropdates}
             />
           ))}
         </VStack>

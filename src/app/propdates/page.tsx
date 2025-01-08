@@ -31,7 +31,7 @@ export default async function PropdatesPage() {
         </Heading>
         {propdates?.data?.length ? (
           <PropdatesContentCardList
-            propdates={propdates.data}
+            _propdates={propdates.data}
             proposals={proposals}
           />
         ) : (

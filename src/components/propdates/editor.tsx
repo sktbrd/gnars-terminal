@@ -1,3 +1,5 @@
+'use client';
+
 import {
   DialogActionTrigger,
   DialogBody,
@@ -10,36 +12,51 @@ import {
 } from '@/components/ui/dialog';
 import { PropDateInterface } from '@/utils/database/interfaces';
 import { VStack } from '@chakra-ui/react';
-import { Dispatch, SetStateAction } from 'react';
+import {
+  Dispatch,
+  ForwardRefExoticComponent,
+  RefAttributes,
+  SetStateAction,
+} from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAccount } from 'wagmi';
 import Editor from '../create-proposal/Editor';
-import { Button } from '../ui/button';
+import { Button, ButtonProps } from '../ui/button';
 
 interface FormData {
   content: string;
 }
 
 interface PropdatesEditorProps {
-  propdateId: string;
+  proposalId: string;
   setPropdates: Dispatch<SetStateAction<PropDateInterface[]>>;
+  existingPropdate?: PropDateInterface;
+  buttonProps?: ButtonProps & RefAttributes<HTMLButtonElement>;
+  buttonInnerChildren?: React.ReactNode;
 }
 
-function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
-  const { control, handleSubmit, formState } = useForm<FormData>();
+function PropdatesEditor({
+  proposalId,
+  setPropdates,
+  existingPropdate,
+  buttonProps,
+  buttonInnerChildren,
+}: PropdatesEditorProps) {
+  const { control, handleSubmit, formState, reset } = useForm<FormData>({
+    defaultValues: { content: existingPropdate?.text || '' },
+  });
   const { address } = useAccount();
 
   const onSubmit = async (data: FormData) => {
+    const method = existingPropdate ? 'PUT' : 'POST';
+    const bodyData = existingPropdate
+      ? { propdate: existingPropdate.id, text: data.content }
+      : { proposal: proposalId, text: data.content, author: address };
+
     const res = await fetch('/api/propdates', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        proposal: propdateId,
-        text: data.content,
-        author: address,
-      }),
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyData),
     })
       .then((response) => {
         if (!response.ok) {
@@ -51,15 +68,23 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
         console.error('Error:', error);
       });
 
-    setPropdates((prevPropdates) => [...res.data, ...prevPropdates]);
+    setPropdates((prevPropdates) => {
+      if (existingPropdate) {
+        return prevPropdates.map((pd) =>
+          pd.id === existingPropdate.id ? { ...pd, text: data.content } : pd
+        );
+      }
+      return [...res.data, ...prevPropdates];
+    });
   };
 
   return (
-    <DialogRoot size={'lg'} onExitComplete={() => control._reset()}>
+    <DialogRoot
+      size={'lg'}
+      onExitComplete={() => reset({ content: existingPropdate?.text || '' })}
+    >
       <DialogTrigger asChild>
-        <Button w={'full'} variant='surface'>
-          Create new Propdate
-        </Button>
+        <Button {...buttonProps}>{buttonInnerChildren}</Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -71,7 +96,6 @@ function PropdatesEditor({ propdateId, setPropdates }: PropdatesEditorProps) {
               <Controller
                 name='content'
                 control={control}
-                defaultValue=''
                 rules={{ required: 'Update content is required' }}
                 render={({ field }) => (
                   <Editor
