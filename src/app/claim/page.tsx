@@ -3,14 +3,20 @@
 import SENDIT_ABI from '@/components/proposal/transactions/utils/SENDIT_abi';
 import { Button } from '@/components/ui/button';
 import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
-import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react';
-import React from 'react';
-import { BaseError, encodeFunctionData, formatUnits } from 'viem';
+import { HStack, Input, Text, VStack } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import {
+  Address,
+  BaseError,
+  encodeFunctionData,
+  formatUnits,
+  zeroAddress,
+} from 'viem';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { abi } from './sm_abi';
 
 function ClaimPage() {
-  const smartWallet = '0xEe4c350A3da359B9f8C774250787f08E769a0aAE';
+  const [smartWallet, setSmartWallet] = useState('');
 
   const { data: hash, error, writeContract } = useWriteContract();
   const { address } = useAccount();
@@ -20,15 +26,17 @@ function ClaimPage() {
     address: SENDIT_CONTRACT_ADDRESS,
     abi: SENDIT_ABI,
     functionName: 'balanceOf',
-    args: [smartWallet],
+    args: [(smartWallet as Address) || zeroAddress],
   });
+
+  console.log(balance);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     console.log('submit');
     e.preventDefault();
 
-    if (!address || !balance) {
-      console.error('No address or balance');
+    if (!smartWallet || !address || !balance) {
+      console.error('No smart wallet address, user address or balance');
       return;
     }
 
@@ -44,7 +52,7 @@ function ClaimPage() {
     console.log(data);
 
     writeContract({
-      address: smartWallet,
+      address: smartWallet as Address,
       abi,
       functionName: 'execute',
       args: [SENDIT_CONTRACT_ADDRESS, 0n, data],
@@ -61,8 +69,16 @@ function ClaimPage() {
               type='text'
               placeholder='Smart Wallet address'
               id='smartwallet'
+              value={smartWallet}
+              onChange={(e) => setSmartWallet(e.target.value)}
             />
-            <Button w={'full'} type='submit'>
+            <Button
+              w={'full'}
+              type='submit'
+              disabled={
+                !smartWallet || smartWallet == '' || !balance || balance == 0n
+              }
+            >
               Claim
             </Button>
           </VStack>
