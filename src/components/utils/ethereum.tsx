@@ -1,8 +1,37 @@
 'use client';
 
-import { useNNSName } from '@/components/utils/hooks/useNNSName';
 import { formatEthAddress } from '@/utils/helpers';
-import { Box, Code } from '@chakra-ui/react';
+import { Code, HStack } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
+
+async function fetchNNSName(address: string, clds?: string[]) {
+  const response = await fetch('https://api.nns.xyz/resolve', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      address,
+      clds,
+      fallback: true, // Ensures a default CLD is used if no lookup is found
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to resolve NNS name');
+  }
+
+  const { name } = await response.json();
+  return name as string | null;
+}
+
+export function useNNSName(address?: string, clds?: string[]) {
+  return useQuery({
+    queryKey: ['nnsName', address, clds],
+    queryFn: () => fetchNNSName(address || '', clds),
+    enabled: !!address,
+  });
+}
 
 export function FormattedAddress({
   address,
@@ -20,7 +49,7 @@ export function FormattedAddress({
 
 
   const AddressContent = () => (
-    <Code size="sm" colorScheme={nnsName ? '' : 'gray'}>
+    <Code size='sm' variant='surface' colorScheme={nnsName ? '' : 'gray'}>
       {isLoading
         ? formatEthAddress(address)
         : isError || !nnsName
@@ -30,9 +59,9 @@ export function FormattedAddress({
   );
 
   return (
-    <Box >
+    <HStack>
       {textBefore && <span>{textBefore}</span>}
-      <AddressContent />
-    </Box>
+      {asLink ? <AddressContent /> : <AddressContent />}
+    </HStack>
   );
 }

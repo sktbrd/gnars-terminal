@@ -13,13 +13,14 @@ import {
   useEnsName,
 } from 'wagmi';
 import { Avatar } from '../ui/avatar';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress, useNNSName } from '../utils/ethereum';
 
 function ConnectButton() {
   const { isConnected, address, isConnecting } = useAccount();
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
 
+  const { data: nnsName } = useNNSName(address);
   const { data: ensName } = useEnsName({
     address: address,
     chainId: mainnet.id,
@@ -58,15 +59,15 @@ function ConnectButton() {
   if (isLoadingAvatar || !ensAvatar) {
     return (
       <Button size={'xs'} variant={'ghost'}>
-        <FormattedAddress address={address} />
+        <Text>{nnsName || ensName || formatEthAddress(address)}</Text>
       </Button>
     );
   }
 
   return (
-    <Button gap={2} size={'xs'} variant={'subtle'} onClick={() => disconnect()}>
+    <Button gap={2} size={'xs'} variant={'ghost'} onClick={() => disconnect()}>
       <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
-      <Text>{ensName || formatEthAddress(address)}</Text>
+      <Text>{nnsName || ensName || formatEthAddress(address)}</Text>
     </Button>
   );
 }
