@@ -9,6 +9,7 @@ import { isAddress } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
 import GnarReserveInfo from "./GnarReserveInfo";
 import { FaCheck, FaSpinner } from "react-icons/fa";
+import { prepareTransactionData } from '@/utils/transactionUtils';
 
 type TransactionItemProps = {
     type: string;
@@ -47,6 +48,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
     const [file, setFile] = useState<File | null>(null);
     const [editionType, setEditionType] = useState<string>("Fixed");
     const [simulationResult, setSimulationResult] = useState<"success" | "fail" | "pending" | null>(null);
+    // const [transactionAdded, setTransactionAdded] = useState<boolean>(false); // Track if transaction is added
 
     const getTokenDetails = (type: string) => {
         switch (type) {
@@ -75,13 +77,13 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 ];
             case "SEND NFT":
                 return [
-                    { name: "tokenID", placeholder: "Enter token ID", validate: (value: string) => !isNaN(Number(value)) || "Invalid token ID." },
+                    { name: "tokenId", placeholder: "Enter token ID", validate: (value: string) => !isNaN(Number(value)) || "Invalid token ID." },
                     { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "AIRDROP RANDOM GNAR":
                 return [
-                    { name: "toAddress", placeholder: "Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." },
-                    { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." }
+                    { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+                    { name: "toAddress", placeholder: "Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "DROPOSAL MINT":
                 return [
@@ -115,12 +117,17 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
     };
 
     const handleAdd = (transaction: { type: string; details: Record<string, any> }) => {
+        console.log(`Adding transaction of type: ${type}`);
+        console.log(`Transaction details:`, transaction.details);
+
         if (type === "SEND ETH" || type === "SEND USDC" || type === "SEND IT") {
-            const parsedAmount = parseFloat(transaction.details.amount);
-            const amountWithDecimals = (parsedAmount * 10 ** decimals).toString();
+            const parsedAmount = Math.floor(Number(transaction.details.amount) * 10 ** decimals);
+            const amountWithDecimals = parsedAmount.toString();
+            console.log("AMOUNT:", amountWithDecimals);
+            console.log("PARSED AMOUNT:", parsedAmount);
             const details = {
                 ...transaction.details,
-                amount: amountWithDecimals,
+                amount: parsedAmount,
                 tokenAddress,
                 decimals,
             };
@@ -160,25 +167,26 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 editionType,
             };
 
+            console.log("DROPOSAL MINT details:", details);
+            onAdd({ type: `${transaction.type}`, details });
+        } else if (type === "AIRDROP RANDOM GNAR") {
+            const details = {
+                ...transaction.details,
+                amount: Number(transaction.details.amount),
+                toAddress: transaction.details.toAddress,
+            };
+            console.log("AIRDROP RANDOM GNAR details:", details);
             onAdd({ type: `${transaction.type}`, details });
         } else {
-            onAdd(transaction);
+            const treasureAddress = process.env.NEXT_PUBLIC_TREASURY || '';
+            const { input } = prepareTransactionData(type, transaction.details, treasureAddress);
+            const details = {
+                ...transaction.details,
+                calldata: input,
+            };
+            console.log("Other transaction details:", details);
+            onAdd({ type: `${transaction.type}`, details });
         }
-    };
-
-    const handleSimulate = async () => {
-        setSimulationResult("pending"); // Set simulation result to pending
-        const response = await fetch('/api/simulate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ type, details: FormData }),
-        });
-        const result = await response.json();
-        console.log("Simulation response:", result); // Add detailed logging
-        const success = result.transaction?.status === true;
-        setSimulationResult(success ? "success" : "fail");
     };
 
     return (
@@ -203,10 +211,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     </SimpleGrid>
                 </RadioGroup>
             )}
-            {type === "SEND NFT" && (
-                <GnarReserveInfo />
-            )}
-
             <TransactionForm
                 type={type}
                 fields={fields}
@@ -214,14 +218,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 onCancel={onCancel}
                 onFileChange={handleFileChange}
             />
-            <HStack justify="space-between">
-                <Button colorScheme="blue" onClick={handleSimulate}>
-                    Simulate
-                </Button>
-                {simulationResult === "pending" && <FaSpinner color="blue" />}
-                {simulationResult === "success" && <FaCheck color="green" />}
-                {simulationResult === "fail" && <FaSpinner color="red" />}
-            </HStack>
         </VStack>
     );
 };

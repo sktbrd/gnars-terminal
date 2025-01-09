@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { VStack, Box, Text, Button, HStack, Flex, Image } from "@chakra-ui/react";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import { transactionOptions } from "./TransactionTypes";
-import { FaCheck, FaSpinner } from "react-icons/fa";
+import { FaCheck, FaSkull } from "react-icons/fa";
 import { governorAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
+import { prepareTransactionData } from '@/utils/transactionUtils';
+import { Address } from "viem";
 
 type TransactionDetails = Record<string, string | number | React.ReactNode>;
 
@@ -15,7 +17,7 @@ type TransactionListProps = {
 
 const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelete }) => {
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-    const [simulationResult, setSimulationResult] = useState<"success" | "fail" | null>(null);
+    const [simulationResults, setSimulationResults] = useState<("success" | "fail" | "pending" | null)[]>(transactions.map(() => null));
 
     const toggleExpand = (index: number) => {
         setExpandedIndex(expandedIndex === index ? null : index);
@@ -26,20 +28,36 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
         return transaction ? transaction.image : "";
     };
 
-    const handleSimulate = async (type: string, details: TransactionDetails) => {
+    const handleSimulate = async (index: number, type: string, details: TransactionDetails) => {
         console.log("Simulating transaction:", type, details);
         const simulationToast = toaster.create({
             description: "Simulating transaction...",
             type: "loading",
         });
+
+        setSimulationResults(prev => {
+            const newResults = [...prev];
+            newResults[index] = "pending";
+            return newResults;
+        });
+
         try {
-            const fromAddress = governorAddress;
-            const response = await fetch('/api/simulate', { // Corrected path
+            const treasureAddress = process.env.NEXT_PUBLIC_TREASURY || '';
+            console.log(details);
+            const formattedDetails = {
+                ...details,
+                amount: details.amount ? BigInt(details.amount as string).toString() : undefined, // Ensure amount is formatted as a string if it exists
+                tokenId: details.tokenId ? BigInt(details.tokenId as string).toString() : undefined, // Ensure tokenId is formatted as a string if it exists
+            };
+            console.log(formattedDetails);
+            const { input, contractAbi, fromAddress, toAddress, value, calldata } = prepareTransactionData(type, formattedDetails, treasureAddress as Address);
+
+            const response = await fetch('/api/simulate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ type, details: { ...details, fromAddress } }),
+                body: JSON.stringify({ type, details: { ...formattedDetails, fromAddress, toAddress, input, contractAbi, value, calldata } }),
             });
 
             if (!response.ok) {
@@ -47,7 +65,11 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                 throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorDetails)}`);
             }
             const result = await response.json();
-            setSimulationResult(result.success ? "success" : "fail");
+            setSimulationResults(prev => {
+                const newResults = [...prev];
+                newResults[index] = result.success ? "success" : "fail";
+                return newResults;
+            });
             console.log("Simulation response:", result);
 
             toaster.dismiss(simulationToast);
@@ -70,7 +92,11 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
             });
         } catch (error) {
             console.error("Simulation error:", error);
-            setSimulationResult("fail");
+            setSimulationResults(prev => {
+                const newResults = [...prev];
+                newResults[index] = "fail";
+                return newResults;
+            });
 
             toaster.dismiss(simulationToast);
             toaster.create({
@@ -133,17 +159,30 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                                 <Text>{String(value)}</Text>
                                             </HStack>
                                         ))}
+                                        <HStack key="calldata" gap={2}>
+                                            <Text fontWeight="medium">calldata:</Text>
+                                            <Text>{String(tx.details.calldata)}</Text>
+                                        </HStack>
                                     </VStack>
                                 </HStack>
                                 <Flex justify="space-between" mt={2}>
-                                    <Button colorScheme="red" size="sm" onClick={() => onDelete(idx)}>
+                                    <Button size="sm" onClick={() => onDelete(idx)}>
                                         Delete
                                     </Button>
-                                    <Button colorScheme="blue" size="sm" onClick={() => handleSimulate(tx.type, tx.details)}>
-                                        Simulate
+                                    <Button
+                                        colorScheme="blue"
+                                        size="sm"
+                                        onClick={() => handleSimulate(idx, tx.type, tx.details)}
+                                        bg={
+                                            simulationResults[idx] === "success"
+                                                ? "green.200"
+                                                : simulationResults[idx] === "fail"
+                                                    ? "red.200"
+                                                    : ""
+                                        }
+                                    >
+                                        {simulationResults[idx] === "success" ? <><FaCheck /> Success</> : simulationResults[idx] === "fail" ? <><FaSkull /> Fail</> : "Simulate"}
                                     </Button>
-                                    {simulationResult === "success" && <FaCheck color="green" />}
-                                    {simulationResult === "fail" && <FaSpinner color="red" />}
                                 </Flex>
                             </Box>
                         )}
