@@ -5,8 +5,8 @@ import { transactionOptions } from "./TransactionTypes";
 import { FaCheck, FaSkull } from "react-icons/fa";
 import { governorAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
-import { prepareTransactionData } from '@/utils/transactionUtils';
 import { Address } from "viem";
+import { FormattedAddress } from "../utils/ethereum";
 
 type TransactionDetails = Record<string, string | number | React.ReactNode>;
 
@@ -42,22 +42,14 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
         });
 
         try {
-            const treasureAddress = process.env.NEXT_PUBLIC_TREASURY || '';
-            console.log(details);
-            const formattedDetails = {
-                ...details,
-                amount: details.amount ? BigInt(details.amount as string).toString() : undefined, // Ensure amount is formatted as a string if it exists
-                tokenId: details.tokenId ? BigInt(details.tokenId as string).toString() : undefined, // Ensure tokenId is formatted as a string if it exists
-            };
-            console.log(formattedDetails);
-            const { input, contractAbi, fromAddress, toAddress, value, calldata } = prepareTransactionData(type, formattedDetails, treasureAddress as Address);
+            const requestBody: any = { type, details };
 
             const response = await fetch('/api/simulate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ type, details: { ...formattedDetails, fromAddress, toAddress, input, contractAbi, value, calldata } }),
+                body: JSON.stringify(requestBody),
             });
 
             if (!response.ok) {
@@ -153,16 +145,25 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                         mr={4}
                                     />
                                     <VStack align="start" gap={1}>
-                                        {Object.entries(tx.details).map(([key, value]) => (
-                                            <HStack key={key} gap={2}>
-                                                <Text fontWeight="medium">{key}:</Text>
-                                                <Text>{String(value)}</Text>
-                                            </HStack>
-                                        ))}
-                                        <HStack key="calldata" gap={2}>
-                                            <Text fontWeight="medium">calldata:</Text>
-                                            <Text>{String(tx.details.calldata)}</Text>
-                                        </HStack>
+                                        {Object.entries(tx.details).map(([key, value]) => {
+                                            if (key !== "contractAbi") {
+                                                return (
+                                                    <HStack key={key} gap={2}>
+                                                        <Text fontWeight="medium">{key}:</Text>
+                                                        {key === "calldata" ? (
+                                                            <Box as="pre" whiteSpace="pre-wrap" wordBreak="break-all" backgroundColor={"darkgrey"} p={2} borderRadius="md">
+                                                                <code>{String(value)}</code>
+                                                            </Box>
+                                                        ) : ["toAddress", "fromAddress"].includes(key) ? (
+                                                            <FormattedAddress address={value as string} />
+                                                        ) : (
+                                                            <Text>{String(value)}</Text>
+                                                        )}
+                                                    </HStack>
+                                                );
+                                            }
+                                            return null;
+                                        })}
                                     </VStack>
                                 </HStack>
                                 <Flex justify="space-between" mt={2}>

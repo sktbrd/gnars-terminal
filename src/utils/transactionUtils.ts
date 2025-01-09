@@ -5,21 +5,20 @@ import DroposalABI from '../components/proposal/transactions/utils/droposalABI';
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '../utils/constants';
 import { governorAddress, tokenAbi, tokenAddress } from '@/hooks/wagmiGenerated';
 
-export const prepareTransactionData = (type: string, details: any, treasureAddress: string) => {
+export const prepareTransactionData = (type: string, details: any, treasureAddress: Address) => {
     let input: string;
     let contractAbi: any;
-    let fromAddress: string = details.fromAddress || treasureAddress;
-    let toAddress: string = details.toAddress;
-    let value = "0"; // Default value
+    let fromAddress: Address = details.fromAddress || treasureAddress;
+    let toAddress: Address = details.toAddress;
+    let value = "0"; // Default value for Non-ETH transactions
 
     console.log(`Preparing transaction data for type: ${type}`);
     console.log(`Details:`, details);
-    console.log(`Treasure Address: ${treasureAddress}`);
 
     switch (type) {
         case "SEND ETH":
             fromAddress = treasureAddress;
-            value = details.amount.toString();
+            value = details.amount
             input = "0x"; // Correct input for ETH transfer
             break;
         case "SEND USDC":

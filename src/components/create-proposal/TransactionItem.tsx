@@ -5,10 +5,8 @@ import { VStack, Text, HStack, SimpleGrid, Button } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio"
 import TransactionForm from "./TransactionForm";
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constants";
-import { isAddress } from 'viem';
+import { Address, isAddress } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
-import GnarReserveInfo from "./GnarReserveInfo";
-import { FaCheck, FaSpinner } from "react-icons/fa";
 import { prepareTransactionData } from '@/utils/transactionUtils';
 
 type TransactionItemProps = {
@@ -80,6 +78,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     { name: "tokenId", placeholder: "Enter token ID", validate: (value: string) => !isNaN(Number(value)) || "Invalid token ID." },
                     { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
+            //NEEDS TO APPROVE TREASURE AS A MINTER OF NFT CONTRACT BEFORE THE DAO USE THIS ONE
             case "AIRDROP RANDOM GNAR":
                 return [
                     { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
@@ -120,73 +119,20 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         console.log(`Adding transaction of type: ${type}`);
         console.log(`Transaction details:`, transaction.details);
 
-        if (type === "SEND ETH" || type === "SEND USDC" || type === "SEND IT") {
-            const parsedAmount = Math.floor(Number(transaction.details.amount) * 10 ** decimals);
-            const amountWithDecimals = parsedAmount.toString();
-            console.log("AMOUNT:", amountWithDecimals);
-            console.log("PARSED AMOUNT:", parsedAmount);
-            const details = {
-                ...transaction.details,
-                amount: parsedAmount,
-                tokenAddress,
-                decimals,
-            };
-            console.log("DETAILS:", details);
-            onAdd({ type: `${transaction.type}`, details });
-        } else if (type === "DROPOSAL MINT") {
-            const parseToBigInt = (value: string) => {
-                if (!value || isNaN(Number(value))) return BigInt(0);
-                return BigInt(Math.floor(Number(value) * 10 ** 18).toString());
-            };
+        const treasureAddress = process.env.NEXT_PUBLIC_TREASURY as Address || '0x';
+        const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, transaction.details, treasureAddress);
 
-            const saleConfig = {
-                publicSalePrice: parseToBigInt(transaction.details.price), // Convert price to 18 decimal units
-                maxSalePurchasePerAddress: 2,
-                publicSaleStart: parseToBigInt(transaction.details.startTime),
-                publicSaleEnd: parseToBigInt(transaction.details.endTime),
-                presaleStart: BigInt(0),
-                presaleEnd: BigInt(0),
-                presaleMerkleRoot: "0x0000000000000000000000000000000000000000000000000000000000000000",
-            };
+        const details = {
+            ...transaction.details,
+            calldata: input,
+            contractAbi,
+            fromAddress,
+            toAddress,
+            value,
+        };
 
-            const details: DroposalMintDetails = {
-                name: transaction.details.name || "",
-                symbol: transaction.details.symbol || "",
-                description: transaction.details.description || "",
-                price: transaction.details.price || "0",
-                animationURI: transaction.details.animationURI || "",
-                imageURI: transaction.details.imageURI || "",
-                editionSize: editionType === "Open" ? UNLIMITED_EDITION_SIZE : transaction.details.editionSize,
-                startTime: transaction.details.startTime || "0",
-                endTime: transaction.details.endTime || "0",
-                mintLimit: transaction.details.mintLimit || "0",
-                royalty: transaction.details.royalty || "0",
-                payoutAddress: transaction.details.payoutAddress || "",
-                adminAddress: transaction.details.adminAddress || "",
-                saleConfig,
-                editionType,
-            };
-
-            console.log("DROPOSAL MINT details:", details);
-            onAdd({ type: `${transaction.type}`, details });
-        } else if (type === "AIRDROP RANDOM GNAR") {
-            const details = {
-                ...transaction.details,
-                amount: Number(transaction.details.amount),
-                toAddress: transaction.details.toAddress,
-            };
-            console.log("AIRDROP RANDOM GNAR details:", details);
-            onAdd({ type: `${transaction.type}`, details });
-        } else {
-            const treasureAddress = process.env.NEXT_PUBLIC_TREASURY || '';
-            const { input } = prepareTransactionData(type, transaction.details, treasureAddress);
-            const details = {
-                ...transaction.details,
-                calldata: input,
-            };
-            console.log("Other transaction details:", details);
-            onAdd({ type: `${transaction.type}`, details });
-        }
+        console.log("Prepared transaction details:", details);
+        onAdd({ type: `${transaction.type}`, details });
     };
 
     return (

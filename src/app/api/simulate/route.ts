@@ -30,7 +30,7 @@ export async function POST(req: Request) {
         console.log("Received simulation request:", type, details);
 
         // Validate request body
-        if (!type || !details || !details.toAddress || !details.amount || !details.contractAbi) {
+        if (!type || !details || !details.toAddress) {
             console.error("Invalid request body:", { type, details });
             return NextResponse.json({ message: 'Invalid request body' }, { status: 400 });
         }
@@ -54,27 +54,17 @@ export async function POST(req: Request) {
             'X-Access-Key': process.env.NEXT_PUBLIC_TENDERLY_SECRET || '',
         };
 
-        const treasureAddress = process.env.NEXT_PUBLIC_TREASURY || '';
-        const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, details, treasureAddress);
-
-        console.log("Prepared transaction data:", { input, contractAbi, fromAddress, toAddress, value });
-
-        // Fetch the real block number using publicClient
-        const blockNumber = Number(await publicClient.getBlockNumber());
-        console.log("Current block number:", blockNumber);
-
         const body: SimulationRequestBody = {
             network_id: "8453",
-            from: fromAddress,
-            to: toAddress,
-            input,
-            value,
+            from: details.fromAddress,
+            to: details.toAddress,
+            input: details.calldata,
+            value: details.value,
             gas: 648318, // Example gas value
-            // Remove block_number field
             save: true,
             save_if_fails: true,
             simulation_type: "full",
-            contract_abi: contractAbi,
+            contract_abi: details.contractAbi,
         };
 
         const logBody = { ...body };

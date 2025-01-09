@@ -1,5 +1,5 @@
 import { Box, VStack, Heading, Text } from '@chakra-ui/react';
-import { decodeSenditTransaction, decodeUsdcTransaction } from './transactions/utils/decodeUsdcTransaction';
+import { decodeSenditTransaction, decodeUsdcTransaction } from './transactions/utils/decodeTXs';
 import EthTransferTransaction from './transactions/EthTransferTransaction';
 import { Address } from 'viem';
 import USDCTransaction from './transactions/USDCTransaction';
@@ -87,7 +87,7 @@ function TransactionItem({
   if (normalizedCalldata === '0x' && value !== '0') {
     return (
       <EthTransferTransaction
-        toAddress={target as `0x${string}`}
+        toAddress={target as Address}
         value={BigInt(value)}
       />
     );

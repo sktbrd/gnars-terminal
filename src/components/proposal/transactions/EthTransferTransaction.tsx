@@ -1,9 +1,9 @@
 import { FormattedAddress } from '@/components/utils/ethereum';
 import { Box, Text, Heading, VStack, Code } from '@chakra-ui/react';
-import { formatEther } from 'viem';
+import { Address, formatEther } from 'viem';
 
 interface EthTransferTransactionProps {
-  toAddress: `0x${string}`;
+  toAddress: Address;
   value: BigInt | { hex: string } | undefined; // Support BigInt and hex
 }
 
