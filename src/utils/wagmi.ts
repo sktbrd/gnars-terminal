@@ -8,7 +8,7 @@ export function getConfig() {
     chains: [base, mainnet],
     connectors: [
       injected(),
-      // coinbaseWallet(),
+      coinbaseWallet(),
       walletConnect({ projectId: WC_PROJECT_ID }),
     ],
     storage: createStorage({
