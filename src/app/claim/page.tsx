@@ -39,6 +39,13 @@ function ClaimPage() {
     args: [(smartWalletAddress as Address) || zeroAddress],
   });
 
+  const { data: userIsOwner } = useReadContract({
+    address: smartWalletAddress as Address,
+    abi,
+    functionName: 'isOwnerAddress',
+    args: [userAddress || zeroAddress],
+  });
+
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash: transactionHash,
@@ -60,6 +67,8 @@ function ClaimPage() {
         functionName: 'transfer',
         args: [userAddress, senditBalance],
       });
+
+      console.log(encodedData);
 
       try {
         writeContract({
@@ -115,7 +124,7 @@ function ClaimPage() {
                 type='submit'
                 variant={'surface'}
                 disabled={
-                  !smartWalletAddress || !senditBalance || senditBalance === 0n
+                  !smartWalletAddress || !senditBalance || senditBalance === 0n || !userIsOwner
                 }
                 loading={isWritting || isConfirming}
                 loadingText={buttonText}
@@ -129,6 +138,7 @@ function ClaimPage() {
           <Text>Balance: {formatUnits(senditBalance, 18)}</Text>
         )}
         {transactionHash && <Text>Hash: {transactionHash}</Text>}
+        {userAddress && smartWalletAddress && !userIsOwner && <Text>User do not own the smart wallet</Text>}
         {error && (
           <Text>
             Error: {(error as BaseError).shortMessage || error.message}
