@@ -79,7 +79,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 const encodedCalldataIT = encodeFunctionData({
                     abi: SENDIT_ABI,
                     functionName: "transfer",
-                    args: [recipientIT, adjustedAmountIT.toString()],
+                    args: [recipientIT, adjustedAmountIT],
                 });
                 return {
                     target: SENDIT_CONTRACT_ADDRESS,
