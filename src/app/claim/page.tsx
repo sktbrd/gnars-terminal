@@ -4,7 +4,7 @@ import SENDIT_ABI from '@/components/proposal/transactions/utils/SENDIT_abi';
 import { Button } from '@/components/ui/button';
 import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
 import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Address,
   BaseError,
@@ -12,13 +12,24 @@ import {
   formatUnits,
   zeroAddress,
 } from 'viem';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
 import { abi } from './sm_abi';
 
 function ClaimPage() {
   const [smartWalletAddress, setSmartWalletAddress] = useState('');
+  const [buttonText, setButtonText] = useState('Claim');
 
-  const { data: transactionHash, error, writeContract } = useWriteContract();
+  const {
+    data: transactionHash,
+    isPending: isWritting,
+    error,
+    writeContract,
+  } = useWriteContract();
   const { address: userAddress } = useAccount();
 
   const { data: senditBalance } = useReadContract({
@@ -27,6 +38,11 @@ function ClaimPage() {
     functionName: 'balanceOf',
     args: [(smartWalletAddress as Address) || zeroAddress],
   });
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash: transactionHash,
+    });
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,21 +53,40 @@ function ClaimPage() {
         return;
       }
 
+      setButtonText('Claiming');
+
       const encodedData = encodeFunctionData({
         abi: SENDIT_ABI,
         functionName: 'transfer',
         args: [userAddress, senditBalance],
       });
 
-      writeContract({
-        address: smartWalletAddress as Address,
-        abi,
-        functionName: 'execute',
-        args: [SENDIT_CONTRACT_ADDRESS, 0n, encodedData],
-      });
+      try {
+        writeContract({
+          address: smartWalletAddress as Address,
+          abi,
+          functionName: 'execute',
+          args: [SENDIT_CONTRACT_ADDRESS, 0n, encodedData],
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setButtonText('Claim');
+      }
     },
     [smartWalletAddress, userAddress, senditBalance, writeContract]
   );
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setButtonText('Claimed');
+      setTimeout(() => {
+        setButtonText(
+          senditBalance && senditBalance > 0n ? 'Claim' : 'Claimed'
+        );
+      }, 3000);
+    }
+  }, [isConfirmed, senditBalance]);
 
   return (
     <HStack w={'full'} minH={'80vh'} justify={'center'}>
@@ -82,8 +117,10 @@ function ClaimPage() {
                 disabled={
                   !smartWalletAddress || !senditBalance || senditBalance === 0n
                 }
+                loading={isWritting || isConfirming}
+                loadingText={buttonText}
               >
-                Claim
+                {buttonText}
               </Button>
             </VStack>
           </form>
