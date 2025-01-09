@@ -3,7 +3,7 @@
 import SENDIT_ABI from '@/components/proposal/transactions/utils/SENDIT_abi';
 import { Button } from '@/components/ui/button';
 import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
-import { HStack, Input, Text, VStack } from '@chakra-ui/react';
+import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react';
 import React, { useState, useCallback } from 'react';
 import {
   Address,
@@ -54,38 +54,49 @@ function ClaimPage() {
   );
 
   return (
-    <HStack w={'full'} minH={'full'} justify={'center'}>
+    <HStack w={'full'} minH={'80vh'} justify={'center'}>
       <VStack alignItems={'center'} gap={1}>
-        <form onSubmit={handleSubmit}>
-          <VStack alignItems={'center'} gap={1}>
-            <Text>Claim Sendit from Zora wallet</Text>
-            <Input
-              type='text'
-              placeholder='Smart Wallet Address'
-              id='smartWallet'
-              value={smartWalletAddress}
-              onChange={(e) => setSmartWalletAddress(e.target.value)}
-            />
-            <Button
-              w={'full'}
-              type='submit'
-              disabled={
-                !smartWalletAddress || !senditBalance || senditBalance === 0n
-              }
-            >
-              Claim
-            </Button>
-          </VStack>
-          {senditBalance && (
-            <Text>Balance: {formatUnits(senditBalance, 18)}</Text>
-          )}
-          {transactionHash && <Text>Hash: {transactionHash}</Text>}
-          {error && (
-            <Text>
-              Error: {(error as BaseError).shortMessage || error.message}
-            </Text>
-          )}
-        </form>
+        <Box w={'full'} minW={'sm'} p={4} borderWidth={1} borderRadius={8}>
+          <form onSubmit={handleSubmit}>
+            <VStack alignItems={'start'} gap={2}>
+              <VStack alignItems={'start'} gap={0}>
+                <Text fontSize={'xl'} fontWeight={'bold'}>
+                  Claim Sendit
+                </Text>
+                <Text color={'fg.muted'}>
+                  Claim the tokens from a Smart Wallet
+                </Text>
+              </VStack>
+              <Input
+                type='text'
+                placeholder='Smart Wallet Address'
+                id='smartWallet'
+                size={'lg'}
+                value={smartWalletAddress}
+                onChange={(e) => setSmartWalletAddress(e.target.value)}
+              />
+              <Button
+                w={'full'}
+                type='submit'
+                variant={'surface'}
+                disabled={
+                  !smartWalletAddress || !senditBalance || senditBalance === 0n
+                }
+              >
+                Claim
+              </Button>
+            </VStack>
+          </form>
+        </Box>
+        {senditBalance && (
+          <Text>Balance: {formatUnits(senditBalance, 18)}</Text>
+        )}
+        {transactionHash && <Text>Hash: {transactionHash}</Text>}
+        {error && (
+          <Text>
+            Error: {(error as BaseError).shortMessage || error.message}
+          </Text>
+        )}
       </VStack>
     </HStack>
   );
