@@ -29,7 +29,8 @@ export const decodeUsdcTransaction = (calldata: Address) => {
 export const decodeSenditTransaction = (calldata: Address) => {
     try {
         // Find the "transfer" function in the SENDIT_ABI
-        const transferFunction = SENDIT_ABI.find((item) => item.name === 'transfer' && item.type === 'function');
+        // @ts-ignore
+        const transferFunction = SENDIT_ABI.find((item) => item.inputs === 'transfer' && item.type === 'function');
         if (!transferFunction) {
             throw new Error('Transfer function not found in the ABI');
         }
