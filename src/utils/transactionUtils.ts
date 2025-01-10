@@ -5,15 +5,14 @@ import DroposalABI from '../components/proposal/transactions/utils/droposalABI';
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '../utils/constants';
 import { governorAddress, tokenAbi, tokenAddress } from '@/hooks/wagmiGenerated';
 
+const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
+
 export const prepareTransactionData = (type: string, details: any, treasureAddress: Address) => {
     let input: string;
     let contractAbi: any;
     let fromAddress: Address = details.fromAddress || treasureAddress;
     let toAddress: Address = details.toAddress;
     let value = "0"; // Default value for Non-ETH transactions
-
-    console.log(`Preparing transaction data for type: ${type}`);
-    console.log(`Details:`, details);
 
     switch (type) {
         case "SEND ETH":
@@ -34,12 +33,13 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
             toAddress = SENDIT_CONTRACT_ADDRESS;
             break;
         case "DROPOSAL MINT":
+            console.log(`DROPOSAL MINT - details:`, details);
             input = encodeDroposalMint(details);
             contractAbi = DroposalABI;
+            toAddress = DROPOSAL_CONTRACT_ADDRESS;
             break;
         case "AIRDROP RANDOM GNAR":
             fromAddress = treasureAddress;
-            console.log(`AIRDROP RANDOM GNAR - toAddress: ${details.toAddress}, amount: ${details.amount}`);
             input = encodeFunctionData({
                 abi: tokenAbi,
                 functionName: 'mintBatchTo',
@@ -73,7 +73,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
 
 const encodeTokenTransfer = (abi: any, functionName: string, to: string, amount: number, decimals: number) => {
     const adjustedAmount = BigInt(Math.floor(amount * 10 ** decimals)).toString();
-    console.log(`Encoding token transfer - to: ${to}, amount: ${adjustedAmount}`);
     return encodeFunctionData({
         abi,
         functionName,
@@ -94,6 +93,27 @@ const encodeDroposalMint = (details: any) => {
         adminAddress,
         saleConfig,
     } = details;
+
+    if (!saleConfig) {
+        console.error("Missing saleConfig object");
+        throw new Error("Missing saleConfig object");
+    }
+
+    const requiredProperties = [
+        "publicSalePrice",
+        "publicSaleStart",
+        "publicSaleEnd",
+        "presaleStart",
+        "presaleEnd",
+        "presaleMerkleRoot",
+    ];
+
+    for (const property of requiredProperties) {
+        if (saleConfig[property] === undefined || saleConfig[property] === null) {
+            console.error(`Missing or invalid saleConfig property: ${property}`);
+            throw new Error(`Missing or invalid saleConfig property: ${property}`);
+        }
+    }
 
     const saleConfigTuple = [
         BigInt(saleConfig.publicSalePrice).toString(),

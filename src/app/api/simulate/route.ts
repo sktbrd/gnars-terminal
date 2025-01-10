@@ -30,9 +30,17 @@ export async function POST(req: Request) {
         console.log("Received simulation request:", type, details);
 
         // Validate request body
-        if (!type || !details || !details.toAddress) {
-            console.error("Invalid request body:", { type, details });
-            return NextResponse.json({ message: 'Invalid request body' }, { status: 400 });
+        if (!type) {
+            console.error("Missing type in request body");
+            return NextResponse.json({ message: 'Invalid request body: Missing type' }, { status: 400 });
+        }
+        if (!details) {
+            console.error("Missing details in request body");
+            return NextResponse.json({ message: 'Invalid request body: Missing details' }, { status: 400 });
+        }
+        if (!details.toAddress) {
+            console.error("Missing toAddress in details");
+            return NextResponse.json({ message: 'Invalid request body: Missing toAddress' }, { status: 400 });
         }
 
         // Validate Ethereum address
@@ -60,6 +68,9 @@ export async function POST(req: Request) {
             value = parseEther(details.value).toString();
         }
 
+        // Ensure contract_abi is a JSON string
+        const contractAbi = JSON.stringify(details.contractAbi);
+
         const body: SimulationRequestBody = {
             network_id: "8453",
             from: details.fromAddress,
@@ -70,7 +81,7 @@ export async function POST(req: Request) {
             save: true,
             save_if_fails: true,
             simulation_type: "full",
-            contract_abi: details.contractAbi,
+            contract_abi: contractAbi,
         };
 
         const logBody = { ...body };
@@ -80,6 +91,10 @@ export async function POST(req: Request) {
 
         console.log("Sending request to:", endpoint);
         console.log("Simulation request body (without ABI):", logBody);
+
+        if (type === "DROPOSAL MINT") {
+            console.log("Simulating DROPOSAL MINT transaction:", body);
+        }
 
         const response = await fetch(endpoint, {
             method: 'POST',
