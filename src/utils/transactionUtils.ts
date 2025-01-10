@@ -18,18 +18,18 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     switch (type) {
         case "SEND ETH":
             fromAddress = treasureAddress;
-            value = details.amount
+            value = details.amount;
             input = "0x"; // Correct input for ETH transfer
             break;
         case "SEND USDC":
             fromAddress = treasureAddress;
-            input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.amount);
+            input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.amount, 6); // USDC has 6 decimals
             contractAbi = USDC_ABI;
             toAddress = USDC_CONTRACT_ADDRESS;
             break;
         case "SEND IT":
             fromAddress = treasureAddress;
-            input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.amount);
+            input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.amount, 18); // SEND IT has 18 decimals
             contractAbi = SENDIT_ABI;
             toAddress = SENDIT_CONTRACT_ADDRESS;
             break;
@@ -52,7 +52,7 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
             if (!details.tokenId) {
                 throw new Error("Token ID is required for SEND NFT transactions");
             }
-            fromAddress = governorAddress;
+            fromAddress = treasureAddress;
             console.log(`SEND NFT - toAddress: ${details.toAddress}, tokenId: ${details.tokenId}`);
             input = encodeFunctionData({
                 abi: tokenAbi,
@@ -71,8 +71,8 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     return { input, contractAbi, fromAddress, toAddress, value, calldata: input };
 };
 
-const encodeTokenTransfer = (abi: any, functionName: string, to: string, amount: number) => {
-    const adjustedAmount = BigInt(amount).toString();
+const encodeTokenTransfer = (abi: any, functionName: string, to: string, amount: number, decimals: number) => {
+    const adjustedAmount = BigInt(Math.floor(amount * 10 ** decimals)).toString();
     console.log(`Encoding token transfer - to: ${to}, amount: ${adjustedAmount}`);
     return encodeFunctionData({
         abi,

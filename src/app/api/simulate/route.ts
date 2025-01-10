@@ -2,7 +2,7 @@
 // TODO: understand how ETH transactions are simulated in tenderly
 
 import { NextResponse } from 'next/server';
-import { isAddress } from 'viem';
+import { isAddress, parseEther } from 'viem';
 import { publicClient } from '@/utils/client';
 import { prepareTransactionData } from '@/utils/transactionUtils';
 
@@ -54,12 +54,18 @@ export async function POST(req: Request) {
             'X-Access-Key': process.env.NEXT_PUBLIC_TENDERLY_SECRET || '',
         };
 
+        // Convert value to wei if it's an ETH transaction
+        let value = details.value;
+        if (type === "SEND ETH") {
+            value = parseEther(details.value).toString();
+        }
+
         const body: SimulationRequestBody = {
             network_id: "8453",
             from: details.fromAddress,
             to: details.toAddress,
             input: details.calldata,
-            value: details.value,
+            value,
             gas: 648318, // Example gas value
             save: true,
             save_if_fails: true,
