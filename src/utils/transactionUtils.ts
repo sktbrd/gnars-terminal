@@ -1,10 +1,36 @@
-import { Address, encodeFunctionData, isAddress } from 'viem';
+import { Address, encodeFunctionData, isAddress, parseUnits, parseEther } from 'viem';
 import USDC_ABI from '../components/proposal/transactions/utils/USDC_abi';
 import SENDIT_ABI from '../components/proposal/transactions/utils/SENDIT_abi';
 import DroposalABI from '../components/proposal/transactions/utils/droposalABI';
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '../utils/constants';
 import { governorAddress, tokenAbi, tokenAddress } from '@/hooks/wagmiGenerated';
 
+type DroposalMintDetails = {
+    name: string;
+    symbol: string;
+    description: string;
+    media?: string; // TODO: IMPLEMENT IPFS FILE UPLOAD AND optimize media URL
+    price: string;
+    editionSize?: string;
+    startTime: string;
+    endTime: string;
+    mintLimit: string;
+    royalty: string;
+    payoutAddress: string;
+    adminAddress: string;
+    saleConfig: {
+        publicSalePrice: bigint;
+        maxSalePurchasePerAddress: number;
+        publicSaleStart: bigint;
+        publicSaleEnd: bigint;
+        presaleStart: bigint;
+        presaleEnd: bigint;
+        presaleMerkleRoot: string;
+    };
+    editionType: string;
+    animationURI?: string;
+    imageURI?: string;
+};
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
 
 export const prepareTransactionData = (type: string, details: any, treasureAddress: Address) => {
@@ -13,22 +39,22 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     let fromAddress: Address = details.fromAddress || treasureAddress;
     let toAddress: Address = details.toAddress;
     let value = "0"; // Default value for Non-ETH transactions
-
+    console.log(`Preparing transaction data for type: ${type}, details:`, details);
     switch (type) {
         case "SEND ETH":
             fromAddress = treasureAddress;
-            value = details.amount;
+            value = details.value;
             input = "0x"; // Correct input for ETH transfer
             break;
         case "SEND USDC":
             fromAddress = treasureAddress;
-            input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.amount, 6); // USDC has 6 decimals
+            input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.formattedAmount, 6); // Use formatted amount
             contractAbi = USDC_ABI;
             toAddress = USDC_CONTRACT_ADDRESS;
             break;
         case "SEND IT":
             fromAddress = treasureAddress;
-            input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.amount, 18); // SEND IT has 18 decimals
+            input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.formattedAmount, 18); // Use formatted amount
             contractAbi = SENDIT_ABI;
             toAddress = SENDIT_CONTRACT_ADDRESS;
             break;
@@ -71,12 +97,49 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     return { input, contractAbi, fromAddress, toAddress, value, calldata: input };
 };
 
-const encodeTokenTransfer = (abi: any, functionName: string, to: string, amount: number, decimals: number) => {
-    const adjustedAmount = BigInt(Math.floor(amount * 10 ** decimals)).toString();
+export const formatTransactionDetails = (type: string, details: any) => {
+    switch (type) {
+        case "SEND ETH":
+            return {
+                ...details,
+                value: parseEther(details.amount).toString(),
+            };
+        case "SEND USDC":
+            return {
+                ...details,
+                formattedAmount: parseUnits(details.amount, 6).toString(), // Format amount correctly
+                value: "0",
+            };
+        case "SEND IT":
+            return {
+                ...details,
+                formattedAmount: parseUnits(details.amount, 18).toString(), // Format amount correctly
+                value: "0",
+            };
+        case "DROPOSAL MINT":
+            return {
+                ...details,
+                toAddress: DROPOSAL_CONTRACT_ADDRESS,
+                saleConfig: {
+                    publicSalePrice: parseEther(details.price).toString(),
+                    maxSalePurchasePerAddress: details.mintLimit ? parseInt(details.mintLimit) : 1000000,
+                    publicSaleStart: BigInt(new Date(details.startTime).getTime() / 1000),
+                    publicSaleEnd: BigInt(new Date(details.endTime).getTime() / 1000),
+                    presaleStart: BigInt(0),
+                    presaleEnd: BigInt(0),
+                    presaleMerkleRoot: "0x0000000000000000000000000000000000000000000000000000000000000000",
+                },
+            };
+        default:
+            return details;
+    }
+};
+
+const encodeTokenTransfer = (abi: any, functionName: string, to: string, amount: string, decimals: number) => {
     return encodeFunctionData({
         abi,
         functionName,
-        args: [to, adjustedAmount],
+        args: [to, BigInt(amount)], // Use the already formatted amount
     });
 };
 
@@ -138,7 +201,6 @@ const encodeDroposalMint = (details: any) => {
         imageURI,
     ];
 
-    console.log(`Encoding droposal mint - args:`, args);
 
     return encodeFunctionData({
         abi: DroposalABI,

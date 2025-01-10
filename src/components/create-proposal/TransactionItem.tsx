@@ -5,9 +5,9 @@ import { VStack, Text, HStack, SimpleGrid, Button } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio"
 import TransactionForm from "./TransactionForm";
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constants";
-import { Address, isAddress, parseEther } from 'viem';
+import { Address, isAddress, parseEther, parseUnits } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
-import { prepareTransactionData } from '@/utils/transactionUtils';
+import { prepareTransactionData, formatTransactionDetails } from '@/utils/transactionUtils';
 
 type TransactionItemProps = {
     type: string;
@@ -15,32 +15,6 @@ type TransactionItemProps = {
     onCancel: () => void;
 };
 
-type DroposalMintDetails = {
-    name: string;
-    symbol: string;
-    description: string;
-    media?: string; // TODO: IMPLEMENT IPFS FILE UPLOAD AND optimize media URL
-    price: string;
-    editionSize?: string;
-    startTime: string;
-    endTime: string;
-    mintLimit: string;
-    royalty: string;
-    payoutAddress: string;
-    adminAddress: string;
-    saleConfig: {
-        publicSalePrice: bigint;
-        maxSalePurchasePerAddress: number;
-        publicSaleStart: bigint;
-        publicSaleEnd: bigint;
-        presaleStart: bigint;
-        presaleEnd: bigint;
-        presaleMerkleRoot: string;
-    };
-    editionType: string;
-    animationURI?: string;
-    imageURI?: string;
-};
 
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
 
@@ -122,24 +96,12 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         console.log(`Transaction details:`, transaction.details);
 
         const treasureAddress = process.env.NEXT_PUBLIC_TREASURY as Address || '0x';
-        const formattedDetails = {
-            ...transaction.details,
-            toAddress: type === "DROPOSAL MINT" ? DROPOSAL_CONTRACT_ADDRESS : transaction.details.toAddress,
-            saleConfig: {
-                publicSalePrice: parseEther(transaction.details.price).toString(),
-                maxSalePurchasePerAddress: transaction.details.mintLimit ? parseInt(transaction.details.mintLimit) : 1000000,
-                publicSaleStart: BigInt(new Date(transaction.details.startTime).getTime() / 1000),
-                publicSaleEnd: BigInt(new Date(transaction.details.endTime).getTime() / 1000),
-                presaleStart: BigInt(0),
-                presaleEnd: BigInt(0),
-                presaleMerkleRoot: "0x0000000000000000000000000000000000000000000000000000000000000000",
-            },
-        };
+        const formattedDetails = formatTransactionDetails(type, transaction.details);
 
         console.log("Formatted details:", formattedDetails);
 
         const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, formattedDetails, treasureAddress);
-
+        console.log(input)
         const details = {
             ...transaction.details,
             calldata: input,

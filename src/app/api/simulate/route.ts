@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         // Convert value to wei if it's an ETH transaction
         let value = details.value;
         if (type === "SEND ETH") {
-            value = parseEther(details.value).toString();
+            value = details.value.toString();
         }
 
         // Ensure contract_abi is a JSON string
@@ -89,8 +89,6 @@ export async function POST(req: Request) {
 
         const endpoint = `https://api.tenderly.co/api/v1/account/${accountSlug}/project/${projectSlug}/simulate`;
 
-        console.log("Sending request to:", endpoint);
-        console.log("Simulation request body (without ABI):", logBody);
 
         if (type === "DROPOSAL MINT") {
             console.log("Simulating DROPOSAL MINT transaction:", body);
@@ -114,7 +112,7 @@ export async function POST(req: Request) {
         }
 
         const data = await response.json();
-        console.log("Simulation response:", data);
+        // console.log("Simulation response:", data);
         const success = data.simulation?.status === true
         const simulationId = data.simulation?.id;
         const simulationUrl = `https://dashboard.tenderly.co/${accountSlug}/${projectSlug}/simulator/${simulationId}`;
