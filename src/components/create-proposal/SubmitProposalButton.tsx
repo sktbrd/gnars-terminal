@@ -9,6 +9,7 @@ import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/utils/constant
 import { tokenAbi, tokenAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
+import { formatTransactionDetails } from "@/utils/transactionUtils";
 
 interface SubmitProposalButtonProps {
     isTitleValid: boolean;
@@ -37,23 +38,33 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
     };
 
     const prepareTransaction = (transaction: any) => {
+        console.log(`Preparing transaction of type: ${transaction.type}`);
+        console.log(`Transaction details:`, transaction.details);
+
+        const formattedDetails = formatTransactionDetails(transaction.type, transaction.details);
+        console.log("Formatted details:", formattedDetails);
+
         switch (transaction.type) {
             case "SEND ETH":
                 return {
-                    target: transaction.details.toAddress,
-                    value: transaction.details.amount,
+                    target: formattedDetails.toAddress,
+                    value: formattedDetails.value,
                     calldata: "0x",
                 };
             case "SEND NFT":
-                const recipient = transaction.details.toAddress;
-                const tokenId = transaction.details.tokenID;
+                const recipient = formattedDetails.toAddress;
+                const tokenId = formattedDetails.tokenId;
+                console.log(`SEND NFT - recipient: ${recipient}, tokenId: ${tokenId}`);
+                if (tokenId === undefined) {
+                    throw new Error("Token ID is required for SEND NFT transactions");
+                }
                 const encodedCalldata = encodeFunctionData({
                     abi: tokenAbi,
                     functionName: "transferFrom",
                     args: [
                         ReadGovernorTreasure.data as Address,
                         recipient as Address,
-                        tokenId,
+                        BigInt(tokenId),
                     ],
                 });
                 return {
@@ -64,18 +75,20 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
             case "SEND USDC":
                 const usdcAddress = USDC_CONTRACT_ADDRESS;
                 const encodedCalldataUSDC = encodeUSDCTransfer(
-                    transaction.details.toAddress,
-                    transaction.details.amount
+                    formattedDetails.toAddress,
+                    formattedDetails.formattedAmount
                 );
+                console.log(`SEND USDC - recipient: ${formattedDetails.toAddress}, amount: ${formattedDetails.formattedAmount}`);
                 return {
                     target: usdcAddress,
                     value: "0",
                     calldata: encodedCalldataUSDC,
                 };
             case "SEND IT":
-                const recipientIT = transaction.details.toAddress;
-                const amountIT = transaction.details.amount;
+                const recipientIT = formattedDetails.toAddress;
+                const amountIT = formattedDetails.formattedAmount;
                 const adjustedAmountIT = BigInt(amountIT);
+                console.log(`SEND IT - recipient: ${recipientIT}, amount: ${amountIT}, adjustedAmount: ${adjustedAmountIT}`);
                 const encodedCalldataIT = encodeFunctionData({
                     abi: SENDIT_ABI,
                     functionName: "transfer",
@@ -87,8 +100,9 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     calldata: encodedCalldataIT,
                 };
             case "AIRDROP RANDOM GNAR":
-                const recipientGnar = transaction.details.toAddress;
-                const amountGnar = transaction.details.amount;
+                const recipientGnar = formattedDetails.toAddress;
+                const amountGnar = formattedDetails.amount;
+                console.log(`AIRDROP RANDOM GNAR - recipient: ${recipientGnar}, amount: ${amountGnar}`);
                 const encodedCalldataGnar = encodeFunctionData({
                     abi: tokenAbi,
                     functionName: "mintBatchTo",
@@ -111,7 +125,31 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     payoutAddress,
                     adminAddress,
                     saleConfig,
-                } = transaction.details;
+                } = formattedDetails;
+
+                console.log(`DROPOSAL MINT - saleConfig:`, saleConfig);
+
+                if (!saleConfig) {
+                    console.error("Missing saleConfig object");
+                    throw new Error("Missing saleConfig object");
+                }
+
+                const requiredProperties = [
+                    "publicSalePrice",
+                    "publicSaleStart",
+                    "publicSaleEnd",
+                    "presaleStart",
+                    "presaleEnd",
+                    "presaleMerkleRoot",
+                ];
+
+                for (const property of requiredProperties) {
+                    console.log(`Property ${property}:`, saleConfig[property]);
+                    if (saleConfig[property] === undefined || saleConfig[property] === null) {
+                        console.error(`Missing or invalid saleConfig property: ${property}`);
+                        throw new Error(`Missing or invalid saleConfig property: ${property}`);
+                    }
+                }
 
                 const saleConfigTuple = [
                     BigInt(saleConfig.publicSalePrice),
@@ -135,6 +173,8 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     animationURI,
                     imageURI,
                 ];
+
+                console.log(`DROPOSAL MINT - args:`, args);
 
                 const encodedCalldataDroposal = encodeFunctionData({
                     abi: DroposalABI,
