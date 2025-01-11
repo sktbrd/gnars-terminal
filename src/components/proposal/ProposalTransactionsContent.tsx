@@ -5,7 +5,7 @@ import { Address } from 'viem';
 import USDCTransaction from './transactions/USDCTransaction';
 import MintBatchTransaction from './transactions/MintBatchTransaction';
 import DroposalTransaction from './transactions/DroposalTransaction';
-import NftTransferTransaction from './transactions/NFTTrasnfer';
+import NftTransferTransaction from './transactions/NFTTransfer';
 import SenditTransaction from './transactions/SenditTransaction';
 import { tokenAddress } from '@/hooks/wagmiGenerated';
 import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';

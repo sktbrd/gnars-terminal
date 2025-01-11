@@ -1,5 +1,6 @@
-import { Box, Heading, HStack, Image, Text } from '@chakra-ui/react';
+import { HStack, Text, Image, Code } from '@chakra-ui/react';
 import { FormattedAddress } from '@/components/utils/ethereum';
+import TransactionWrapper from './TransactionWrapper';
 
 interface USDCTransactionProps {
   index: number;
@@ -7,40 +8,26 @@ interface USDCTransactionProps {
   value: string;
 }
 
-const USDCTransaction: React.FC<USDCTransactionProps> = ({
-  index,
-  to,
-  value,
-}) => {
+const USDCTransaction: React.FC<USDCTransactionProps> = ({ index, to, value }) => {
   return (
-    <Box
-      borderWidth='1px'
-      borderRadius='md'
-      p={4}
-      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
+    <TransactionWrapper
+      index={index}
+      title='USDC Transfer'
+      logoSrc='/images/usdc.png'
+      logoAlt='USDC'
     >
-      <Heading size='sm' mb={2}>
-        Transaction {index + 1}: USDC Transfer
-      </Heading>
-      <HStack gap={2} align='center' mt={2}>
-        <Text display='flex' alignItems='center'>
-          <strong>To:</strong>
+      <HStack gap={2} align='center'>
+        <Text>
+          This transaction sends
         </Text>
+        <Code size={'sm'} variant={'surface'}>
+          {value}
+          <Image src='/images/usdc.png' alt='USDC' boxSize='20px' objectFit='contain' ml={2} />
+        </Code>
+        <Text>tokens from Gnars Treasury to</Text>
         <FormattedAddress address={to} />
       </HStack>
-      <HStack gap={2} align='center' mt={2}>
-        <Text>
-          <strong>Value:</strong> {value}
-        </Text>
-        <Image
-          src='/images/usdc.png'
-          alt='USDC Logo'
-          boxSize='20px'
-          objectFit='contain'
-        />
-        USDC
-      </HStack>
-    </Box>
+    </TransactionWrapper>
   );
 };
 

@@ -1,8 +1,9 @@
 import { FormattedAddress } from '@/components/utils/ethereum';
-import { Box, Heading, Image, Text, VStack } from '@chakra-ui/react';
+import { Box, Text, Image, VStack, Code, HStack } from '@chakra-ui/react';
 import { default as NextImage } from 'next/image';
 import Link from 'next/link';
 import { Address, decodeFunctionData } from 'viem';
+import TransactionWrapper from './TransactionWrapper';
 
 // Define the ABI for the mintBatchTo function
 const MINT_BATCH_TO_ABI = [
@@ -49,43 +50,30 @@ export default function MintBatchTransaction({
   }
 
   return (
-    <Box
-      borderWidth='1px'
-      borderRadius='md'
-      p={4}
-      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
+    <TransactionWrapper
+      index={index}
+      title='Mint Batch'
+      logoSrc='https://www.skatehive.app/loading.gif'
+      logoAlt='Mint Batch'
     >
-      {/* Title Section */}
-      <Heading size='sm' mb={3}>
-        Transaction {index + 1}: Mint Batch
-      </Heading>
-
-      {/* Content Section */}
       <Box display='flex' alignItems='center' gap={4}>
-        {/* Image Section */}
-        <Image
-          asChild
-          borderRadius='8px'
-          boxSize={32}
-          border='1px solid'
-          borderColor='gray.200'
-        >
-          <NextImage
-            src='https://www.skatehive.app/loading.gif'
-            alt='Mint Batch'
-            width={256}
-            height={256}
-            style={{ objectFit: 'contain', borderRadius: '8px' }}
-          />
-        </Image>
-
-        {/* Details Section */}
         <VStack align='start' gap={2}>
-          <Text>
-            <strong>Amount:</strong> {amount || 'N/A'}
-          </Text>
-          <Text>
-            <strong>Recipient:</strong>{' '}
+          <HStack gap={2} align='center'>
+            <Text>
+              This transaction mints
+            </Text>
+            <Code size={'sm'} variant={'surface'}>
+              {amount || 'N/A'}
+              <Image
+                src='https://www.skatehive.app/loading.gif'
+                alt='Mint Batch'
+                boxSize='20px'
+                objectFit='contain'
+                ml={2}
+                mb={1}
+              />
+            </Code>
+            <Text>new tokens to</Text>
             {recipient ? (
               <Link href={`/address/${recipient}`} passHref>
                 <FormattedAddress address={recipient} />
@@ -93,9 +81,9 @@ export default function MintBatchTransaction({
             ) : (
               <span>Address not available</span>
             )}
-          </Text>
+          </HStack>
         </VStack>
       </Box>
-    </Box>
+    </TransactionWrapper>
   );
 }
