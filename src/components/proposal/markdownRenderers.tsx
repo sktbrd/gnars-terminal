@@ -1,5 +1,4 @@
 import { Heading } from '@chakra-ui/react';
-import Head from 'next/head';
 import React from 'react';
 
 
@@ -123,6 +122,27 @@ const MarkdownRenderers = {
         <Heading as='h5' size={"lg"} _dark={{ color: 'yellow.200' }} {...props}>
             {props.children}
         </Heading>
+    ),
+    // styles for ul , ol , li
+    ul: ({ children, ...props }: RendererProps) => (
+        <ul style={{ listStyleType: 'disc', marginLeft: '20px' }} {...props}>
+            {children}
+        </ul>
+    ),
+    ol: ({ children, ...props }: RendererProps) => (
+        <ol style={{ listStyleType: 'decimal', marginLeft: '20px' }} {...props}>
+            {children}
+        </ol>
+    ),
+    li: ({ children, ...props }: RendererProps) => (
+        <li style={{ marginBottom: '10px' }} {...props}>
+            {children}
+        </li>
+    ),
+    p: ({ children, ...props }: RendererProps) => (
+        <p style={{ paddingLeft: 5, marginBottom: '10px' }} {...props}>
+            {children}
+        </p>
     ),
 };
 

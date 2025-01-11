@@ -47,7 +47,6 @@ export function FormattedAddress({
   if (!address) return null;
   const { data: nnsName, isLoading, isError } = useNNSName(address, clds);
 
-
   const AddressContent = () => (
     <Code size='sm' variant='surface' colorScheme={nnsName ? '' : 'gray'}>
       {isLoading
@@ -61,7 +60,13 @@ export function FormattedAddress({
   return (
     <HStack>
       {textBefore && <span>{textBefore}</span>}
-      {asLink ? <AddressContent /> : <AddressContent />}
+      {asLink ? (
+        <a href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer">
+          <AddressContent />
+        </a>
+      ) : (
+        <AddressContent />
+      )}
     </HStack>
   );
 }
