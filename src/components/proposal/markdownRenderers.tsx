@@ -39,7 +39,9 @@ const styles = {
 // Custom markdown renderers
 const MarkdownRenderers = {
     img: ({ src, alt, title }: MarkdownProps) => (
-        <img src={src} alt={alt} title={title} style={{ maxWidth: '100%', maxHeight: '345px' }} />
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img src={src} alt={alt} title={title} style={{ maxWidth: '100%', maxHeight: '345px', borderRadius: '10px' }} />
+        </div>
     ),
     table: ({ children, ...props }: RendererProps) => (
         <div style={{
