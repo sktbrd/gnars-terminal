@@ -101,6 +101,7 @@ const MarkdownRenderers = {
     h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
         <Heading as='h1' size={"4xl"} _dark={{ color: 'yellow.200' }} {...props}>
             {props.children}
+            <hr style={{ marginBottom: 10, border: '0.3px solid rgb(121, 121, 121)' }} />
         </Heading>
     ),
     h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -143,6 +144,15 @@ const MarkdownRenderers = {
         <p style={{ paddingLeft: 5, marginBottom: '10px' }} {...props}>
             {children}
         </p>
+    ),
+    iframe: ({ src, ...props }: RendererProps) => (
+        <center>
+            <iframe
+                {...props}
+                src={src}
+                style={{ borderRadius: '10px', marginBottom: '10px', maxWidth: '100%', minWidth: '100%', aspectRatio: '16/9', height: '100%', border: '2px grey solid' }}
+            />
+        </center>
     ),
 };
 
