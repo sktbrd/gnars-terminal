@@ -1,8 +1,7 @@
-import { Address, encodeFunctionData, isAddress, parseUnits, parseEther } from 'viem';
+import { Address, encodeFunctionData, parseUnits, parseEther } from 'viem';
 import USDC_ABI from '../components/proposal/transactions/utils/USDC_abi';
 import SENDIT_ABI from '../components/proposal/transactions/utils/SENDIT_abi';
 import DroposalABI from '../components/proposal/transactions/utils/droposalABI';
-import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '../utils/constants';
 import { governorAddress, tokenAbi, tokenAddress } from '@/hooks/wagmiGenerated';
 
 type DroposalMintDetails = {
@@ -39,7 +38,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     let fromAddress: Address = details.fromAddress || treasureAddress;
     let toAddress: Address = details.toAddress;
     let value = "0"; // Default value for Non-ETH transactions
-    console.log(`Preparing transaction data for type: ${type}, details:`, details);
     switch (type) {
         case "SEND ETH":
             fromAddress = treasureAddress;
@@ -50,13 +48,11 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
             fromAddress = treasureAddress;
             input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.formattedAmount, 6); // Use formatted amount
             contractAbi = USDC_ABI;
-            toAddress = USDC_CONTRACT_ADDRESS;
             break;
         case "SEND IT":
             fromAddress = treasureAddress;
             input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.formattedAmount, 18); // Use formatted amount
             contractAbi = SENDIT_ABI;
-            toAddress = SENDIT_CONTRACT_ADDRESS;
             break;
         case "DROPOSAL MINT":
             console.log(`DROPOSAL MINT - details:`, details);
@@ -71,7 +67,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
                 functionName: 'mintBatchTo',
                 args: [BigInt(details.amount), details.toAddress]
             });
-            toAddress = tokenAddress;
             contractAbi = tokenAbi;
             break;
         case "SEND NFT":
@@ -85,7 +80,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
                 functionName: 'transferFrom',
                 args: [treasureAddress as Address, details.toAddress, BigInt(details.tokenId)]
             });
-            toAddress = tokenAddress;
             contractAbi = tokenAbi;
             break;
         default:

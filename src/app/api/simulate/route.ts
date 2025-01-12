@@ -3,8 +3,6 @@
 
 import { NextResponse } from 'next/server';
 import { isAddress, parseEther } from 'viem';
-import { publicClient } from '@/utils/client';
-import { prepareTransactionData } from '@/utils/transactionUtils';
 
 type SimulationRequestBody = {
     network_id: string;
@@ -27,7 +25,6 @@ type SimulationRequestBody = {
 export async function POST(req: Request) {
     try {
         const { type, details } = await req.json();
-        console.log("Received simulation request:", type, details);
 
         // Validate request body
         if (!type) {
@@ -53,7 +50,6 @@ export async function POST(req: Request) {
         const projectSlug = process.env.TENDERLY_PROJECT_SLUG;
 
         if (!accountSlug || !projectSlug) {
-            console.error("Missing required environment variables.");
             return NextResponse.json({ success: false, message: "Server misconfiguration" }, { status: 500 });
         }
 
@@ -89,11 +85,6 @@ export async function POST(req: Request) {
 
         const endpoint = `https://api.tenderly.co/api/v1/account/${accountSlug}/project/${projectSlug}/simulate`;
 
-
-        if (type === "DROPOSAL MINT") {
-            console.log("Simulating DROPOSAL MINT transaction:", body);
-        }
-
         const response = await fetch(endpoint, {
             method: 'POST',
             headers,
@@ -112,13 +103,9 @@ export async function POST(req: Request) {
         }
 
         const data = await response.json();
-        // console.log("Simulation response:", data);
-        const success = data.simulation?.status === true
+        const success = data.simulation?.status === true;
         const simulationId = data.simulation?.id;
         const simulationUrl = `https://dashboard.tenderly.co/${accountSlug}/${projectSlug}/simulator/${simulationId}`;
-
-        console.log("Simulation ID:", simulationId);
-        console.log("Simulation URL:", simulationUrl);
 
         return NextResponse.json({ success: success, message: success ? "Simulation succeeded" : "Simulation failed", simulationUrl, details: data });
     } catch (error) {

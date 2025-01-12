@@ -92,16 +92,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
     };
 
     const handleAdd = (transaction: { type: string; details: Record<string, any> }) => {
-        console.log(`Adding transaction of type: ${type}`);
-        console.log(`Transaction details:`, transaction.details);
-
         const treasureAddress = process.env.NEXT_PUBLIC_TREASURY as Address || '0x';
         const formattedDetails = formatTransactionDetails(type, transaction.details);
 
-        console.log("Formatted details:", formattedDetails);
-
         const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, formattedDetails, treasureAddress);
-        console.log(input)
         const details = {
             ...transaction.details,
             calldata: input,
@@ -111,7 +105,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             value,
         };
 
-        console.log("Prepared transaction details:", details);
         onAdd({ type: `${transaction.type}`, details });
     };
 
@@ -127,7 +120,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 <RadioGroup
                     value={editionType}
                     onValueChange={(details) => {
-                        console.log(details.value);
                         setEditionType(details.value); // Extract `value` property
                     }}
                 >

@@ -38,11 +38,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
     };
 
     const prepareTransaction = (transaction: any) => {
-        console.log(`Preparing transaction of type: ${transaction.type}`);
-        console.log(`Transaction details:`, transaction.details);
-
         const formattedDetails = formatTransactionDetails(transaction.type, transaction.details);
-        console.log("Formatted details:", formattedDetails);
 
         switch (transaction.type) {
             case "SEND ETH":
@@ -52,9 +48,8 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     calldata: "0x",
                 };
             case "SEND NFT":
-                const recipient = formattedDetails.toAddress;
+                const recipient = transaction.details.toAddress; // Use original details for recipient
                 const tokenId = formattedDetails.tokenId;
-                console.log(`SEND NFT - recipient: ${recipient}, tokenId: ${tokenId}`);
                 if (tokenId === undefined) {
                     throw new Error("Token ID is required for SEND NFT transactions");
                 }
@@ -78,7 +73,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     formattedDetails.toAddress,
                     formattedDetails.formattedAmount
                 );
-                console.log(`SEND USDC - recipient: ${formattedDetails.toAddress}, amount: ${formattedDetails.formattedAmount}`);
                 return {
                     target: usdcAddress,
                     value: "0",
@@ -88,7 +82,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 const recipientIT = formattedDetails.toAddress;
                 const amountIT = formattedDetails.formattedAmount;
                 const adjustedAmountIT = BigInt(amountIT);
-                console.log(`SEND IT - recipient: ${recipientIT}, amount: ${amountIT}, adjustedAmount: ${adjustedAmountIT}`);
                 const encodedCalldataIT = encodeFunctionData({
                     abi: SENDIT_ABI,
                     functionName: "transfer",
@@ -102,7 +95,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
             case "AIRDROP RANDOM GNAR":
                 const recipientGnar = formattedDetails.toAddress;
                 const amountGnar = formattedDetails.amount;
-                console.log(`AIRDROP RANDOM GNAR - recipient: ${recipientGnar}, amount: ${amountGnar}`);
                 const encodedCalldataGnar = encodeFunctionData({
                     abi: tokenAbi,
                     functionName: "mintBatchTo",
@@ -127,10 +119,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     saleConfig,
                 } = formattedDetails;
 
-                console.log(`DROPOSAL MINT - saleConfig:`, saleConfig);
-
                 if (!saleConfig) {
-                    console.error("Missing saleConfig object");
                     throw new Error("Missing saleConfig object");
                 }
 
@@ -144,9 +133,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 ];
 
                 for (const property of requiredProperties) {
-                    console.log(`Property ${property}:`, saleConfig[property]);
                     if (saleConfig[property] === undefined || saleConfig[property] === null) {
-                        console.error(`Missing or invalid saleConfig property: ${property}`);
                         throw new Error(`Missing or invalid saleConfig property: ${property}`);
                     }
                 }
@@ -173,8 +160,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     animationURI,
                     imageURI,
                 ];
-
-                console.log(`DROPOSAL MINT - args:`, args);
 
                 const encodedCalldataDroposal = encodeFunctionData({
                     abi: DroposalABI,
@@ -238,7 +223,6 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 type: "error",
             });
 
-            console.error("Error submitting proposal:", error);
         }
     }, [transactions, proposalTitle, editorContent, writeProposal, ReadGovernorTreasure.data, router]);
 
