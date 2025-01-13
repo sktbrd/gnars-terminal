@@ -69,6 +69,10 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border-radius: 10px;
+    /* Add border radius to the token list */
+    overflow: hidden;
+    /* Ensure child elements respect the border radius */
 }
 
 .tokenItem {
@@ -76,6 +80,11 @@
     justify-content: space-between;
     padding: 10px;
     border-radius: 5px;
+    /* Add border radius to each token item */
+    background-color: #f9f9f9;
+    /* Add background color for better visibility */
+    border: 1px solid #ddd;
+    /* Add border for better visibility */
 }
 
 /* Activity Section */

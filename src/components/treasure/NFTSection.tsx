@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { Box, Button, Grid, Heading, Image, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, Heading, Text, VStack } from '@chakra-ui/react';
+import Image from 'next/image';
 import { NFT } from '@/hooks/useTreasure';
 
 interface NFTSectionProps {
@@ -30,26 +31,86 @@ const NFTSection: React.FC<NFTSectionProps> = ({ nfts }) => {
     };
 
     return (
-        <Box>
-            <Heading as="h2" size="lg" mb={4}>NFTs</Heading>
-            <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={6}>
+        <Box maxW="1200px" mx="auto" py={8}>
+            <Heading as="h2" size="lg" mb={6} textAlign="center">
+                NFTs
+            </Heading>
+            <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={6}>
                 {paginatedNfts.map((nft) => (
-                    <Box key={nft.token.collection.openseaId} borderWidth="1px" borderRadius="lg" overflow="hidden">
-                        {nft.token.medias && nft.token.medias.length > 0 && nft.token.medias[0].originalUrl ? (
-                            <Image src={nft.token.medias[0].originalUrl} alt={nft.token.collection.name} />
-                        ) : (
-                            <Image src="/images/loading.gif" alt="Default" />
-                        )}
-                        <Box p="6">
-                            <Text fontWeight="bold">{nft.token.collection.name}</Text>
-                            <Text>Token ID: {nft.token.tokenId}</Text>
+                    <Box
+                        key={nft.token.collection.openseaId}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        overflow="hidden"
+                        bg="gray.800"
+                        boxShadow="lg"
+                        _hover={{
+                            transform: "scale(1.03)",
+                            transition: "0.3s",
+                        }}
+                    >
+                        <Box height="240px" position="relative" bg="gray.900">
+                            {nft.token.medias &&
+                                nft.token.medias.length > 0 &&
+                                nft.token.medias[0].originalUrl ? (
+                                <Image
+                                    src={nft.token.medias[0].originalUrl}
+                                    alt={nft.token.collection.name}
+                                    layout="fill"
+                                    objectFit="cover"
+                                    quality={100}
+                                />
+                            ) : (
+                                <Image
+                                    src="/images/loading.gif"
+                                    alt="Default Placeholder"
+                                    layout="fill"
+                                    objectFit="contain"
+                                    quality={100}
+                                />
+                            )}
                         </Box>
+                        <VStack
+                            p={4}
+                            gap={1}
+                            align="center"
+                            height="100px"
+                            justify="center"
+                            bg="gray.700"
+                        >
+                            <Text
+                                fontWeight="bold"
+                                color="white"
+                                fontSize="lg"
+                                truncate
+                                textAlign="center"
+                            >
+                                {nft.token.collection.name || "Unnamed Collection"}
+                            </Text>
+                            <Text fontSize="sm" color="gray.400" textAlign="center">
+                                Token ID: {nft.token.tokenId || "Unknown"}
+                            </Text>
+                        </VStack>
                     </Box>
                 ))}
             </Grid>
-            <Box mt={4} display="flex" justifyContent="space-between">
-                <Button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</Button>
-                <Button onClick={handleNextPage} disabled={currentPage * ITEMS_PER_PAGE >= nfts.length}>Next</Button>
+            <Box mt={8} display="flex" justifyContent="center" gap={4}>
+                <Button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    variant="solid"
+                    colorScheme="teal"
+                >
+                    Previous
+                </Button>
+                <Button
+                    onClick={handleNextPage}
+                    disabled={currentPage * ITEMS_PER_PAGE >= nfts.length}
+                    variant="solid"
+                    colorScheme="teal"
+                >
+                    Next
+                </Button>
             </Box>
         </Box>
     );

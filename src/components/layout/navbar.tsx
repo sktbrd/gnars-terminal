@@ -8,20 +8,31 @@ import {
   Link,
   Stack,
   useMediaQuery,
+  useDisclosure,
 } from '@chakra-ui/react';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { BsGithub } from 'react-icons/bs';
-import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
+import { FaEthereum, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
 import AccountMenu from './account-menu';
 import Sparks from './sparks';
+import {
+  DrawerRoot,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerCloseTrigger,
+  DrawerHeader,
+  DrawerBody,
+  DrawerBackdrop,
+} from '@/components/ui/drawer';
 
 export default function Navbar() {
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
     fallback: [false],
     ssr: true,
   });
+  const { open, onOpen, onClose } = useDisclosure();
 
   return (
     <HStack
@@ -39,7 +50,7 @@ export default function Navbar() {
         fontSize={'md'}
         fontWeight={'medium'}
       >
-        <Image asChild boxSize={6} mr={2}>
+        <Image asChild boxSize={6} mr={2} onClick={onOpen}>
           <NextImage
             src='https://gnars.com/images/logo.png'
             alt='gnars-terminal'
@@ -48,7 +59,10 @@ export default function Navbar() {
             objectFit='contain'
           />
         </Image>
-        <NavbarLinks isLargerThanMd={isLargerThanMd} />
+        {!isLargerThanMd && (
+          <p onClick={onOpen}>Menu</p>
+        )}
+        {isLargerThanMd && <NavbarLinks />}
       </Stack>
       {isLargerThanMd ? (
         <HStack>
@@ -59,19 +73,27 @@ export default function Navbar() {
           </NextLink>
           <ColorModeButton variant={'ghost'} />
           <AccountMenu />
-          {/* <ConnectButton /> */}
           <Sparks />
-
         </HStack>
       ) : (
         <AccountMenu />
       )}
+      <DrawerRoot open={open} onOpenChange={onClose}>
+        <DrawerBackdrop />
+        <DrawerContent>
+          <DrawerCloseTrigger />
+          <DrawerHeader>Navigation</DrawerHeader>
+          <DrawerBody>
+            <NavbarLinks />
+          </DrawerBody>
+        </DrawerContent>
+      </DrawerRoot>
     </HStack>
   );
 }
 
-function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
-  return isLargerThanMd ? (
+function NavbarLinks() {
+  return (
     <>
       <Link
         data-state='open'
@@ -85,7 +107,6 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
         gap={'0.5'}
       >
         <NextLink href='/' style={{ width: '100%' }}>
-          <FaHome />
           HOME
         </NextLink>
       </Link>
@@ -158,5 +179,5 @@ function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
         </NextLink>
       </Link>
     </>
-  ) : null;
+  );
 }
