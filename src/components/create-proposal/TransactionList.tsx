@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { VStack, Box, Text, Button, HStack, Flex, Image } from "@chakra-ui/react";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import { transactionOptions } from "./TransactionTypes";
-import { FaCheck, FaSkull } from "react-icons/fa";
+import { FaCheck, FaCopy, FaSkull } from "react-icons/fa";
 import { governorAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
 import { Address } from "viem";
@@ -146,15 +146,12 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                     />
                                     <VStack align="start" gap={1}>
                                         {Object.entries(tx.details).map(([key, value]) => {
-                                            if (key !== "contractAbi") {
+                                            if (key !== "contractAbi" && key !== "calldata") {
                                                 return (
                                                     <HStack key={key} gap={2}>
                                                         <Text fontWeight="medium">{key}:</Text>
-                                                        {key === "calldata" ? (
-                                                            <Box as="pre" whiteSpace="pre-wrap" wordBreak="break-all" backgroundColor={"darkgrey"} p={2} borderRadius="md">
-                                                                <code>{String(value)}</code>
-                                                            </Box>
-                                                        ) : ["toAddress", "fromAddress"].includes(key) ? (
+
+                                                        {["toAddress", "fromAddress"].includes(key) ? (
                                                             <FormattedAddress address={value as string} />
                                                         ) : (
                                                             <Text>{String(value)}</Text>
@@ -164,6 +161,29 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                             }
                                             return null;
                                         })}
+                                        {tx.details.calldata && (
+                                            <HStack key="calldata" gap={2}>
+                                                <Box as="pre" whiteSpace="pre-wrap" wordBreak="break-all" backgroundColor={"darkgrey"} p={2} borderRadius="md" display="flex" alignItems="center">
+                                                    <code>{String(tx.details.calldata)}</code>
+                                                    <Button
+                                                        size="xs"
+                                                        ml={2}
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(String(tx.details.calldata));
+                                                            toaster.create({
+                                                                title: "Copied",
+                                                                description: "Calldata copied to clipboard.",
+                                                                type: "success",
+                                                            });
+                                                        }}
+                                                        variant="ghost"
+                                                        _hover={{ background: "transparent" }}
+                                                    >
+                                                        <FaCopy />
+                                                    </Button>
+                                                </Box>
+                                            </HStack>
+                                        )}
                                     </VStack>
                                 </HStack>
                                 <Flex justify="space-between" mt={2}>
