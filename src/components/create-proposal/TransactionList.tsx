@@ -164,7 +164,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                         {tx.details.calldata && (
                                             <HStack key="calldata" gap={2}>
                                                 <Box as="pre" whiteSpace="pre-wrap" wordBreak="break-all" backgroundColor={"darkgrey"} p={2} borderRadius="md" display="flex" alignItems="center">
-                                                    <code>{String(tx.details.calldata)}</code>
+                                                    <code style={{ color: 'black' }} >{String(tx.details.calldata)}</code>
                                                     <Button
                                                         size="xs"
                                                         ml={2}
@@ -179,7 +179,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                                         variant="ghost"
                                                         _hover={{ background: "transparent" }}
                                                     >
-                                                        <FaCopy />
+                                                        <FaCopy color="black" />
                                                     </Button>
                                                 </Box>
                                             </HStack>

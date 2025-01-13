@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { VStack, Input, Button, HStack, Text } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field"; // Assuming this exists
 
 type TransactionFormProps = {
     type: string;
-    fields: { name: string; placeholder: string; type?: string; validate?: (value: string) => boolean | string }[];
+    fields: { name: string; placeholder: string; type?: string; validate?: (value: string) => boolean | string; onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void }[];
     onAdd: (transaction: { type: string; details: Record<string, any> }) => void;
     onCancel: () => void;
     onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onAmountChange?: (amount: number) => void; // Add callback for amount change
 };
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange, onAmountChange }) => {
     const [formData, setFormData] = React.useState<Record<string, string | undefined>>(
         fields.reduce((acc, field) => {
             acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
@@ -25,7 +26,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
             const validation = fields.find(f => f.name === field)?.validate!(value);
             setErrors((prev) => ({ ...prev, [field]: typeof validation === 'string' ? validation : '' }));
         }
+        if (field === "amount" && onAmountChange) {
+            onAmountChange(value === "" ? 0 : parseFloat(value)); // Call the callback with the new amount or 0 if empty
+        }
     };
+
+    useEffect(() => {
+        console.log("formData:", formData); // Debug log
+    }, [formData]);
 
     const handleAdd = () => {
         const details = { ...formData };
@@ -65,13 +73,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                             type="date"
                             placeholder={field.placeholder}
                             value={formData[field.name] || ""}
-                            onChange={(e) => handleChange(field.name, e.target.value)}
+                            onChange={(e) => {
+                                handleChange(field.name, e.target.value);
+                                field.onChange && field.onChange(e);
+                            }}
                         />
                     ) : (
                         <Input
                             placeholder={field.placeholder}
                             value={formData[field.name] || ""}
-                            onChange={(e) => handleChange(field.name, e.target.value)}
+                            onChange={(e) => {
+                                handleChange(field.name, e.target.value);
+                                field.onChange && field.onChange(e);
+                            }}
                         />
                     )}
                 </Field>

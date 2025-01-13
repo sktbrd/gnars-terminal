@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { VStack, Text, HStack, SimpleGrid, Button, Image, Badge } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio"
 import TransactionForm from "./TransactionForm";
@@ -15,7 +15,6 @@ type TransactionItemProps = {
     onAdd: (transaction: { type: string; details: Record<string, any> }) => void;
     onCancel: () => void;
 };
-
 
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
 
@@ -51,7 +50,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             case "SEND IT":
             case "SEND NFT":
                 return [
-                    { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+                    { name: type === "SEND NFT" ? "tokenId" : "amount", placeholder: type === "SEND NFT" ? "Enter tokenId" : "Enter amount", validate: (value: string) => !isNaN(Number(value)) || `Invalid ${type === "SEND NFT" ? "tokenId" : "amount"}.` },
                     { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
                 ];
             case "AIRDROP RANDOM GNAR":
@@ -107,17 +106,28 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         onAdd({ type: `${transaction.type}`, details });
     };
 
-    const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseFloat(event.target.value); // Parse to float for decimal handling
-        console.log("Input Amount:", value); // Debugging
-        setAmount(isNaN(value) ? 0 : value); // Default to 0 if invalid
-    };
-
     const usdcBalanceNumber = parseFloat(usdcBalance?.toString() || "0");
     const ethBalanceNumber = ethBalance; // Use the exact value for Ethereum balance
     const senditBalanceNumber = parseFloat(senditBalance?.toString() || "0");
 
-    console.log("usdcBalance:", usdcBalanceNumber, "ethBalance:", ethBalanceNumber, "senditBalance:", senditBalanceNumber, "amount:", amount); // Debug log
+    const calculatePercentageChange = (balance: number, amount: number) => {
+        if (balance === 0) return 0; // Avoid division by zero
+        return (amount / balance) * 100; // Calculate the percentage decrease
+    };
+
+    useEffect(() => {
+        console.log("amount:", amount, typeof amount); // Debug log
+        console.log("usdcBalance:", usdcBalanceNumber, "ethBalance:", ethBalanceNumber, "senditBalance:", senditBalanceNumber, "amount:", amount); // Debug log
+
+        const percentageChange = calculatePercentageChange(
+            type === "SEND ETH" ? ethBalanceNumber :
+                type === "SEND USDC" ? usdcBalanceNumber :
+                    type === "SEND IT" ? senditBalanceNumber : 0,
+            amount
+        );
+
+        console.log("percentageChange:", percentageChange); // Debug log
+    }, [amount, ethBalanceNumber, usdcBalanceNumber, senditBalanceNumber, type]);
 
     return (
         <VStack gap={4} align="stretch" p={4} borderWidth="1px" borderRadius="md">
@@ -134,26 +144,57 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     {type === "SEND ETH" && (
                         <HStack>
                             <Image src={image} alt={name} boxSize="20px" />
-
-                            <>Balance:<Badge colorScheme="green">{ethBalanceNumber.toFixed(7)} {name}</Badge></>
+                            <Text>
+                                Balance: <Badge colorScheme="green">{ethBalanceNumber.toFixed(7)} {name}</Badge>
+                            </Text>
+                            {amount !== 0 && (
+                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                    -
+                                    {(
+                                        (amount / ethBalanceNumber) * 100
+                                    ).toFixed(2)}%
+                                </Badge>
+                            )}
                         </HStack>
                     )}
                     {type === "SEND USDC" && (
                         <HStack>
                             <Image src={image} alt={name} boxSize="20px" />
-                            <Text>Balance: {usdcBalanceNumber.toFixed(3)} {name}</Text>
+                            <Text>
+                                Balance: <Badge colorScheme="green">{usdcBalanceNumber.toFixed(3)} {name}</Badge>
+                            </Text>
+                            {amount !== 0 && (
+                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                    -
+                                    {(
+                                        (amount / usdcBalanceNumber) * 100
+                                    ).toFixed(2)}%
+                                </Badge>
+                            )}
                         </HStack>
                     )}
                     {type === "SEND IT" && (
                         <HStack>
                             <Image src={image} alt={name} boxSize="20px" />
-                            <Text>Balance: {senditBalanceNumber.toFixed(3)} {name}</Text>
+                            <Text>
+                                Balance: <Badge colorScheme="green">{senditBalanceNumber.toFixed(3)} {name}</Badge>
+                            </Text>
+                            {amount !== 0 && (
+                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                    -
+                                    {(
+                                        (amount / senditBalanceNumber) * 100
+                                    ).toFixed(2)}%
+                                </Badge>
+                            )}
                         </HStack>
                     )}
                     {type === "SEND NFT" && (
                         <HStack>
                             <Image src="https://gnars.com/images/logo.png" alt="Gnars" boxSize="20px" />
-                            <Text>Balance: {gnarsNftBalance} GNARS</Text>
+                            <Text>
+                                Balance: <Badge colorScheme="green">{gnarsNftBalance} GNARS</Badge>
+                            </Text>
                         </HStack>
                     )}
                 </>
@@ -173,13 +214,18 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             )}
             <TransactionForm
                 type={type}
-                fields={fields.map(field => field.name === "amount" ? { ...field, onChange: handleAmountChange } : field)} // Add onChange handler to amount field
-                onAdd={handleAdd}
+                fields={fields}
+                onAdd={(transaction) => {
+                    setAmount(parseFloat(transaction.details.amount)); // Update amount state
+                    handleAdd(transaction);
+                }}
                 onCancel={onCancel}
                 onFileChange={handleFileChange}
+                onAmountChange={setAmount} // Pass the callback to update amount
             />
         </VStack>
     );
+
 };
 
 export default TransactionItem;
