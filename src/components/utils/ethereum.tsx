@@ -61,9 +61,9 @@ export function FormattedAddress({
     <HStack>
       {textBefore && <span>{textBefore}</span>}
       {asLink ? (
-        <a href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer">
-          <AddressContent />
-        </a>
+        // <a href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer">
+        <AddressContent />
+        // </a>
       ) : (
         <AddressContent />
       )}

@@ -27,11 +27,13 @@ import { ColorModeIcon, useColorMode } from '../ui/color-mode';
 import Link from 'next/link';
 import { BsGithub } from 'react-icons/bs';
 import { FormattedAddress } from '../utils/ethereum';
+import { useRouter } from 'next/navigation';
 
 export default function AccountMenu() {
   const { toggleColorMode, colorMode } = useColorMode();
   const { isConnected, address, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
+  const router = useRouter();
 
   const { data: balance } = useBalance({
     address,
@@ -62,21 +64,11 @@ export default function AccountMenu() {
         </Button>
       </MenuTrigger>
       <MenuContent>
-        {/* <MenuItem value='balance' gap={1}>
-          <LuSparkle width={2} height={2} style={{ marginRight: '4px' }} />{' '}
-          Balance: {weiToSparks(balance?.value || 0n)}
-        </MenuItem>
-        <MenuItem value='color-mode' onClick={toggleColorMode}>
-          <ColorModeIcon />
-          Toggle Color Mode
-        </MenuItem>
-        <Link target='_blank' href='https://github.com/r4topunk/gnars-terminal'>
-          <MenuItem value='github'>
-            <BsGithub style={{ background: 'none' }} />
-            View Github
-          </MenuItem>
-        </Link> */}
-        <MenuItem value='wallet' gap={1}>
+        <MenuItem
+          value='wallet'
+          gap={1}
+          onClick={() => router.push(`/${address}`)}
+        >
           <LuSparkle width={2} height={2} style={{ marginRight: '4px' }} />{' '}
           My Wallet
         </MenuItem>
