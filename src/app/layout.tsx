@@ -10,7 +10,7 @@ import { Box, Container } from '@chakra-ui/react';
 import Navbar from '@/components/layout/navbar';
 import { Toaster } from '@/components/ui/toaster';
 import Head from 'next/head';
-
+import { Analytics } from "@vercel/analytics/react"
 const inter = Inter({ subsets: ['latin'] });
 
 // Update the metadata without themeColor
@@ -60,6 +60,7 @@ export default function RootLayout(props: { children: ReactNode }) {
           </Box>
           <Toaster />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
