@@ -17,7 +17,7 @@ export enum Status {
 export const getProposalStatus = (proposal: Proposal): Status => {
   const currentTime = new Date().getTime();
 
-  if (proposal.expiresAt) {
+  if (proposal.expiresAt && proposal.queued) {
     const voteExpireTime = parseInt(proposal.expiresAt) * 1000;
     if (currentTime > voteExpireTime) return Status.EXPIRED;
   }
