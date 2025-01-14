@@ -161,7 +161,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                         <HStack>
                             <Image src={image} alt={name} boxSize="20px" />
                             <Text>
-                                Balance: <Badge colorScheme="green">{usdcBalanceNumber.toFixed(3)} {name}</Badge>
+                                Balance: <Badge colorScheme="green">{usdcBalanceNumber.toFixed(3).toLocaleString()} {name}</Badge>
                             </Text>
                             {amount !== 0 && (
                                 <Badge backgroundColor={'red.200'} fontWeight="semibold">
