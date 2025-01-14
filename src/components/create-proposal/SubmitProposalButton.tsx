@@ -10,6 +10,7 @@ import { tokenAbi, tokenAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 import { formatTransactionDetails } from "@/utils/transactionUtils";
+import { format } from "path";
 
 interface SubmitProposalButtonProps {
     isTitleValid: boolean;
@@ -39,7 +40,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
 
     const prepareTransaction = (transaction: any) => {
         const formattedDetails = formatTransactionDetails(transaction.type, transaction.details);
-
+        console.log(formattedDetails)
         switch (transaction.type) {
             case "SEND ETH":
                 return {

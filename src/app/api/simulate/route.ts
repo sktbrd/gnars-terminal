@@ -57,12 +57,33 @@ export async function POST(req: Request) {
             'Content-Type': 'application/json',
             'X-Access-Key': process.env.NEXT_PUBLIC_TENDERLY_SECRET || '',
         };
+        console.log(type)
 
         // Convert value to wei if it's an ETH transaction
         let value = details.value;
         if (type === "SEND ETH") {
             value = details.value.toString();
         }
+        else if (type === "SEND USDC") {
+            details.toAddress = process.env.NEXT_PUBLIC_USDC_TOKEN_ADDRESS;
+            console.log("sending usdc: ", details.toAddress);
+        }
+        else if (type === "SEND IT") {
+            details.toAddress = process.env.NEXT_PUBLIC_SENDIT_TOKEN_ADDRESS;
+        }
+        else if (type === "DROPOSAL MINT") {
+            details.toAddress = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c"
+        }
+        else if (type === "AIRDROP RANDOM GNAR") {
+            details.toAddress = process.env.NEXT_PUBLIC_TOKEN;
+        }
+        else if (type === "SEND NFT") {
+            details.toAddress = process.env.NEXT_PUBLIC_TOKEN;
+        }
+        else {
+            return NextResponse.json({ success: false, message: "Unsupported transaction type" }, { status: 400 });
+        }
+
 
         // Ensure contract_abi is a JSON string
         const contractAbi = JSON.stringify(details.contractAbi);

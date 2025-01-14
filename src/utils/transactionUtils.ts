@@ -50,19 +50,16 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
             fromAddress = treasureAddress;
             input = encodeTokenTransfer(USDC_ABI, "transfer", details.toAddress, details.formattedAmount, 6); // Use formatted amount
             contractAbi = USDC_ABI;
-            toAddress = USDC_CONTRACT_ADDRESS;
             break;
         case "SEND IT":
             fromAddress = treasureAddress;
             input = encodeTokenTransfer(SENDIT_ABI, "transfer", details.toAddress, details.formattedAmount, 18); // Use formatted amount
             contractAbi = SENDIT_ABI;
-            toAddress = SENDIT_CONTRACT_ADDRESS;
             break;
         case "DROPOSAL MINT":
             console.log(`DROPOSAL MINT - details:`, details);
             input = encodeDroposalMint(details);
             contractAbi = DroposalABI;
-            toAddress = DROPOSAL_CONTRACT_ADDRESS;
             break;
         case "AIRDROP RANDOM GNAR":
             fromAddress = treasureAddress;
@@ -71,7 +68,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
                 functionName: 'mintBatchTo',
                 args: [BigInt(details.amount), details.toAddress]
             });
-            toAddress = tokenAddress;
             contractAbi = tokenAbi;
             break;
         case "SEND NFT":
@@ -85,7 +81,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
                 functionName: 'transferFrom',
                 args: [treasureAddress as Address, details.toAddress, BigInt(details.tokenId)]
             });
-            toAddress = tokenAddress;
             contractAbi = tokenAbi;
             break;
         default:
