@@ -207,6 +207,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     </span>
                 ),
                 type: "success",
+                duration: 10000,
             });
 
         } catch (error) {
