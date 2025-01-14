@@ -1,17 +1,12 @@
-import {
-  Box,
-  VStack,
-  Heading,
-  Text,
-  Link as ChakraLink,
-} from '@chakra-ui/react';
+import { Box, VStack, Text, HStack, Code, Image } from '@chakra-ui/react';
 import { Address, decodeFunctionData } from 'viem';
 import droposalABI from './utils/droposalABI';
 import { FormattedAddress } from '@/components/utils/ethereum';
 import Link from 'next/link';
+import TransactionWrapper from './TransactionWrapper';
 
 interface DroposalTransactionProps {
-  calldata: `0x${string}`; // Properly typed calldata
+  calldata: `0x${string}`;
   index: number;
 }
 
@@ -82,6 +77,7 @@ export default function DroposalTransaction({
 
   // Helper function to format IPFS URIs
   function formatURI(uri: string): string {
+    uri = uri.trim();
     if (uri.startsWith('ipfs://')) {
       return `https://gateway.pinata.cloud/ipfs/${uri.slice(7)}`;
     }
@@ -90,58 +86,73 @@ export default function DroposalTransaction({
 
   if (!decodedData) {
     return (
-      <Box
-        borderWidth='1px'
-        borderRadius='md'
-        p={4}
-        _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
-      >
-        <Heading size='sm' mb={2}>
-          Transaction {index + 1}: Droposal Transaction
-        </Heading>
+      <TransactionWrapper index={index} title='Droposal Transaction'>
         <Text color='red.500'>
           Failed to decode transaction data. Unsupported signature.
         </Text>
         <Text fontSize='sm' mt={2}>
           <strong>Raw Calldata:</strong> {calldata}
         </Text>
-      </Box>
+      </TransactionWrapper>
     );
   }
 
   return (
-    <Box
-      borderWidth='1px'
-      borderRadius='md'
-      p={4}
-      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
+    <TransactionWrapper
+      index={index}
+      title='Droposal Transaction'
+      logoSrc='/images/Zorb.png'
+      logoAlt='Droposal'
     >
-      <Heading size='sm' mb={4}>
-        Transaction {index + 1}: Droposal Transaction
-      </Heading>
       <VStack align='start' gap={3}>
-        <Text>
-          <strong>Name:</strong> {decodedData.name} ({decodedData.symbol})
-        </Text>
-        <Text>
-          <strong>Edition Size:</strong> {decodedData.editionSize}
-        </Text>
-        <Text>
-          <strong>Royalty:</strong> {decodedData.royaltyBPS}%
-        </Text>
-        <Text>
-          <strong>Funds Recipient:</strong>{' '}
+        <HStack gap={2} align='center'>
+          <Text>
+            This transaction creates a new token with the name in behlalf of Gnars Dao
+          </Text>
+          <Code size={'sm'} variant={'surface'}>
+            {decodedData.name} ({decodedData.symbol})
+          </Code>
+        </HStack>
+        <HStack gap={2} align='center'>
+          <Text>
+            Edition Size:
+          </Text>
+          <Code size={'sm'} variant={'surface'}>
+            {decodedData.editionSize}
+          </Code>
+        </HStack>
+        <HStack gap={2} align='center'>
+          <Text>
+            Royalty:
+          </Text>
+          <Code size={'sm'} variant={'surface'}>
+            {decodedData.royaltyBPS}%
+          </Code>
+        </HStack>
+        <HStack gap={2} align='center'>
+          <Text>
+            Funds Recipient:
+          </Text>
           <FormattedAddress address={decodedData.fundsRecipient} />
-        </Text>
-        <Text>
-          <strong>Default Admin:</strong>{' '}
-        </Text>
-        <FormattedAddress address={decodedData.defaultAdmin} />
-        <Text>
-          <strong>Description:</strong> {decodedData.description || 'N/A'}
-        </Text>
-        <Text>
-          <strong>Image:</strong>{' '}
+        </HStack>
+        <HStack gap={2} align='center'>
+          <Text>
+            Default Admin:
+          </Text>
+          <FormattedAddress address={decodedData.defaultAdmin} />
+        </HStack>
+        <HStack gap={2} align='center'>
+          <Text>
+            Description:
+          </Text>
+          <Code size={'sm'} variant={'surface'}>
+            {decodedData.description || 'N/A'}
+          </Code>
+        </HStack>
+        <VStack gap={2} align='start'>
+          <Text>
+            Image:
+          </Text>
           {decodedData.imageURI ? (
             <img
               src={decodedData.imageURI}
@@ -151,9 +162,11 @@ export default function DroposalTransaction({
           ) : (
             'N/A'
           )}
-        </Text>
-        <Text>
-          <strong>Animation:</strong>{' '}
+        </VStack>
+        <VStack gap={2} align={'start'}>
+          <Text>
+            Animation:
+          </Text>
           {decodedData.animationURI ? (
             <video
               src={decodedData.animationURI}
@@ -163,8 +176,8 @@ export default function DroposalTransaction({
           ) : (
             'N/A'
           )}
-        </Text>
+        </VStack>
       </VStack>
-    </Box>
+    </TransactionWrapper>
   );
 }

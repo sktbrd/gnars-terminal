@@ -1,12 +1,14 @@
 import { Box, VStack, Heading, Text } from '@chakra-ui/react';
-import { decodeSenditTransaction, decodeUsdcTransaction } from './transactions/utils/decodeUsdcTransaction';
+import { decodeSenditTransaction, decodeUsdcTransaction } from './transactions/utils/decodeTXs';
 import EthTransferTransaction from './transactions/EthTransferTransaction';
 import { Address } from 'viem';
 import USDCTransaction from './transactions/USDCTransaction';
 import MintBatchTransaction from './transactions/MintBatchTransaction';
 import DroposalTransaction from './transactions/DroposalTransaction';
-import NftTransferTransaction from './transactions/NFTTrasnfer';
+import NftTransferTransaction from './transactions/NFTTransfer';
 import SenditTransaction from './transactions/SenditTransaction';
+import { tokenAddress } from '@/hooks/wagmiGenerated';
+import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
 
 
 interface ProposalTransactionsContentProps {
@@ -36,7 +38,10 @@ function TransactionItem({
   const isCalldataValid = normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
   console.log(target)
 
-  if (target === '0xba5b9b2d2d06a9021eb3190ea5fb0e02160839a4') {
+  if (target === SENDIT_CONTRACT_ADDRESS) {
+    console.log('Sendit Transaction')
+    console.log('calldata:', normalizedCalldata);
+    console.log('value:', value);
     // Decode Sendit Token transaction
     const senditTransaction = isCalldataValid
       ? decodeSenditTransaction(normalizedCalldata)
@@ -79,13 +84,10 @@ function TransactionItem({
   }
 
 
-
-
-
   if (normalizedCalldata === '0x' && value !== '0') {
     return (
       <EthTransferTransaction
-        toAddress={target as `0x${string}`}
+        toAddress={target as Address}
         value={BigInt(value)}
       />
     );
@@ -95,9 +97,10 @@ function TransactionItem({
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
     return <DroposalTransaction calldata={calldata} index={index} />;
   }
-
-  // Handle transactions for target contract 0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17
-  if (target === '0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17') {
+  console.log('target:', target)
+  console.log(tokenAddress)
+  // Handle transactions for target contract
+  if (target.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase()) {
     const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector
 
     if (functionSignature === '0x23b872dd') {

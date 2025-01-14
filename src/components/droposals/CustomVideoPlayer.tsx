@@ -290,7 +290,7 @@ const CustomVideoPlayer = ({
             aria-label='Mint'
             colorScheme='teal'
             size='sm'
-            onClick={() => setIsCollectModalOpen(true)} // Open the CollectModal
+            onClick={() => window.open('https://zora.co/collect/base:0x6a740a4affbfcf2daa9489c9348de09082c526de/1', '_blank', 'noopener,noreferrer')}
           >
             Collect
           </Button>
@@ -298,7 +298,7 @@ const CustomVideoPlayer = ({
       )}
 
       {/* CollectModal */}
-      <CollectModal
+      {/* <CollectModal
         isOpen={isCollectModalOpen}
         onClose={() => setIsCollectModalOpen(false)}
         title={title}
@@ -310,7 +310,7 @@ const CustomVideoPlayer = ({
         mediaSrc={src}
         isVideo={isVideo}
         index={index} // Pass the index here
-      />
+      /> */}
     </Box>
   );
 };

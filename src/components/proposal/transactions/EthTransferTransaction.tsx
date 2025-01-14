@@ -1,10 +1,11 @@
 import { FormattedAddress } from '@/components/utils/ethereum';
-import { Box, Text, Heading, VStack, Code } from '@chakra-ui/react';
-import { formatEther } from 'viem';
+import { Text, VStack, Code, HStack, Image } from '@chakra-ui/react';
+import { Address, formatEther } from 'viem';
+import TransactionWrapper from './TransactionWrapper';
 
 interface EthTransferTransactionProps {
-  toAddress: `0x${string}`;
-  value: BigInt | { hex: string } | undefined; // Support BigInt and hex
+  toAddress: Address;
+  value: BigInt | { hex: string } | undefined;
 }
 
 const EthTransferTransaction: React.FC<EthTransferTransactionProps> = ({
@@ -34,32 +35,26 @@ const EthTransferTransaction: React.FC<EthTransferTransactionProps> = ({
   const formattedValue = formatEther(bigIntValue);
 
   return (
-    <Box
-      borderWidth='1px'
-      borderRadius='md'
-      p={4}
-      _dark={{ bg: 'bg.emphasized', borderColor: 'yellow.500' }}
+    <TransactionWrapper
+      index={0}
+      title='ETH Transfer'
+      logoSrc='/images/ethereum.png'
+      logoAlt='ETH'
     >
-      <Heading size='lg' mb={2}>
-        Ethereum Transfer
-      </Heading>
       <VStack gap={1} align='start'>
-        <Text display='flex' alignItems='center'>
-          <Text mr={2} fontWeight={'medium'}>
-            Value:
+        <HStack gap={2} align='center'>
+          <Text>
+            This transaction sends
           </Text>
           <Code size={'sm'} variant={'surface'}>
-            {formattedValue} ETH
+            {formattedValue}
+            <Image src='/images/ethereum.png' alt='ETH' boxSize='20px' objectFit='contain' ml={2} />
           </Code>
-        </Text>
-        <Text display='flex' alignItems='center'>
-          <Text mr={2} fontWeight={'medium'}>
-            To:
-          </Text>
+          <Text>ETH from Gnars Treasury to</Text>
           <FormattedAddress address={toAddress} />
-        </Text>
+        </HStack>
       </VStack>
-    </Box>
+    </TransactionWrapper>
   );
 };
 

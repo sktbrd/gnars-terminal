@@ -52,13 +52,16 @@ const useTreasure = (treasuryAddress: string) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [nfts, setNfts] = useState<NFT[]>([]);
+    const [usdcBalance, setUsdcBalance] = useState(0);
+    const [ethBalance, setEthBalance] = useState(0);
+    const [senditBalance, setSenditBalance] = useState(0);
+    const [gnarsNftBalance, setGnarsNftBalance] = useState(0);
 
     useEffect(() => {
         const fetchTreasure = async () => {
             try {
                 console.log("Fetching treasure data...");
                 const apiUrl = `https://pioneers.dev/api/v1/portfolio/${treasuryAddress}`;
-                console.log("API URL:", apiUrl);
 
                 const res = await fetch(apiUrl);
                 console.log("Treasure data fetched:", res);
@@ -71,6 +74,17 @@ const useTreasure = (treasuryAddress: string) => {
                 setTotalBalance(data.totalBalanceUsdTokens);
                 setTotalNetWorth(data.totalNetWorth);
                 setNfts(data.nfts);
+
+                // Calculate specific balances
+                const usdc = data.tokens.find((token: Token) => token.token.name === 'USD Coin');
+                const eth = data.tokens.find((token: Token) => token.token.name === 'Ethereum');
+                const sendit = data.tokens.find((token: Token) => token.token.name === 'Sendit');
+                const gnars = data.nfts.filter((nft: NFT) => nft.token.collection.name === 'Gnars');
+
+                setUsdcBalance(usdc ? usdc.token.balance : 0);
+                setEthBalance(eth ? eth.token.balance : 0);
+                setSenditBalance(sendit ? sendit.token.balance : 0);
+                setGnarsNftBalance(gnars.length);
             } catch (err) {
                 console.error("Error fetching treasure data:", err);
                 setError("Error loading treasure data");
@@ -82,7 +96,7 @@ const useTreasure = (treasuryAddress: string) => {
         fetchTreasure();
     }, [treasuryAddress]);
 
-    return { tokens, totalBalance, totalNetWorth, isLoading, error, nfts };
+    return { tokens, totalBalance, totalNetWorth, isLoading, error, nfts, usdcBalance, ethBalance, senditBalance, gnarsNftBalance };
 };
 
 export default useTreasure;

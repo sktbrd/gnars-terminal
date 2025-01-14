@@ -8,6 +8,7 @@ import {
   Link,
   Stack,
   useMediaQuery,
+  useDisclosure,
 } from '@chakra-ui/react';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
@@ -15,14 +16,22 @@ import { BsGithub } from 'react-icons/bs';
 import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
 import AccountMenu from './account-menu';
-import ConnectButton from './connect-button';
 import Sparks from './sparks';
+import {
+  DrawerRoot,
+  DrawerContent,
+  DrawerCloseTrigger,
+  DrawerHeader,
+  DrawerBody,
+  DrawerBackdrop,
+} from '@/components/ui/drawer';
 
 export default function Navbar() {
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
     fallback: [false],
     ssr: true,
   });
+  const { open, onOpen, onClose } = useDisclosure();
 
   return (
     <HStack
@@ -40,7 +49,7 @@ export default function Navbar() {
         fontSize={'md'}
         fontWeight={'medium'}
       >
-        <Image asChild boxSize={6} mr={2}>
+        <Image asChild boxSize={6} mr={2} onClick={onOpen}>
           <NextImage
             src='https://gnars.com/images/logo.png'
             alt='gnars-terminal'
@@ -49,7 +58,10 @@ export default function Navbar() {
             objectFit='contain'
           />
         </Image>
-        <NavbarLinks isLargerThanMd={isLargerThanMd} />
+        {!isLargerThanMd && (
+          <p onClick={onOpen}>Menu</p>
+        )}
+        {isLargerThanMd && <NavbarLinks />}
       </Stack>
       {isLargerThanMd ? (
         <HStack>
@@ -59,103 +71,79 @@ export default function Navbar() {
             </IconButton>
           </NextLink>
           <ColorModeButton variant={'ghost'} />
-          <ConnectButton />
+          <AccountMenu />
           <Sparks />
         </HStack>
       ) : (
         <AccountMenu />
       )}
+      <DrawerRoot open={open} onOpenChange={onClose}>
+        <DrawerBackdrop />
+        <DrawerContent>
+          <DrawerCloseTrigger />
+          <DrawerHeader></DrawerHeader>
+          <DrawerBody>
+            <Stack gap={4}>
+              <NavbarLinks />
+            </Stack>
+            <Image
+              src='/images/gnarspunk.png'
+              alt='Gnarspunk'
+              position='absolute'
+              bottom={2}
+              left='50%'
+              transform='translateX(-50%)'
+              width='40%'
+              height='auto'
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </DrawerRoot>
     </HStack>
   );
 }
 
-function NavbarLinks({ isLargerThanMd }: { isLargerThanMd: boolean }) {
-  return isLargerThanMd ? (
+function NavbarLinks() {
+  const linkProps = {
+    dataState: 'open',
+    _open: { animation: 'fade-in 300ms ease-out' },
+    _hidden: { animation: 'fade-out 300ms ease-in' },
+    asChild: true,
+    gap: '0.5',
+  };
+
+  return (
     <>
-      <Link
-        data-state='open'
-        _open={{
-          animation: 'fade-in 300ms ease-out',
-        }}
-        _hidden={{
-          animation: 'fade-out 300ms ease-in',
-        }}
-        asChild
-        gap={'0.5'}
-      >
+      <Link {...linkProps}>
         <NextLink href='/' style={{ width: '100%' }}>
           <FaHome />
           HOME
         </NextLink>
       </Link>
-      <Link
-        data-state='open'
-        _open={{
-          animation: 'fade-in 600ms ease-out',
-        }}
-        _hidden={{
-          animation: 'fade-out 600ms ease-in',
-        }}
-        asChild
-        gap={'0.5'}
-      >
+      <Link {...linkProps} _open={{ animation: 'fade-in 600ms ease-out' }} _hidden={{ animation: 'fade-out 600ms ease-in' }}>
         <NextLink href='/dao' style={{ width: '100%' }}>
           <FaVoteYea />
           DAO
         </NextLink>
       </Link>
-      <Link
-        data-state='open'
-        _open={{
-          animation: 'fade-in 900ms ease-out',
-        }}
-        _hidden={{
-          animation: 'fade-out 900ms ease-in',
-        }}
-        asChild
-        gap={'0.5'}
-      >
+      <Link {...linkProps} _open={{ animation: 'fade-in 900ms ease-out' }} _hidden={{ animation: 'fade-out 900ms ease-in' }}>
         <NextLink href='/propdates' style={{ width: '100%' }}>
           <FaNewspaper />
           PROPDATES
         </NextLink>
       </Link>
-      <Link
-        data-state='open'
-        _open={{
-          animation: 'fade-in 1200ms ease-out',
-        }}
-        _hidden={{
-          animation: 'fade-out 1200ms ease-in',
-        }}
-        asChild
-        gap={'0.5'}
-      >
+      <Link {...linkProps} _open={{ animation: 'fade-in 1200ms ease-out' }} _hidden={{ animation: 'fade-out 1200ms ease-in' }}>
         <NextLink href='/treasure' style={{ width: '100%' }}>
           <FaEthereum />
           TREASURE
         </NextLink>
       </Link>
-      <Link
-        data-state='open'
-        _open={{
-          animation: 'fade-in 1500ms ease-out',
-        }}
-        _hidden={{
-          animation: 'fade-out 1500ms ease-in',
-        }}
-        gap={'0.5'}
-        asChild
-      >
-        <NextLink
-          target='_blank'
-          href='https://gnars.center'
-          style={{ width: '100%' }}
-        >
+      <Link {...linkProps} _open={{ animation: 'fade-in 1500ms ease-out' }} _hidden={{ animation: 'fade-out 1500ms ease-in' }}>
+        <NextLink target='_blank' href='https://gnars.center' style={{ width: '100%' }}>
           <IoDocumentText />
           ABOUT
         </NextLink>
       </Link>
     </>
-  ) : null;
+  );
 }

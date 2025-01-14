@@ -1,8 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { formatEthAddress } from '@/utils/helpers';
 import { Code, HStack } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 
 async function fetchNNSName(address: string, clds?: string[]) {
   const response = await fetch('https://api.nns.xyz/resolve', {
@@ -45,7 +45,6 @@ export function FormattedAddress({
   clds?: string[]; // Optional: Specify CLDs to filter by
 }) {
   if (!address) return null;
-
   const { data: nnsName, isLoading, isError } = useNNSName(address, clds);
 
   const AddressContent = () => (
@@ -61,7 +60,13 @@ export function FormattedAddress({
   return (
     <HStack>
       {textBefore && <span>{textBefore}</span>}
-      {asLink ? <AddressContent /> : <AddressContent />}
+      {asLink ? (
+        // <a href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer">
+        <AddressContent />
+        // </a>
+      ) : (
+        <AddressContent />
+      )}
     </HStack>
   );
 }

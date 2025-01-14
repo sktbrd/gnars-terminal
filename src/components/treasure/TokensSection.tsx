@@ -68,7 +68,7 @@ const TokensSection: React.FC<TokensSectionProps> = ({ tokens, totalBalance, hid
                             </Table.Cell>
                             <Table.Cell>{formatBalance(token.token.balance)}</Table.Cell>
                             <Table.Cell>${formatBalance(token.token.balanceUSD)}</Table.Cell>
-                            <Table.Cell className={styles.hideOnMobile}>${token.token.price}</Table.Cell>
+                            <Table.Cell className={styles.hideOnMobile}>${parseFloat(token.token.price).toFixed(4)}</Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>

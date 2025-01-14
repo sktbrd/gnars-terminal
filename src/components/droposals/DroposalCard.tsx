@@ -24,6 +24,7 @@ export default function DroposalCard() {
       );
 
       if (fetchedProposals.length > 0) {
+        console.log('fetchedProposals:', fetchedProposals);
         const proposal = fetchedProposals[0];
         const rawCalldatas = proposal.calldatas;
         const calldatasArray =
@@ -72,7 +73,18 @@ export default function DroposalCard() {
               string,
               string,
             ];
-
+            console.log('decodedCalldatas:', {
+              name,
+              symbol,
+              editionSize: editionSize.toString(),
+              royaltyBPS: (royaltyBPS / 100).toFixed(2),
+              fundsRecipient,
+              defaultAdmin,
+              saleConfig,
+              description,
+              imageURI: formatURI(imageURI),
+              animationURI: formatURI(animationURI),
+            });
             return {
               name,
               symbol,
@@ -106,8 +118,9 @@ export default function DroposalCard() {
 
   const formatURI = (uri: string): string => {
     if (!uri) return '';
-    if (uri.startsWith('ipfs://')) {
-      return `https://gateway.pinata.cloud/ipfs/${uri.slice(7)}`;
+    const trimmedUri = uri.trim();
+    if (/^ipfs:\/\//.test(trimmedUri)) {
+      return `https://gateway.pinata.cloud/ipfs/${trimmedUri.slice(7)}`;
     }
     return uri;
   };

@@ -18,6 +18,10 @@ function useCanSubmitProposal() {
     setCurrentTimestamp(BigInt(timestamp));
   }, []);
 
+  useEffect(() => {
+    console.log(`Address: ${address}, Timestamp: ${currentTimestamp}`);
+  }, [address, currentTimestamp]);
+
   // Read votes dynamically
   const { data: votes } = useReadGovernorGetVotes({
     args: address && currentTimestamp ? [address as Address, currentTimestamp as bigint] : undefined,
@@ -27,8 +31,13 @@ function useCanSubmitProposal() {
   const { data: threshold } = useReadGovernorProposalThreshold();
 
   useEffect(() => {
-    if (votes && threshold) {
-      setCanSubmit(BigInt(votes) >= BigInt(threshold));
+    console.log(`Votes: ${votes}, Threshold: ${threshold}`);
+    if (votes !== undefined && threshold !== undefined) {
+      const canSubmitProposal = BigInt(votes) >= BigInt(threshold);
+      console.log(`Votes: ${votes}, Threshold: ${threshold}, Can Submit: ${canSubmitProposal}`);
+      setCanSubmit(canSubmitProposal);
+    } else {
+      console.log('Votes or threshold data is missing.');
     }
   }, [votes, threshold]);
 
@@ -40,7 +49,9 @@ export default function CreateProposalButton() {
   const router = useRouter(); // Initialize router
 
   const handleClick = () => {
+    console.log(`Button clicked. Can submit: ${canSubmit}`);
     if (canSubmit) {
+      console.log('Navigating to /create-proposal');
       router.push('/create-proposal'); // Navigate to the create proposal page
     }
   };

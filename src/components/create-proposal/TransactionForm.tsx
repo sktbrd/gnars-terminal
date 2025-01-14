@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { VStack, Input, Button, HStack, Text } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field"; // Assuming this exists
-import { isAddress } from 'viem';
 
 type TransactionFormProps = {
     type: string;
-    fields: { name: string; placeholder: string; type?: string; validate?: (value: string) => boolean | string }[];
+    fields: { name: string; placeholder: string; type?: string; validate?: (value: string) => boolean | string; onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void }[];
     onAdd: (transaction: { type: string; details: Record<string, any> }) => void;
     onCancel: () => void;
     onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onAmountChange?: (amount: number) => void; // Add callback for amount change
 };
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange, onAmountChange }) => {
     const [formData, setFormData] = React.useState<Record<string, string | undefined>>(
         fields.reduce((acc, field) => {
             acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
@@ -26,11 +26,31 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
             const validation = fields.find(f => f.name === field)?.validate!(value);
             setErrors((prev) => ({ ...prev, [field]: typeof validation === 'string' ? validation : '' }));
         }
+        if (field === "amount" && onAmountChange) {
+            onAmountChange(value === "" ? 0 : parseFloat(value)); // Call the callback with the new amount or 0 if empty
+        }
     };
+
+    useEffect(() => {
+        console.log("formData:", formData); // Debug log
+    }, [formData]);
 
     const handleAdd = () => {
         const details = { ...formData };
+        // Ensure animationURI can be empty
+        if (type === "DROPOSAL MINT" && !formData.animationURI) {
+            details.animationURI = "";
+        }
         onAdd({ type, details });
+    };
+
+    const isFormValid = () => {
+        return fields.every(field => {
+            if (field.name === "animationURI") {
+                return true; // Allow animationURI to be empty
+            }
+            return field.type !== "file" && formData[field.name]?.trim() && !errors[field.name];
+        });
     };
 
     return (
@@ -53,13 +73,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                             type="date"
                             placeholder={field.placeholder}
                             value={formData[field.name] || ""}
-                            onChange={(e) => handleChange(field.name, e.target.value)}
+                            onChange={(e) => {
+                                handleChange(field.name, e.target.value);
+                                field.onChange && field.onChange(e);
+                            }}
                         />
                     ) : (
                         <Input
                             placeholder={field.placeholder}
                             value={formData[field.name] || ""}
-                            onChange={(e) => handleChange(field.name, e.target.value)}
+                            onChange={(e) => {
+                                handleChange(field.name, e.target.value);
+                                field.onChange && field.onChange(e);
+                            }}
                         />
                     )}
                 </Field>
@@ -85,12 +111,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                 <Button
                     colorScheme="teal"
                     onClick={handleAdd}
-                    disabled={
-                        fields.some(field =>
-                            field.type !== "file" &&
-                            !formData[field.name]?.trim() || errors[field.name]
-                        ) || (fields.some(field => field.type === "file") && !onFileChange)
-                    }                >
+                    disabled={!isFormValid()}
+                >
                     Add Transaction
                 </Button>
             </HStack>
