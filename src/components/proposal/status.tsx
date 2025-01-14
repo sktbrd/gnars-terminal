@@ -62,15 +62,15 @@ export default function ProposalStatus({ proposal }: { proposal: Proposal }) {
   const status = getProposalStatus(proposal);
 
   const statusColors: Record<Status, string> = {
-    [Status.CANCELLED]: 'gray',
-    [Status.QUEUED]: 'blue',
-    [Status.EXECUTED]: 'purple',
-    [Status.VETOED]: 'gray',
-    [Status.PENDING]: 'gray',
-    [Status.ACTIVE]: 'green',
-    [Status.DEFEATED]: 'red',
-    [Status.SUCCEEDED]: 'green',
-    [Status.EXPIRED]: 'gray',
+    [Status.CANCELLED]: 'red.200',
+    [Status.QUEUED]: 'blue.200',
+    [Status.EXECUTED]: 'purple.200',
+    [Status.VETOED]: 'gray.200',
+    [Status.PENDING]: 'gray.200',
+    [Status.ACTIVE]: 'green.200',
+    [Status.DEFEATED]: 'red.200',
+    [Status.SUCCEEDED]: 'green.200',
+    [Status.EXPIRED]: 'red.200',
   };
 
   return <StatusBox colorPalette={statusColors[status]}>{status}</StatusBox>;
