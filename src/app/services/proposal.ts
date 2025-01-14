@@ -9,7 +9,7 @@ export type Proposal = {
   forVotes: number;
   againstVotes: number;
   abstainVotes: number;
-  expiresAt: number | null;
+  expiresAt: string | null;
   proposer: Address;
   snapshotBlockNumber: number;
   status: string;
@@ -67,6 +67,7 @@ const GET_DATA = gql`
       timeCreated
       quorumVotes
       againstVotes
+      expiresAt
       forVotes
       abstainVotes
       calldatas
