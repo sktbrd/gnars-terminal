@@ -14,6 +14,18 @@ export enum Status {
   EXPIRED = 'Expired',
 }
 
+const statusColors: Record<Status, string> = {
+  [Status.CANCELLED]: 'red.200',
+  [Status.QUEUED]: 'blue.200',
+  [Status.EXECUTED]: 'purple.200',
+  [Status.VETOED]: 'gray.200',
+  [Status.PENDING]: 'gray.200',
+  [Status.ACTIVE]: 'green.200',
+  [Status.DEFEATED]: 'red.200',
+  [Status.SUCCEEDED]: 'green.200',
+  [Status.EXPIRED]: 'red.200',
+};
+
 export const getProposalStatus = (proposal: Proposal): Status => {
   const currentTime = new Date().getTime();
 
@@ -60,18 +72,9 @@ const StatusBox = ({ colorPalette, children }: StatusBoxProps) => {
 
 export default function ProposalStatus({ proposal }: { proposal: Proposal }) {
   const status = getProposalStatus(proposal);
+  return <StatusBox colorPalette={statusColors[status]}>{status}</StatusBox>;
+}
 
-  const statusColors: Record<Status, string> = {
-    [Status.CANCELLED]: 'red.200',
-    [Status.QUEUED]: 'blue.200',
-    [Status.EXECUTED]: 'purple.200',
-    [Status.VETOED]: 'gray.200',
-    [Status.PENDING]: 'gray.200',
-    [Status.ACTIVE]: 'green.200',
-    [Status.DEFEATED]: 'red.200',
-    [Status.SUCCEEDED]: 'green.200',
-    [Status.EXPIRED]: 'red.200',
-  };
-
+export function ProposalStatusFromStatus({ status }: { status: Status }) {
   return <StatusBox colorPalette={statusColors[status]}>{status}</StatusBox>;
 }

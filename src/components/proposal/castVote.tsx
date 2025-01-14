@@ -44,6 +44,7 @@ import { useAccount } from 'wagmi';
 import { Button } from '../ui/button';
 import { Field } from '../ui/field';
 import { RadioCardItem, RadioCardRoot } from '../ui/radio-card';
+import { getProposalStatus, Status } from './status';
 
 interface CastVoteProps {
   proposal: Proposal;
@@ -243,6 +244,12 @@ export default function CastVote({ proposal }: CastVoteProps) {
     voteValue,
     writeCastVoteReason,
   ]);
+
+  if (
+    [Status.EXPIRED, Status.CANCELLED].includes(getProposalStatus(proposal))
+  ) {
+    return null;
+  }
 
   if (userVote) {
     return (
