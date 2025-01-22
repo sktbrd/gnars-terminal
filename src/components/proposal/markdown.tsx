@@ -12,7 +12,7 @@ interface MarkdownProps {
 function Markdown({ text }: MarkdownProps) {
   return (
     <ReactMarkdown
-      rehypePlugins={[rehypeRaw]}
+      rehypePlugins={[rehypeRaw, rehypeSanitize]}
       remarkPlugins={[remarkGfm]}
       components={MarkdownRenderers}
     >
