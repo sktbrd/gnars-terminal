@@ -2,6 +2,7 @@
 
 import { Proposal } from '@/app/services/proposal';
 import PropdatesTimeline from '@/components/propdates/timeline';
+import CancelProposal from '@/components/proposal/cancel';
 import CastVote from '@/components/proposal/castVote';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
@@ -42,7 +43,7 @@ interface ProposalPageClientProps {
 }
 
 export default function ProposalPageClient({
-  proposal,
+  proposal: defaultProposal,
   proposalNumber,
   latestProposalNumber,
   propdates: defaultPropdates = [],
@@ -51,6 +52,7 @@ export default function ProposalPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [proposal, setProposal] = useState<Proposal>(defaultProposal);
   const [propdates, setPropdates] = useState<PropDateInterface[]>(
     defaultPropdates || []
   );
@@ -194,6 +196,7 @@ export default function ProposalPageClient({
           </HStack>
 
           <CastVote proposal={proposal} />
+          <CancelProposal proposal={proposal} setProposal={setProposal} />
         </Box>
 
         {/* Tabs */}

@@ -3,7 +3,7 @@ import { Badge } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
 export enum Status {
-  CANCELED = 'Canceled',
+  CANCELLED = 'Cancelled',
   QUEUED = 'Queued',
   EXECUTED = 'Executed',
   VETOED = 'Vetoed',
@@ -14,24 +14,44 @@ export enum Status {
   EXPIRED = 'Expired',
 }
 
+const statusColors: Record<Status, string> = {
+  [Status.CANCELLED]: 'red.200',
+  [Status.QUEUED]: 'blue.200',
+  [Status.EXECUTED]: 'purple.200',
+  [Status.VETOED]: 'gray.200',
+  [Status.PENDING]: 'gray.200',
+  [Status.ACTIVE]: 'green.200',
+  [Status.DEFEATED]: 'red.200',
+  [Status.SUCCEEDED]: 'green.200',
+  [Status.EXPIRED]: 'red.200',
+};
+
 export const getProposalStatus = (proposal: Proposal): Status => {
-  if (proposal.canceled) return Status.CANCELED;
-  if (proposal.queued) return Status.QUEUED;
+  const currentTime = new Date().getTime();
+
+  if (proposal.expiresAt && proposal.queued) {
+    const voteExpireTime = parseInt(proposal.expiresAt) * 1000;
+    if (currentTime > voteExpireTime) return Status.EXPIRED;
+  }
+
+  if (proposal.canceled) return Status.CANCELLED;
   if (proposal.executed) return Status.EXECUTED;
   if (proposal.vetoed) return Status.VETOED;
+  if (proposal.queued) return Status.QUEUED;
 
-  const currentTime = new Date().getTime();
   const voteStartTime = parseInt(proposal.voteStart) * 1000;
   const voteEndTime = parseInt(proposal.voteEnd) * 1000;
 
   if (currentTime < voteStartTime) return Status.PENDING;
-  if (currentTime >= voteStartTime && currentTime <= voteEndTime)
+
+  if (currentTime > voteStartTime && currentTime < voteEndTime)
     return Status.ACTIVE;
+
   if (currentTime > voteEndTime) {
-    if (proposal.forVotes === 0 || proposal.forVotes < parseInt(proposal.quorumVotes)) {
-      return Status.DEFEATED;
-    }
-    return Status.SUCCEEDED;
+    return proposal.forVotes > proposal.againstVotes &&
+      proposal.forVotes > parseInt(proposal.quorumVotes)
+      ? Status.SUCCEEDED
+      : Status.DEFEATED;
   }
 
   return Status.EXPIRED;
@@ -52,18 +72,9 @@ const StatusBox = ({ colorPalette, children }: StatusBoxProps) => {
 
 export default function ProposalStatus({ proposal }: { proposal: Proposal }) {
   const status = getProposalStatus(proposal);
+  return <StatusBox colorPalette={statusColors[status]}>{status}</StatusBox>;
+}
 
-  const statusColors: Record<Status, string> = {
-    [Status.CANCELED]: 'red.200',
-    [Status.QUEUED]: 'blue.200',
-    [Status.EXECUTED]: 'purple.200',
-    [Status.VETOED]: 'gray.200',
-    [Status.PENDING]: 'gray.200',
-    [Status.ACTIVE]: 'green.200',
-    [Status.DEFEATED]: 'red.200',
-    [Status.SUCCEEDED]: 'green.200',
-    [Status.EXPIRED]: 'red.200',
-  };
-
+export function ProposalStatusFromStatus({ status }: { status: Status }) {
   return <StatusBox colorPalette={statusColors[status]}>{status}</StatusBox>;
 }

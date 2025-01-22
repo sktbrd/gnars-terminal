@@ -4,6 +4,8 @@ import { fetchAllEditorsByProposalId } from '@/services/supabase/editors';
 import { fetchAllPropDatesByProposalId } from '@/services/supabase/propdates';
 import { DAO_ADDRESSES } from '@/utils/constants';
 
+export const revalidate = 60;
+
 export default async function ProposalPage({
   params,
 }: {
