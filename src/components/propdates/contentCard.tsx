@@ -73,8 +73,9 @@ export function PropdatesContentCardContent({
       size={isMobile ? 'sm' : 'md'}
       borderRadius='lg'
       variant='outline'
-      w={isMobile ? 'full' : 'auto'}
-      maxH={expanded ? 'none' : isMobile ? '200px' : '200px'}
+      w='full'
+      maxW={{ base: '100vw', md: 'auto' }}
+      maxH={expanded ? 'none' : '200px'}
       overflow='hidden'
       position='relative'
     >

@@ -26,15 +26,31 @@ export default function PropdatesClientComponent({ propdates, proposals }: Propd
         );
 
     return (
-        <Box display="flex" minH="100vh">
+        <Box display={{ base: "block", md: "flex" }}>
             {/* -- Sidebar -- */}
             <Box
                 width={{ base: "100%", md: "250px" }}
+                maxW={{ base: "100vw", md: "250px" }}
                 p={4}
-                borderRight="1px solid #ccc"
+                borderBottom={{ base: "1px solid #ccc", md: "none" }}
+                overflowX={{ base: "auto", md: "auto" }}
+                display={{ base: "flex", md: "block" }}
+                flexDirection={{ base: "row", md: "column" }}
+                css={{
+                    "&::-webkit-scrollbar": {
+                        width: "0.5em",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        backgroundColor: "rgba(0,0,0,.1)",
+                        outline: "1px solid slategrey",
+                    },
+                }}
             >
                 <Button
-                    w="100%"
+                    w={{ base: "auto", md: "100%" }}
                     mb={4}
                     colorScheme="yellow"
                     onClick={() => setSelectedProposalId(null)}
@@ -47,7 +63,7 @@ export default function PropdatesClientComponent({ propdates, proposals }: Propd
                     return (
                         <Button
                             key={proposal.proposalId}
-                            w="100%"
+                            w={{ base: "auto", md: "100%" }}
                             mb={2}
                             backgroundColor={isActive ? "green.100" : "gray.200"}
                             onClick={() => setSelectedProposalId(proposal.proposalId)}
@@ -59,7 +75,7 @@ export default function PropdatesClientComponent({ propdates, proposals }: Propd
             </Box>
 
             {/* -- Main Content -- */}
-            <Box flex="1" p={4} w={'100%'}>
+            <Box flex="1" p={4} w={'100%'} mt={{ base: 4, md: 0 }} >
                 <Heading mb={4}>Propdates</Heading>
 
                 {filteredPropdates && filteredPropdates.length > 0 ? (
