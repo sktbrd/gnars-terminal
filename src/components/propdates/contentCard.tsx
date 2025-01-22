@@ -5,7 +5,7 @@ import { PropDateInterface } from '@/utils/database/interfaces';
 import { Box, Card, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react';
 import { default as NextLink } from 'next/link';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Address, isAddressEqual } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
@@ -55,11 +55,20 @@ export function PropdatesContentCardContent({
   setPropdates?: Dispatch<SetStateAction<PropDateInterface[]>>;
 }) {
   const { address } = useAccount();
+  const [expanded, setExpanded] = useState(false);
   const showEditButton =
     !!setPropdates && isAddressEqualTo(propdate.author.e_address, address);
 
   return (
-    <Card.Root size='md' borderRadius='lg' variant='outline' w={'full'}>
+    <Card.Root
+      size='md'
+      borderRadius='lg'
+      variant='outline'
+      w={'full'}
+      maxH={expanded ? 'none' : '200px'}
+      overflow='hidden'
+      position='relative'
+    >
       <Card.Body p={4}>
         <HStack gap={2} align='stretch'>
           <VStack gap={2} align='stretch' w='full'>
@@ -80,9 +89,23 @@ export function PropdatesContentCardContent({
                   </Text>
                 )}
               </HStack>
-              <Text color='fg.subtle'>
-                {new Date(propdate.created_at).toLocaleDateString()}
-              </Text>
+              <HStack>
+                <Text color='fg.subtle'>
+                  {new Date(propdate.created_at).toLocaleDateString()}
+                </Text>
+                {expanded ? (
+                  <FaEyeSlash
+                    style={{ cursor: 'pointer', marginLeft: '8px' }}
+                    onClick={() => setExpanded(false)}
+                  />
+                ) : (
+                  <FaEye
+                    style={{ cursor: 'pointer', marginLeft: '8px' }}
+                    onClick={() => setExpanded(true)}
+                  />
+                )}
+
+              </HStack>
             </HStack>
             <Box
               bg='gray.100'
@@ -116,6 +139,19 @@ export function PropdatesContentCardContent({
           </VStack>
         </HStack>
       </Card.Body>
+      {!expanded && (
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          h='20px'
+          bgGradient='linear(to-t, white, transparent)'
+          _dark={{ bgGradient: 'linear(to-t, gray.800, transparent)' }}
+          cursor='pointer'
+          onClick={() => setExpanded(true)}
+        />
+      )}
     </Card.Root>
   );
 }
