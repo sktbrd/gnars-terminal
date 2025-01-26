@@ -7,13 +7,13 @@ type MarkdownProps = {
     node?: any;
     alt?: any;
     src?: any;
-    title?: any;
+    title?: string;
 };
 
 type RendererProps = MarkdownProps & {
     children?: React.ReactNode;
-    ordered?: any;
-    href?: any;
+    ordered?: boolean;
+    href?: string;
 };
 // Define styles for components
 const styles = {
@@ -153,6 +153,11 @@ const MarkdownRenderers = {
                 style={{ borderRadius: '10px', marginBottom: '10px', maxWidth: '100%', minWidth: '100%', aspectRatio: '16/9', height: '100%', border: '2px grey solid' }}
             />
         </center>
+    ),
+    center: ({ children, ...props }: RendererProps) => (
+        <div style={{ textAlign: 'center' }} {...props}>
+            {children}
+        </div>
     ),
 };
 

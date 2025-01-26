@@ -4,8 +4,8 @@ import { Proposal } from '@/app/services/proposal';
 import { PropDateInterface } from '@/utils/database/interfaces';
 import { Box, Card, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react';
 import { default as NextLink } from 'next/link';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Address, isAddressEqual } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
@@ -18,13 +18,19 @@ import { isAddressEqualTo } from '@/utils/ethereum';
 interface PropdatesContentCardProps {
   _propdates: PropDateInterface[];
   proposals: Proposal[];
+  isMobile?: boolean;
 }
 
 export default function PropdatesContentCardList({
   _propdates,
   proposals,
+  isMobile = false,
 }: PropdatesContentCardProps) {
   const [propdates, setPropdates] = useState(_propdates);
+
+  useEffect(() => {
+    console.log('PropdatesContentCardList - Propdates:', propdates);
+  }, [propdates]);
 
   return (
     <Stack gap={2} w='full'>
@@ -38,6 +44,7 @@ export default function PropdatesContentCardList({
             propdate={propdate}
             proposal={proposal}
             setPropdates={setPropdates}
+            isMobile={isMobile}
           />
         );
       })}
@@ -49,17 +56,29 @@ export function PropdatesContentCardContent({
   propdate,
   proposal,
   setPropdates,
+  isMobile,
 }: {
   propdate: PropDateInterface;
   proposal?: Proposal;
   setPropdates?: Dispatch<SetStateAction<PropDateInterface[]>>;
+  isMobile?: boolean;
 }) {
   const { address } = useAccount();
+  const [expanded, setExpanded] = useState(false);
   const showEditButton =
     !!setPropdates && isAddressEqualTo(propdate.author.e_address, address);
 
   return (
-    <Card.Root size='md' borderRadius='lg' variant='outline' w={'full'}>
+    <Card.Root
+      size={isMobile ? 'sm' : 'md'}
+      borderRadius='lg'
+      variant='outline'
+      w='full'
+      maxW={{ base: '100vw', md: 'auto' }}
+      maxH={expanded ? 'none' : '200px'}
+      overflow='hidden'
+      position='relative'
+    >
       <Card.Body p={4}>
         <HStack gap={2} align='stretch'>
           <VStack gap={2} align='stretch' w='full'>
@@ -67,22 +86,35 @@ export function PropdatesContentCardContent({
               <HStack>
                 <EnsAvatar address={propdate.author.e_address as Address} />
                 <FormattedAddress address={propdate.author.e_address} />
+                in{' '}
                 {proposal && (
-                  <Text color={'fg.subtle'}>
-                    in{' '}
-                    <Link asChild>
-                      <NextLink
-                        href={`/dao/proposal/${proposal?.proposalNumber}`}
-                      >
-                        proposal {proposal?.proposalNumber}
-                      </NextLink>
-                    </Link>
-                  </Text>
+                  <Link asChild>
+                    <NextLink
+                      href={`/dao/proposal/${proposal?.proposalNumber}`}
+                    >
+                      proposal {proposal?.proposalNumber}
+                    </NextLink>
+                  </Link>
                 )}
               </HStack>
-              <Text color='fg.subtle'>
-                {new Date(propdate.created_at).toLocaleDateString()}
-              </Text>
+              <HStack>
+                {!isMobile && (
+                  <Text color='fg.subtle'>
+                    {new Date(propdate.created_at).toLocaleDateString()}
+                  </Text>
+                )}
+                {expanded ? (
+                  <FaEyeSlash
+                    style={{ cursor: 'pointer', marginLeft: '8px' }}
+                    onClick={() => setExpanded(false)}
+                  />
+                ) : (
+                  <FaEye
+                    style={{ cursor: 'pointer', marginLeft: '8px' }}
+                    onClick={() => setExpanded(true)}
+                  />
+                )}
+              </HStack>
             </HStack>
             <Box
               bg='gray.100'
@@ -116,6 +148,19 @@ export function PropdatesContentCardContent({
           </VStack>
         </HStack>
       </Card.Body>
+      {!expanded && (
+        <Box
+          position='absolute'
+          bottom={0}
+          left={0}
+          right={0}
+          h='20px'
+          bgGradient='linear(to-t, white, transparent)'
+          _dark={{ bgGradient: 'linear(to-t, black, transparent)' }}
+          cursor='pointer'
+          onClick={() => setExpanded(true)}
+        />
+      )}
     </Card.Root>
   );
 }
