@@ -1,8 +1,9 @@
 'use client';
 
-import { formatEthAddress } from '@/utils/helpers';
 import { Code, HStack } from '@chakra-ui/react';
+import { Name } from '@paperclip-labs/whisk-sdk/identity';
 import { useQuery } from '@tanstack/react-query';
+import { Address } from 'viem';
 
 async function fetchNNSName(address: string, clds?: string[]) {
   const response = await fetch('https://api.nns.xyz/resolve', {
@@ -42,18 +43,13 @@ export function FormattedAddress({
   address?: string;
   textBefore?: string;
   asLink?: boolean;
-  clds?: string[]; // Optional: Specify CLDs to filter by
+  clds?: string[];
 }) {
   if (!address) return null;
-  const { data: nnsName, isLoading, isError } = useNNSName(address, clds);
 
   const AddressContent = () => (
-    <Code size='sm' variant='surface' colorScheme={nnsName ? '' : 'gray'}>
-      {isLoading
-        ? formatEthAddress(address)
-        : isError || !nnsName
-          ? formatEthAddress(address)
-          : nnsName}
+    <Code size='sm' variant='surface'>
+      <Name address={address as Address} />
     </Code>
   );
 
@@ -61,9 +57,13 @@ export function FormattedAddress({
     <HStack>
       {textBefore && <span>{textBefore}</span>}
       {asLink ? (
-        // <a href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer">
-        <AddressContent />
+        // <a
+        //   href={`https://etherscan.io/address/${address}`}
+        //   target='_blank'
+        //   rel='noopener noreferrer'
+        // >
         // </a>
+        <AddressContent />
       ) : (
         <AddressContent />
       )}

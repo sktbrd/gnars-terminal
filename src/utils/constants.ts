@@ -1,5 +1,6 @@
 import { Address } from 'viem';
 
+export const WHISK_API_KEY = process.env.NEXT_PUBLIC_WHISK_API_KEY as string;
 export const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID as string;
 export const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY as string;
 export const RPC_URL = `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
