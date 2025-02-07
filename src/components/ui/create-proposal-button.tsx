@@ -1,11 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button, IconButton } from '@chakra-ui/react';
 import { LuPencilLine } from 'react-icons/lu';
 import { useAccount } from 'wagmi';
 import { Address } from 'viem';
 import { useRouter } from 'next/navigation';
-import { useReadGovernorGetVotes, useReadGovernorProposalThreshold } from '@/hooks/wagmiGenerated';
+import {
+  useReadGovernorGetVotes,
+  useReadGovernorProposalThreshold,
+} from '@/hooks/wagmiGenerated';
 
 function useCanSubmitProposal() {
   const { address } = useAccount();
@@ -19,7 +22,10 @@ function useCanSubmitProposal() {
 
   // Read votes dynamically
   const { data: votes } = useReadGovernorGetVotes({
-    args: address && currentTimestamp ? [address as Address, currentTimestamp as bigint] : undefined,
+    args:
+      address && currentTimestamp
+        ? [address as Address, currentTimestamp as bigint]
+        : undefined,
   });
 
   // Read proposal threshold
@@ -48,14 +54,14 @@ export default function CreateProposalButton() {
   };
 
   return (
-    <Button
-      colorScheme="blue"
-      variant="outline"
+    <IconButton
+      size='sm'
+      colorScheme='blue'
+      variant='outline'
       disabled={!canSubmit}
       onClick={handleClick}
     >
       <LuPencilLine />
-    </Button>
+    </IconButton>
   );
 }
-
