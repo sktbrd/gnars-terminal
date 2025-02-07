@@ -4,7 +4,7 @@ import { Button } from '@chakra-ui/react';
 import { LuPencilLine } from 'react-icons/lu';
 import { useAccount } from 'wagmi';
 import { Address } from 'viem';
-import { useRouter } from 'next/navigation'; // Use Next.js navigation
+import { useRouter } from 'next/navigation';
 import { useReadGovernorGetVotes, useReadGovernorProposalThreshold } from '@/hooks/wagmiGenerated';
 
 function useCanSubmitProposal() {
@@ -12,15 +12,10 @@ function useCanSubmitProposal() {
   const [canSubmit, setCanSubmit] = useState(false);
   const [currentTimestamp, setCurrentTimestamp] = useState<BigInt | null>(null);
 
-  // Update the current timestamp
   useEffect(() => {
-    const timestamp = Math.floor(Date.now() / 1000); // Convert to seconds
+    const timestamp = Math.floor(Date.now() / 1000);
     setCurrentTimestamp(BigInt(timestamp));
   }, []);
-
-  useEffect(() => {
-    console.log(`Address: ${address}, Timestamp: ${currentTimestamp}`);
-  }, [address, currentTimestamp]);
 
   // Read votes dynamically
   const { data: votes } = useReadGovernorGetVotes({
@@ -31,10 +26,8 @@ function useCanSubmitProposal() {
   const { data: threshold } = useReadGovernorProposalThreshold();
 
   useEffect(() => {
-    console.log(`Votes: ${votes}, Threshold: ${threshold}`);
     if (votes !== undefined && threshold !== undefined) {
       const canSubmitProposal = BigInt(votes) >= BigInt(threshold);
-      console.log(`Votes: ${votes}, Threshold: ${threshold}, Can Submit: ${canSubmitProposal}`);
       setCanSubmit(canSubmitProposal);
     } else {
       console.log('Votes or threshold data is missing.');
@@ -46,13 +39,11 @@ function useCanSubmitProposal() {
 
 export default function CreateProposalButton() {
   const canSubmit = useCanSubmitProposal();
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
 
   const handleClick = () => {
-    console.log(`Button clicked. Can submit: ${canSubmit}`);
     if (canSubmit) {
-      console.log('Navigating to /create-proposal');
-      router.push('/create-proposal'); // Navigate to the create proposal page
+      router.push('/create-proposal');
     }
   };
 
@@ -61,7 +52,7 @@ export default function CreateProposalButton() {
       colorScheme="blue"
       variant="outline"
       disabled={!canSubmit}
-      onClick={handleClick} // Handle navigation
+      onClick={handleClick}
     >
       <LuPencilLine />
     </Button>

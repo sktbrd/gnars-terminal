@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import apolloClient, { noCacheApolloClient } from '@/utils/apollo';
+import { noCacheApolloClient } from '@/utils/apollo';
 import { Address } from 'viem';
 
 export async function fetchAuction(
