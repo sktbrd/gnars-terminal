@@ -48,7 +48,7 @@ function CancelProposal({ proposal, setProposal }: CancelProposalProps) {
   };
 
   if (
-    [Status.EXPIRED, Status.CANCELLED].includes(proposalStatus) ||
+    ![Status.ACTIVE, Status.PENDING].includes(proposalStatus) ||
     !isAddressEqualTo(proposal.proposer, address)
   ) {
     return null;
