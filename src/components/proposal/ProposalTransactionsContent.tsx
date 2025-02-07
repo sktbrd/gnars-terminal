@@ -1,5 +1,8 @@
 import { Box, VStack, Heading, Text } from '@chakra-ui/react';
-import { decodeSenditTransaction, decodeUsdcTransaction } from './transactions/utils/decodeTXs';
+import {
+  decodeSenditTransaction,
+  decodeUsdcTransaction,
+} from './transactions/utils/decodeTXs';
 import EthTransferTransaction from './transactions/EthTransferTransaction';
 import { Address } from 'viem';
 import USDCTransaction from './transactions/USDCTransaction';
@@ -9,7 +12,6 @@ import NftTransferTransaction from './transactions/NFTTransfer';
 import SenditTransaction from './transactions/SenditTransaction';
 import { tokenAddress } from '@/hooks/wagmiGenerated';
 import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
-
 
 interface ProposalTransactionsContentProps {
   proposal: {
@@ -35,13 +37,10 @@ function TransactionItem({
     calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
 
   // Validate calldata before decoding
-  const isCalldataValid = normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
-  console.log(target)
+  const isCalldataValid =
+    normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
 
   if (target === SENDIT_CONTRACT_ADDRESS) {
-    console.log('Sendit Transaction')
-    console.log('calldata:', normalizedCalldata);
-    console.log('value:', value);
     // Decode Sendit Token transaction
     const senditTransaction = isCalldataValid
       ? decodeSenditTransaction(normalizedCalldata)
@@ -51,15 +50,11 @@ function TransactionItem({
       const { to, value: decodedValue } = senditTransaction;
 
       // Format Sendit Token value (divide by 10^18)
-      const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 18)).toString();
+      const formattedValue = (
+        BigInt(decodedValue) / BigInt(10 ** 18)
+      ).toString();
 
-      return (
-        <SenditTransaction
-          index={index}
-          to={to}
-          value={formattedValue}
-        />
-      );
+      return <SenditTransaction index={index} to={to} value={formattedValue} />;
     }
   }
 
@@ -74,15 +69,8 @@ function TransactionItem({
     // Format USDC value (divide by 10^6)
     const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 6)).toString();
 
-    return (
-      <USDCTransaction
-        index={index}
-        to={to}
-        value={formattedValue}
-      />
-    );
+    return <USDCTransaction index={index} to={to} value={formattedValue} />;
   }
-
 
   if (normalizedCalldata === '0x' && value !== '0') {
     return (
@@ -97,8 +85,7 @@ function TransactionItem({
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
     return <DroposalTransaction calldata={calldata} index={index} />;
   }
-  console.log('target:', target)
-  console.log(tokenAddress)
+
   // Handle transactions for target contract
   if (target.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase()) {
     const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector

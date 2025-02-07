@@ -1,5 +1,5 @@
 import { FormattedAddress } from '@/components/utils/ethereum';
-import { Text, HStack, Code, Image } from '@chakra-ui/react';
+import { Code, Image, Text } from '@chakra-ui/react';
 import TransactionWrapper from './TransactionWrapper';
 
 export default function NftTransferTransaction({
@@ -18,17 +18,24 @@ export default function NftTransferTransaction({
       logoSrc='/images/gnars.webp'
       logoAlt='NFT'
     >
-      <HStack gap={2} align='center'>
-        <Text>
-          This transaction sends an existing token with ID
-        </Text>
+      <Text>
+        This transaction sends an existing token with ID{' '}
         <Code size={'sm'} variant={'surface'}>
           {decodedData.tokenId}
-          <Image ml={2} src='/images/gnars.webp' alt='NFT' boxSize='20px' objectFit='contain' />
-        </Code>
-        <Text>from Gnars Treasury to</Text>
-        <FormattedAddress address={decodedData.to} />
-      </HStack>
+          <Image
+            ml={2}
+            src='/images/gnars.webp'
+            alt='NFT'
+            boxSize='20px'
+            objectFit='contain'
+          />
+        </Code>{' '}
+        from Gnars Treasury to{' '}
+        <FormattedAddress
+          address={decodedData.to}
+          stackProps={{ display: 'inline' }}
+        />
+      </Text>
     </TransactionWrapper>
   );
 }

@@ -8,7 +8,11 @@ interface USDCTransactionProps {
   value: string;
 }
 
-const USDCTransaction: React.FC<USDCTransactionProps> = ({ index, to, value }) => {
+const USDCTransaction: React.FC<USDCTransactionProps> = ({
+  index,
+  to,
+  value,
+}) => {
   return (
     <TransactionWrapper
       index={index}
@@ -16,17 +20,21 @@ const USDCTransaction: React.FC<USDCTransactionProps> = ({ index, to, value }) =
       logoSrc='/images/usdc.png'
       logoAlt='USDC'
     >
-      <HStack gap={2} align='center'>
-        <Text>
-          This transaction sends
-        </Text>
+      <Text>
+        This transaction sends{' '}
         <Code size={'sm'} variant={'surface'}>
           {value}
-          <Image src='/images/usdc.png' alt='USDC' boxSize='20px' objectFit='contain' ml={2} />
-        </Code>
-        <Text>tokens from Gnars Treasury to</Text>
-        <FormattedAddress address={to} />
-      </HStack>
+          <Image
+            src='/images/usdc.png'
+            alt='USDC'
+            boxSize='20px'
+            objectFit='contain'
+            ml={2}
+          />
+        </Code>{' '}
+        tokens from Gnars Treasury to{' '}
+        <FormattedAddress address={to} stackProps={{ display: 'inline' }} />
+      </Text>
     </TransactionWrapper>
   );
 };

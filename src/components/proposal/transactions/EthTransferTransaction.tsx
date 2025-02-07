@@ -41,19 +41,24 @@ const EthTransferTransaction: React.FC<EthTransferTransactionProps> = ({
       logoSrc='/images/ethereum.png'
       logoAlt='ETH'
     >
-      <VStack gap={1} align='start'>
-        <HStack gap={2} align='center'>
-          <Text>
-            This transaction sends
-          </Text>
-          <Code size={'sm'} variant={'surface'}>
-            {formattedValue}
-            <Image src='/images/ethereum.png' alt='ETH' boxSize='20px' objectFit='contain' ml={2} />
-          </Code>
-          <Text>ETH from Gnars Treasury to</Text>
-          <FormattedAddress address={toAddress} />
-        </HStack>
-      </VStack>
+      <Text>
+        This transaction sends{' '}
+        <Code size={'sm'} variant={'surface'}>
+          {formattedValue}
+          <Image
+            src='/images/ethereum.png'
+            alt='ETH'
+            boxSize='20px'
+            objectFit='contain'
+            ml={2}
+          />
+        </Code>{' '}
+        ETH from Gnars Treasury to{' '}
+        <FormattedAddress
+          address={toAddress}
+          stackProps={{ display: 'inline' }}
+        />
+      </Text>
     </TransactionWrapper>
   );
 };

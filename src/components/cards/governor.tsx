@@ -65,7 +65,9 @@ async function GovernorCard({
         <HStack justify={'space-between'}>
           <Stack direction='row' gap={4}>
             <Link href='/dao'>
-              <Heading as='h2'>Proposals</Heading>
+              <Heading as='h2' size={'2xl'}>
+                Proposals
+              </Heading>
             </Link>
           </Stack>
           <HStack>

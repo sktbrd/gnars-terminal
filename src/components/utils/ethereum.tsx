@@ -1,8 +1,9 @@
 'use client';
 
-import { Code, HStack } from '@chakra-ui/react';
+import { Code, CodeProps, HStack, StackProps } from '@chakra-ui/react';
 import { Name } from '@paperclip-labs/whisk-sdk/identity';
 import { useQuery } from '@tanstack/react-query';
+import { RefAttributes } from 'react';
 import { Address } from 'viem';
 
 async function fetchNNSName(address: string, clds?: string[]) {
@@ -38,23 +39,25 @@ export function FormattedAddress({
   address,
   textBefore,
   asLink = true,
-  clds,
+  codeProps,
+  stackProps,
 }: {
   address?: string;
   textBefore?: string;
   asLink?: boolean;
-  clds?: string[];
+  codeProps?: CodeProps & RefAttributes<HTMLElement>;
+  stackProps?: StackProps & RefAttributes<HTMLDivElement>;
 }) {
   if (!address) return null;
 
   const AddressContent = () => (
-    <Code size='sm' variant='surface'>
+    <Code size='sm' variant='surface' {...codeProps}>
       <Name address={address as Address} />
     </Code>
   );
 
   return (
-    <HStack>
+    <HStack {...stackProps}>
       {textBefore && <span>{textBefore}</span>}
       {asLink ? (
         // <a

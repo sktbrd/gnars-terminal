@@ -57,32 +57,31 @@ export default function MintBatchTransaction({
       logoAlt='Mint Batch'
     >
       <Box display='flex' alignItems='center' gap={4}>
-        <VStack align='start' gap={2}>
-          <HStack gap={2} align='center'>
-            <Text>
-              This transaction mints
-            </Text>
-            <Code size={'sm'} variant={'surface'}>
-              {amount || 'N/A'}
-              <Image
-                src='https://www.skatehive.app/loading.gif'
-                alt='Mint Batch'
-                boxSize='20px'
-                objectFit='contain'
-                ml={2}
-                mb={1}
+        <Text>
+          This transaction mints{' '}
+          <Code size={'sm'} variant={'surface'}>
+            {amount || 'N/A'}
+            <Image
+              src='https://www.skatehive.app/loading.gif'
+              alt='Mint Batch'
+              boxSize='20px'
+              objectFit='contain'
+              ml={2}
+              mb={1}
+            />
+          </Code>{' '}
+          new tokens to{' '}
+          {recipient ? (
+            <Link href={`/address/${recipient}`} passHref>
+              <FormattedAddress
+                address={recipient}
+                stackProps={{ display: 'inline' }}
               />
-            </Code>
-            <Text>new tokens to</Text>
-            {recipient ? (
-              <Link href={`/address/${recipient}`} passHref>
-                <FormattedAddress address={recipient} />
-              </Link>
-            ) : (
-              <span>Address not available</span>
-            )}
-          </HStack>
-        </VStack>
+            </Link>
+          ) : (
+            <span>Address not available</span>
+          )}
+        </Text>
       </Box>
     </TransactionWrapper>
   );

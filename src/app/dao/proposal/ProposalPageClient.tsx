@@ -16,6 +16,7 @@ import {
   Container,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Stack,
   Tabs,
@@ -215,6 +216,7 @@ export default function ProposalPageClient({
             gap={0}
             fitted
             lazyMount
+            size={'sm'}
           >
             <Tabs.List>
               <Tabs.Trigger
@@ -223,28 +225,36 @@ export default function ProposalPageClient({
                 alignItems='center'
                 border={0}
               >
-                <LuScroll />
-                <Text>Description</Text>
+                <Icon asChild display={{ base: 'none', md: 'block' }}>
+                  <LuScroll />
+                </Icon>
+                <Text fontSize={'xs'}>Description</Text>
               </Tabs.Trigger>
               <Tabs.Trigger value='votes' display='flex' alignItems='center'>
-                <LuVote />
-                <Text>Votes</Text>
+                <Icon asChild display={{ base: 'none', md: 'block' }}>
+                  <LuVote />
+                </Icon>
+                <Text fontSize={'xs'}>Votes</Text>
               </Tabs.Trigger>
               <Tabs.Trigger
                 value='transactions'
                 display='flex'
                 alignItems='center'
               >
-                <FaEthereum />
-                <Text>Transactions</Text>
+                <Icon asChild display={{ base: 'none', md: 'block' }}>
+                  <FaEthereum />
+                </Icon>
+                <Text fontSize={'xs'}>Transactions</Text>
               </Tabs.Trigger>
               <Tabs.Trigger
                 value='propdates'
                 display='flex'
                 alignItems='center'
               >
-                <LuArchive />
-                <Text>Propdates</Text>
+                <Icon asChild display={{ base: 'none', md: 'block' }}>
+                  <LuArchive />
+                </Icon>
+                <Text fontSize={'xs'}>Propdates</Text>
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value='description' pt={2}>
