@@ -37,7 +37,7 @@ import {
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import Countdown from 'react-countdown';
+import Countdown, { zeroPad } from 'react-countdown';
 import { LuExternalLink } from 'react-icons/lu';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
@@ -67,6 +67,24 @@ const voteMap = {
   },
 };
 
+interface CountdownRendererProps {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+const CountdownRenderer = ({
+  hours,
+  minutes,
+  seconds,
+}: CountdownRendererProps) => (
+  <Text display={'inline-block'}>
+    {hours >= 0 && `${zeroPad(hours)}h `}
+    {minutes >= 0 && `${zeroPad(minutes)}m `}
+    {zeroPad(seconds)}s
+  </Text>
+);
+
 interface VoteButtonProps extends ButtonProps {
   voteStarted: boolean;
   voteEnded: boolean;
@@ -77,9 +95,9 @@ const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
   function VoteButton(props, ref) {
     return (
       <Button
-        size={'lg'}
+        size={'xl'}
         w={'full'}
-        variant={'solid'}
+        variant={props.voteStart ? 'ghost' : 'solid'}
         disabled={!props.voteStarted || props.voteEnded}
         {...props}
         ref={ref}
@@ -87,7 +105,10 @@ const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
         {props.voteStarted ? (
           'Submit Votes'
         ) : (
-          <Countdown date={props.voteStart} />
+          <Text>
+            Time until voting starts:{' '}
+            <Countdown renderer={CountdownRenderer} date={props.voteStart} />
+          </Text>
         )}
       </Button>
     );
