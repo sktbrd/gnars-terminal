@@ -9,6 +9,7 @@ import { Address, isAddress, parseEther, parseUnits } from 'viem';
 import { LuChevronDown } from "react-icons/lu";
 import { prepareTransactionData, formatTransactionDetails } from '@/utils/transactionUtils';
 import useTreasure from "@/hooks/useTreasure";
+import { useTheme } from "next-themes";
 
 type TransactionItemProps = {
     type: string;
@@ -129,6 +130,9 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         console.log("percentageChange:", percentageChange); // Debug log
     }, [amount, ethBalanceNumber, usdcBalanceNumber, senditBalanceNumber, type]);
 
+    const { theme } = useTheme();
+    const badgeColor = theme === "dark" ? "red.300" : "red.500";
+
     return (
         <VStack gap={4} align="stretch" p={4} borderWidth="1px" borderRadius="md">
             <HStack justifyContent="space-between">
@@ -148,11 +152,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                                 Balance: <Badge colorScheme="green">{ethBalanceNumber.toFixed(7)} {name}</Badge>
                             </Text>
                             {amount !== 0 && (
-                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                <Badge color={badgeColor} fontWeight="semibold">
                                     -
                                     {(
                                         (amount / ethBalanceNumber) * 100
-                                    ).toFixed(2)}%
+                                    ).toFixed(2)}% of the treasury
                                 </Badge>
                             )}
                         </HStack>
@@ -164,11 +168,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                                 Balance: <Badge colorScheme="green">{usdcBalanceNumber.toFixed(3).toLocaleString()} {name}</Badge>
                             </Text>
                             {amount !== 0 && (
-                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                <Badge color={badgeColor} fontWeight="semibold">
                                     -
                                     {(
                                         (amount / usdcBalanceNumber) * 100
-                                    ).toFixed(2)}%
+                                    ).toFixed(2)}% of the treasury
                                 </Badge>
                             )}
                         </HStack>
@@ -180,11 +184,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                                 Balance: <Badge colorScheme="green">{senditBalanceNumber.toFixed(3)} {name}</Badge>
                             </Text>
                             {amount !== 0 && (
-                                <Badge backgroundColor={'red.200'} fontWeight="semibold">
+                                <Badge color={badgeColor} fontWeight="semibold">
                                     -
                                     {(
                                         (amount / senditBalanceNumber) * 100
-                                    ).toFixed(2)}%
+                                    ).toFixed(2)}% of the treasury
                                 </Badge>
                             )}
                         </HStack>
