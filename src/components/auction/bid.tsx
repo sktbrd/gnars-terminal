@@ -6,7 +6,7 @@ import {
 } from '@/hooks/wagmiGenerated';
 import { convertSparksToEth } from '@/utils/spark';
 import { getConfig } from '@/utils/wagmi';
-import { Button, Link as ChakraLink, HStack, VStack } from '@chakra-ui/react';
+import { Link as ChakraLink, HStack, VStack } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useCallback, useState } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
@@ -15,6 +15,8 @@ import { useAccount } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { NumberInputField, NumberInputRoot } from '../ui/number-input';
 import { Tooltip } from '../ui/tooltip';
+import { revalidatePath } from 'next/cache';
+import { Button } from '../ui/button';
 
 interface BidProps {
   tokenId: bigint;
@@ -32,9 +34,11 @@ export function AuctionBid(props: BidProps) {
 
   const account = useAccount();
   const [bidValue, setBidValue] = useState('111111');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
+    setIsLoading(true);
     try {
       const txHash = await writeBid({
         args: [tokenId],
@@ -46,6 +50,7 @@ export function AuctionBid(props: BidProps) {
       console.log('Bid receipt', receipt);
       setTxHash(txHash);
       if (props.onBid) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         props.onBid();
       }
     } catch (error) {
@@ -55,20 +60,25 @@ export function AuctionBid(props: BidProps) {
       } else {
         window.alert('Error creating bid');
       }
+    } finally {
+      setIsLoading(false);
     }
   }, [tokenId, writeBid, bidValue]);
 
   const { writeContractAsync: writeSettle } =
     useWriteAuctionSettleCurrentAndCreateNewAuction();
   const onClickSettle = useCallback(async () => {
+    setIsLoading(true);
     try {
       const txHash = await writeSettle({});
       const receipt = await waitForTransactionReceipt(getConfig(), {
         hash: txHash,
+        confirmations: 2,
       });
       console.log('Settle receipt', receipt);
       setTxHash(txHash);
       if (props.onSettle) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         props.onSettle();
       }
     } catch (error) {
@@ -78,21 +88,13 @@ export function AuctionBid(props: BidProps) {
       } else {
         window.alert('Error settling auction');
       }
+    } finally {
+      setIsLoading(false);
     }
   }, [tokenId, writeSettle]);
 
   return (
     <VStack align={'stretch'} gap={0} w={'full'}>
-      {txHash && (
-        <HStack maxW={'full'}>
-          <ChakraLink asChild>
-            <NextLink href={`https://basescan.org/tx/${txHash}`}>
-              Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
-              <LuExternalLink />
-            </NextLink>
-          </ChakraLink>
-        </HStack>
-      )}
       <VStack w={'100%'} align={'stretch'} gap={2}>
         {isAuctionRunning ? (
           <>
@@ -133,6 +135,7 @@ export function AuctionBid(props: BidProps) {
                 !isAuctionRunning ||
                 parseEther(bidValue) < winningBid
               }
+              loading={isLoading}
             >
               Place Bid
             </Button>
@@ -143,11 +146,28 @@ export function AuctionBid(props: BidProps) {
             onClick={onClickSettle}
             disabled={account.isDisconnected}
             w={'full'}
+            loading={isLoading}
           >
             Start next auction
           </Button>
         )}
       </VStack>
+      {txHash && (
+        <HStack
+          maxW={'full'}
+          fontSize={'sm'}
+          w={'full'}
+          justify={'center'}
+          mt={2}
+        >
+          <ChakraLink asChild>
+            <NextLink href={`https://basescan.org/tx/${txHash}`}>
+              Transaction: {txHash.slice(0, 4)}...{txHash.slice(-4)}
+              <LuExternalLink />
+            </NextLink>
+          </ChakraLink>
+        </HStack>
+      )}
     </VStack>
   );
 }
