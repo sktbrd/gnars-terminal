@@ -78,7 +78,7 @@ export function AuctionBid(props: BidProps) {
       console.log('Settle receipt', receipt);
       setTxHash(txHash);
       if (props.onSettle) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         props.onSettle();
       }
     } catch (error) {
