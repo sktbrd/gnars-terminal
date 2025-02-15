@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button, Heading, HStack, Image, Table, Text } from '@chakra-ui/react';
 import styles from './TreasurePage.module.css';
 import { formatBalance } from '@/utils/helpers';
+import Link from 'next/link';
 
 interface Token {
     token: {
@@ -63,7 +64,9 @@ const TokensSection: React.FC<TokensSectionProps> = ({ tokens, totalBalance, hid
                             <Table.Cell>
                                 <HStack>
                                     <Image borderRadius={'100%'} boxSize={12} src={getTokenLogo(token.token.symbol)} alt={`${token.token.symbol} logo`} className={styles.tokenLogo} />
-                                    {token.token.symbol}
+                                    <Link href={`https://nounspace.com/t/base/${token.token.address}`} target="_blank" rel="noopener noreferrer">
+                                        {token.token.symbol}
+                                    </Link>
                                 </HStack>
                             </Table.Cell>
                             <Table.Cell>{formatBalance(token.token.balance)}</Table.Cell>
