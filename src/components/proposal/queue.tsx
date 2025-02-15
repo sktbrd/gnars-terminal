@@ -5,8 +5,10 @@ import { getProposalStatus, Status } from '@/components/proposal/status';
 import { Button } from '@/components/ui/button';
 import { useWriteGovernorQueue } from '@/hooks/wagmiGenerated';
 import { isAddressEqualTo } from '@/utils/ethereum';
+import { Text, VStack } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
+import { Countdown } from '../ui/countdown';
 
 interface QueueProposalProps {
   proposal: Proposal;
@@ -45,16 +47,24 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
   }
 
   return (
-    <Button
-      w='full'
-      variant='subtle'
-      colorPalette={'blue'}
-      size='lg'
-      loading={write.isPending || isConfirming}
-      onClick={handleClick}
-    >
-      Queue proposal
-    </Button>
+    <VStack mt={2}>
+      <Button
+        w='full'
+        variant='subtle'
+        colorPalette={'blue'}
+        size='lg'
+        loading={write.isPending || isConfirming}
+        onClick={handleClick}
+      >
+        Queue proposal
+      </Button>
+      {proposal.expiresAt && (
+        <Text fontSize={'xs'}>
+          Time until proposal expires:{' '}
+          <Countdown date={parseInt(proposal.expiresAt) * 1000} />
+        </Text>
+      )}
+    </VStack>
   );
 }
 

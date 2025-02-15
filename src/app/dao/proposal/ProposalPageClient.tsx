@@ -7,6 +7,7 @@ import CastVote from '@/components/proposal/castVote';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
 import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
+import QueueProposal from '@/components/proposal/queue';
 import ProposalStatus from '@/components/proposal/status';
 import { Tooltip } from '@/components/ui/tooltip';
 import { FormattedAddress } from '@/components/utils/ethereum';
@@ -197,6 +198,7 @@ export default function ProposalPageClient({
           </HStack>
 
           <CastVote proposal={proposal} />
+          <QueueProposal proposal={proposal} setProposal={setProposal} />
           <CancelProposal proposal={proposal} setProposal={setProposal} />
         </Box>
 
