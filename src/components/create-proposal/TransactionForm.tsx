@@ -31,10 +31,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
         }
     };
 
-    useEffect(() => {
-        console.log("formData:", formData); // Debug log
-    }, [formData]);
-
     const handleAdd = () => {
         const details = { ...formData };
         // Ensure animationURI can be empty

@@ -107,7 +107,7 @@ export default function DroposalTransaction({
       <VStack align='start' gap={3}>
         <HStack gap={2} align='center'>
           <Text>
-            This transaction creates a new token with the name in behlalf of Gnars Dao
+            This transaction creates a new token with the name in behalf of Gnars Dao
           </Text>
           <Code size={'sm'} variant={'surface'}>
             {decodedData.name} ({decodedData.symbol})
