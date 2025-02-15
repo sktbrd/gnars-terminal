@@ -10,7 +10,7 @@ import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
 import QueueProposal from '@/components/proposal/queue';
 import ProposalStatus from '@/components/proposal/status';
 import { Tooltip } from '@/components/ui/tooltip';
-import { FormattedAddress } from '@/components/utils/ethereum';
+import { FormattedAddress } from '@/components/utils/names';
 import { Editor, PropDateInterface } from '@/utils/database/interfaces';
 import {
   Box,

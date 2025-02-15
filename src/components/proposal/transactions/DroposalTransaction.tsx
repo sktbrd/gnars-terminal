@@ -1,8 +1,7 @@
-import { Box, VStack, Text, HStack, Code, Image } from '@chakra-ui/react';
+import { VStack, Text, HStack, Code } from '@chakra-ui/react';
 import { Address, decodeFunctionData } from 'viem';
 import droposalABI from './utils/droposalABI';
-import { FormattedAddress } from '@/components/utils/ethereum';
-import Link from 'next/link';
+import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 
 interface DroposalTransactionProps {

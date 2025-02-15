@@ -1,5 +1,5 @@
-import { HStack, Text, Image, Code } from '@chakra-ui/react';
-import { FormattedAddress } from '@/components/utils/ethereum';
+import { Text, Image, Code } from '@chakra-ui/react';
+import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 
 interface USDCTransactionProps {

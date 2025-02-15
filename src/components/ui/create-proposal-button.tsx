@@ -31,8 +31,6 @@ function useCanSubmitProposal() {
 
   const { data: voteThreshold } = useReadGovernorProposalThreshold();
 
-  console.log('userVotes', userVotes, 'voteThreshold', voteThreshold);
-
   useEffect(() => {
     if (userVotes !== undefined && voteThreshold !== undefined) {
       const canSubmitProposal = BigInt(userVotes) >= BigInt(voteThreshold);

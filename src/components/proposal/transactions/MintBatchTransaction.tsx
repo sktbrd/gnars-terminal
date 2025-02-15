@@ -1,4 +1,4 @@
-import { FormattedAddress } from '@/components/utils/ethereum';
+import { FormattedAddress } from '@/components/utils/names';
 import { Box, Text, Image, VStack, Code, HStack } from '@chakra-ui/react';
 import { default as NextImage } from 'next/image';
 import Link from 'next/link';

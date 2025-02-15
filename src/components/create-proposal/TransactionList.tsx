@@ -3,10 +3,9 @@ import { VStack, Box, Text, Button, HStack, Flex, Image } from "@chakra-ui/react
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import { transactionOptions } from "./TransactionTypes";
 import { FaCheck, FaCopy, FaSkull } from "react-icons/fa";
-import { governorAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
 import { Address } from "viem";
-import { FormattedAddress } from "../utils/ethereum";
+import { FormattedAddress } from "../utils/names";
 
 type TransactionDetails = Record<string, string | number | React.ReactNode>;
 
@@ -152,7 +151,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                                         <Text fontWeight="medium">{key}:</Text>
 
                                                         {["toAddress", "fromAddress"].includes(key) ? (
-                                                            <FormattedAddress address={value as string} />
+                                                            <FormattedAddress address={value as Address} />
                                                         ) : (
                                                             <Text>{String(value)}</Text>
                                                         )}

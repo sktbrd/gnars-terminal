@@ -25,7 +25,7 @@ import { BsEmojiAstonished } from 'react-icons/bs';
 import { FaBirthdayCake, FaEthereum, FaUser } from 'react-icons/fa';
 import { LuClock, LuSparkles } from 'react-icons/lu';
 import { AuctionBid } from '../auction/bid';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 
 export default function AuctionCard({
   defaultAuction,

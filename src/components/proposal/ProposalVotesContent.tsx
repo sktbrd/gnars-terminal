@@ -1,6 +1,6 @@
 import { Avatar } from '@/components/ui/avatar';
 import { Box, Card, Code, HStack, Stack, Text, VStack } from '@chakra-ui/react';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 
 export type VoteSupport = 'FOR' | 'AGAINST' | 'ABSTAIN';
 

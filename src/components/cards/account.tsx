@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Box, Heading, HStack, Text, VStack } from '@chakra-ui/react';
 import { base } from 'viem/chains';
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
+import { Address } from 'viem';
 
 export default function AccountCard() {
   const account = useAccount();
@@ -27,7 +28,7 @@ export default function AccountCard() {
             <VStack align={'start'} gap={0}>
               <Text>status: {account.status}</Text>
               <FormattedAddress
-                address={account.address}
+                address={account.address as Address}
                 textBefore='address: '
               />
               <Text>chainId: {activeChain?.id}</Text>

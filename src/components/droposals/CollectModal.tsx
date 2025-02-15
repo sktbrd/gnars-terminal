@@ -11,7 +11,7 @@ import {
 import { Box, Flex, Text, VStack, Image, DialogFooter, Heading, Textarea } from '@chakra-ui/react';
 import ReactFlow, { Background, Controls, Node, Edge, Handle, Position } from 'react-flow-renderer';
 import CustomVideoPlayer from './CustomVideoPlayer';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 import { useAccount } from 'wagmi';
 
 

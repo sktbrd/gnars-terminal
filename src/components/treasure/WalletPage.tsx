@@ -5,7 +5,7 @@ import useTreasure from '../../hooks/useTreasure';
 import styles from '@/components/treasure/TreasurePage.module.css';
 import NFTSection from '@/components/treasure/NFTSection';
 import TokensSection from '@/components/treasure/TokensSection';
-import { FormattedAddress } from '@/components/utils/ethereum';
+import { FormattedAddress } from '@/components/utils/names';
 import { formatBalance } from '@/utils/helpers';
 
 const ITEMS_PER_PAGE = 20;

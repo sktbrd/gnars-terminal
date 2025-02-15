@@ -40,7 +40,7 @@ import { useAccount } from 'wagmi';
 import { Button } from '../ui/button';
 import { Field } from '../ui/field';
 import { useReadTokenDelegates, useSimulateTokenDelegate, useWriteTokenDelegate, tokenAbi, tokenAddress, useReadGovernorGetVotes } from '@/hooks/wagmiGenerated';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 import { toaster } from "@/components/ui/toaster";
 
 interface CastDelegationProps {

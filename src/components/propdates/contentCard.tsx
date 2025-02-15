@@ -9,7 +9,7 @@ import { FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Address, isAddressEqual } from 'viem';
 import EnsAvatar from '../ethereum/ens';
 import Markdown from '../proposal/markdown';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 import PropdatesEditor from './editor';
 import PropdatesLike from './like';
 import { useAccount } from 'wagmi';
@@ -85,7 +85,7 @@ export function PropdatesContentCardContent({
             <HStack justify={'space-between'} w='full'>
               <HStack>
                 <EnsAvatar address={propdate.author.e_address as Address} />
-                <FormattedAddress address={propdate.author.e_address} />
+                <FormattedAddress address={propdate.author.e_address as Address} />
                 in{' '}
                 {proposal && (
                   <Link asChild>

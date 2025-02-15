@@ -13,8 +13,7 @@ import { default as NextImage } from 'next/image';
 import Link from 'next/link';
 import { memo } from 'react';
 import ProposalStatus from '../proposal/status';
-import { FormattedAddress } from '../utils/ethereum';
-import { FaRegFileExcel } from 'react-icons/fa6';
+import { FormattedAddress } from '../utils/names';
 
 interface ProposalGridCardProps {
   proposal: ProposalWithThumbnail;
@@ -44,7 +43,7 @@ const ProposalGridCard = memo(({ proposal }: ProposalGridCardProps) => {
 
         <HStack gap={1}>
           <ProposalStatus proposal={proposal} />
-          <FormattedAddress address={proposal.proposer} asLink={false} />
+          <FormattedAddress address={proposal.proposer} />
         </HStack>
         <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
           <Link href={`/dao/proposal/${proposal.proposalNumber}`}>

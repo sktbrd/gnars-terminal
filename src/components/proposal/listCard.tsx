@@ -2,7 +2,7 @@ import { Box, HStack, VStack, Heading } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Proposal } from '@/app/services/proposal';
 import ProposalStatus from '../proposal/status';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { memo, useMemo } from 'react';
 
@@ -56,7 +56,7 @@ const ProposalListCard = memo(({ proposal }: ProposalListCardProps) => {
       <VStack gap={1} align={'start'} flex={1}>
         <HStack gap={1}>
           <ProposalStatus proposal={proposal} />
-          <FormattedAddress address={proposal.proposer} asLink={false} />
+          <FormattedAddress address={proposal.proposer} />
         </HStack>
         <ChakraLink color={{ _light: 'black', _dark: 'white' }} asChild>
           <Link href={`/dao/proposal/${proposal.proposalNumber}`}>

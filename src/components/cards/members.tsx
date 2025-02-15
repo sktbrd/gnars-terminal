@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Spinner, Center, Table, Button, HStack } from '@chakra-ui/react';
 import { useMembers } from '@/hooks/members';
 import { Member } from '@/services/members';
-import { FormattedAddress } from '../utils/ethereum';
+import { FormattedAddress } from '../utils/names';
 
 const MembersCard: React.FC = () => {
     const [page, setPage] = useState(0);

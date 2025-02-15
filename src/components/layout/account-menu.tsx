@@ -5,34 +5,30 @@ import {
   MenuRoot,
   MenuTrigger
 } from '@/components/ui/menu';
+import { Name } from "@paperclip-labs/whisk-sdk/identity";
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { LuHand, LuLogOut, LuSparkle } from 'react-icons/lu';
+import { Address } from 'viem';
 import { mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 import {
   useAccount,
-  useBalance,
   useDisconnect,
   useEnsAvatar,
   useEnsName
 } from 'wagmi';
+import CastDelegation from '../proposal/castDelegation';
 import { Avatar } from '../ui/avatar';
 import { useColorMode } from '../ui/color-mode';
-import { FormattedAddress } from '../utils/ethereum';
 import ConnectButton from './connect-button';
-import CastDelegation from '../proposal/castDelegation';
-import { useState } from 'react';
 
 export default function AccountMenu() {
-  const { toggleColorMode, colorMode } = useColorMode();
   const { isConnected, address, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const [isDelegationOpen, setIsDelegationOpen] = useState(false);
 
-  const { data: balance } = useBalance({
-    address,
-  });
 
   const { data: ensName } = useEnsName({
     address: address,
@@ -52,11 +48,11 @@ export default function AccountMenu() {
     <>
       <MenuRoot positioning={{ placement: 'bottom-end' }}>
         <MenuTrigger asChild>
-          <Button size={'xs'} variant={'ghost'}>
+          <Button size={'xs'} variant={'subtle'}>
             {ensAvatar ? (
               <Avatar variant={'subtle'} size='xs' w={5} h={5} src={ensAvatar} />
             ) : null}
-            <FormattedAddress address={address} />
+            <Name address={address as Address} />
           </Button>
         </MenuTrigger>
         <MenuContent>

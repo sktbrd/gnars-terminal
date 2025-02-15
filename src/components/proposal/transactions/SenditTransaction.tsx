@@ -1,4 +1,4 @@
-import { FormattedAddress } from '@/components/utils/ethereum';
+import { FormattedAddress } from '@/components/utils/names';
 import { Code, Image, Text } from '@chakra-ui/react';
 import TransactionWrapper from './TransactionWrapper';
 
