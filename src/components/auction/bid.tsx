@@ -102,7 +102,12 @@ export function AuctionBid(props: BidProps) {
         {isAuctionRunning ? (
           <>
             <HStack w={'100%'}>
-              <Tooltip showArrow content='Sparks'>
+              <Tooltip
+                showArrow
+                content='Sparks'
+                openDelay={0}
+                closeDelay={300}
+              >
                 <ChakraLink
                   asChild
                   variant={'plain'}
