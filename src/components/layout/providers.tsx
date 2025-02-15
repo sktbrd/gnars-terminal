@@ -35,11 +35,11 @@ export function Providers(props: {
               identity: {
                 resolverOrder: [
                   IdentityResolver.Nns,
+                  IdentityResolver.Farcaster,
                   IdentityResolver.Ens,
                   IdentityResolver.Base,
-                  IdentityResolver.Farcaster,
-                  IdentityResolver.Uni,
                   IdentityResolver.Lens,
+                  IdentityResolver.Uni,
                   IdentityResolver.World,
                 ],
               },
