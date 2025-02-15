@@ -49,13 +49,13 @@ const TokensSection: React.FC<TokensSectionProps> = ({ tokens, totalBalance, hid
                     {hideLowBalance ? "Show All Tokens" : "Hide Low Balance Tokens"}
                 </Button>
             </Box>
-            <Table.Root striped className={styles.tokenTable}>
+            <Table.Root className={styles.tokenTable}>
                 <Table.Header>
                     <Table.Row>
                         <Table.ColumnHeader></Table.ColumnHeader>
+                        <Table.ColumnHeader className={styles.hideOnMobile}>Price</Table.ColumnHeader>
                         <Table.ColumnHeader>Balance</Table.ColumnHeader>
                         <Table.ColumnHeader>Balance USD</Table.ColumnHeader>
-                        <Table.ColumnHeader className={styles.hideOnMobile}>Price</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -69,9 +69,9 @@ const TokensSection: React.FC<TokensSectionProps> = ({ tokens, totalBalance, hid
                                     </Link>
                                 </HStack>
                             </Table.Cell>
+                            <Table.Cell className={styles.hideOnMobile}>${parseFloat(token.token.price).toFixed(4)}</Table.Cell>
                             <Table.Cell>{formatBalance(token.token.balance)}</Table.Cell>
                             <Table.Cell>${formatBalance(token.token.balanceUSD)}</Table.Cell>
-                            <Table.Cell className={styles.hideOnMobile}>${parseFloat(token.token.price).toFixed(4)}</Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>

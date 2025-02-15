@@ -5,6 +5,7 @@ import { RefAttributes } from 'react';
 import { Address } from 'viem';
 import { useProfile, Name } from "@paperclip-labs/whisk-sdk/identity";
 import Link from 'next/link';
+
 export function FormattedAddress({
   address,
   textBefore,
@@ -19,8 +20,16 @@ export function FormattedAddress({
   if (!address) return null;
 
   const { data: profile, isLoading } = useProfile({ address: address as Address });
-
   const AddressContent = () => {
+    if (address === '0x72ad986ebac0246d2b3c565ab2a1ce3a14ce6f88') {
+      return (
+        <Code size='sm' variant='surface' {...codeProps}>
+          <Link href={`https://nounspace.com/s/whisk`} target="_blank" rel="noopener noreferrer">
+            Gnars Treasure
+          </Link>
+        </Code>
+      );
+    }
     if (!profile?.farcaster?.name) {
       return (
         <Code size='sm' variant='surface' {...codeProps}>

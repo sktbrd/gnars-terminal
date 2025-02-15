@@ -157,6 +157,13 @@
     display: none;
 }
 
+.tokenTable {
+    display: table;
+    width: 100%;
+    background: "transparent";
+    border-radius: 10px;
+}
+
 @media (min-width: 768px) {
     .hideOnMobile {
         display: table-cell;

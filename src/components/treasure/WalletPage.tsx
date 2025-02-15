@@ -7,13 +7,15 @@ import NFTSection from '@/components/treasure/NFTSection';
 import TokensSection from '@/components/treasure/TokensSection';
 import { FormattedAddress } from '@/components/utils/names';
 import { formatBalance } from '@/utils/helpers';
-
-const ITEMS_PER_PAGE = 20;
+import {
+    Skeleton,
+    SkeletonCircle,
+    SkeletonText,
+} from "@/components/ui/skeleton"
 
 const WalletPage = ({ address }: { address: string }) => {
     const { tokens, totalBalance, totalNetWorth, isLoading, error, nfts } = useTreasure(address);
     const [hideLowBalance, setHideLowBalance] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
 
     const sortedTokens = tokens.sort((a, b) => b.token.balanceUSD - a.token.balanceUSD);
     const filteredTokens = hideLowBalance ? sortedTokens.filter(token => token.token.balanceUSD >= 10) : sortedTokens;
@@ -24,21 +26,40 @@ const WalletPage = ({ address }: { address: string }) => {
         return Number(bHasImage) - Number(aHasImage);
     });
 
-    const paginatedNfts = sortedNfts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-    const handleNextPage = () => {
-        if (currentPage * ITEMS_PER_PAGE < sortedNfts.length) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    if (isLoading) return <Text>Loading...</Text>;
+    if (isLoading) {
+        return (
+            <Box className={styles.container}>
+                {/* Header Section Skeleton */}
+                <Box className={styles.netWorthCard} p={4} borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" textAlign="center">
+                    <Flex direction={["column", "row"]} justify="space-between" align="center" wrap="wrap">
+                        <Flex className={styles.profile} align="center" mb={[4, 0]}>
+                            <SkeletonCircle size="10" />
+                            <Skeleton height="20px" width="150px" ml="4" />
+                        </Flex>
+                        <Box mb={[4, 0]} textAlign={["center", "left"]} display={["none", "block"]}>
+                            <Skeleton height="20px" width="100px" />
+                            <Skeleton height="30px" width="200px" mt="2" />
+                        </Box>
+                        <Box textAlign={["center", "right"]}>
+                            <Skeleton height="20px" width="100px" />
+                            <Skeleton height="30px" width="200px" mt="2" />
+                        </Box>
+                    </Flex>
+                </Box>
+                {/* Wallet Section Skeleton */}
+                <Box mt="4">
+                    <Skeleton height="40px" mb="4" />
+                    <SkeletonText mt="4" noOfLines={4} gap="4" />
+                </Box>
+                {/* NFTs Section Skeleton */}
+                <Box mt="4">
+                    <Skeleton height="40px" mb="4" />
+                    <SkeletonText mt="4" noOfLines={4} gap="4" />
+                </Box>
+            </Box>
+        );
+    }
     if (error) return <Text>{error}</Text>;
 
     return (
@@ -68,7 +89,7 @@ const WalletPage = ({ address }: { address: string }) => {
                 setHideLowBalance={setHideLowBalance}
             />
             {/* NFTs Section */}
-            <NFTSection nfts={nfts} />
+            <NFTSection nfts={sortedNfts} />
         </Box>
     );
 };

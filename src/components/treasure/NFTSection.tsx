@@ -31,18 +31,18 @@ const NFTSection: React.FC<NFTSectionProps> = ({ nfts }) => {
     };
 
     return (
-        <Box maxW="1200px" mx="auto" py={8}>
-            <Heading as="h2" size="lg" mb={6} textAlign="center">
+        <Box py={8}>
+            <Heading size="lg" mb={6} textAlign="center">
                 NFTs
             </Heading>
-            <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={6}>
+            <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={2}>
                 {paginatedNfts.map((nft) => (
                     <Box
                         key={nft.token.collection.openseaId}
                         borderWidth="1px"
                         borderRadius="lg"
                         overflow="hidden"
-                        bg="gray.800"
+
                         boxShadow="lg"
                         _hover={{
                             transform: "scale(1.03)",
@@ -76,11 +76,9 @@ const NFTSection: React.FC<NFTSectionProps> = ({ nfts }) => {
                             align="center"
                             height="100px"
                             justify="center"
-                            bg="gray.700"
                         >
                             <Text
                                 fontWeight="bold"
-                                color="white"
                                 fontSize="lg"
                                 truncate
                                 textAlign="center"
