@@ -290,7 +290,7 @@ const CustomVideoPlayer = ({
             aria-label='Mint'
             colorScheme='teal'
             size='sm'
-            onClick={() => window.open('https://zora.co/collect/base:0x6a740a4affbfcf2daa9489c9348de09082c526de/1', '_blank', 'noopener,noreferrer')}
+            onClick={() => window.open('https://zora.co/collect/base:0xd2f21a72730259512f6edc60cfd182a79420dae6', '_blank', 'noopener,noreferrer')}
           >
             Collect
           </Button>
