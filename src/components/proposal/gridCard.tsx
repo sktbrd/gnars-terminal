@@ -36,7 +36,7 @@ const ProposalGridCard = memo(({ proposal }: ProposalGridCardProps) => {
           <NextImage
             width={512}
             height={512}
-            src={proposal.thumbnail || 'https://gnars.com/images/01-2.jpg'}
+            src={proposal.thumbnail || '/images/logo-banner.jpg'}
             alt={proposal.title}
           />
         </Image>
