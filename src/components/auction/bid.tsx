@@ -144,7 +144,7 @@ export function AuctionBid(props: BidProps) {
             disabled={account.isDisconnected}
             w={'full'}
           >
-            Settle auction
+            Start next auction
           </Button>
         )}
       </VStack>
