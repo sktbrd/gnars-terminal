@@ -37,6 +37,7 @@
     "remark-gfm": "^4.0.0",
     "snippet": "^0.1.0",
     "steps": "^0.0.2",
+    "use-sound": "^4.0.3",
     "viem": "latest",
     "wagmi": "latest"
   },

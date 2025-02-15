@@ -89,6 +89,9 @@ importers:
       steps:
         specifier: ^0.0.2
         version: 0.0.2
+      use-sound:
+        specifier: ^4.0.3
+        version: 4.0.3(react@18.3.1)
       viem:
         specifier: latest
         version: 2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -3529,6 +3532,9 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
+  howler@2.2.4:
+    resolution: {integrity: sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==}
+
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
 
@@ -5450,6 +5456,11 @@ packages:
 
   uqr@0.1.2:
     resolution: {integrity: sha512-MJu7ypHq6QasgF5YRTjqscSzQp/W11zoUk6kvmlH+fmWEs63Y0Eib13hYFwAzagRJcVY8WVnlV+eBDUGMJ5IbA==}
+
+  use-sound@4.0.3:
+    resolution: {integrity: sha512-L205pEUFIrLsGYsCUKHQVCt0ajs//YQOFbEQeNwaWaqQj3y3st4SuR+rvpMHLmv8hgTcfUFlvMQawZNI3OE18w==}
+    peerDependencies:
+      react: '>=16.8'
 
   use-sync-external-store@1.2.0:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
@@ -10275,6 +10286,8 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
+  howler@2.2.4: {}
+
   html-url-attributes@3.0.1: {}
 
   html-void-elements@3.0.0: {}
@@ -12619,6 +12632,11 @@ snapshots:
       picocolors: 1.1.1
 
   uqr@0.1.2: {}
+
+  use-sound@4.0.3(react@18.3.1):
+    dependencies:
+      howler: 2.2.4
+      react: 18.3.1
 
   use-sync-external-store@1.2.0(react@18.3.1):
     dependencies:

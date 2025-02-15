@@ -10,13 +10,13 @@ import { Link as ChakraLink, HStack, VStack } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useCallback, useState } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
+import useSound from 'use-sound';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
+import { Button } from '../ui/button';
 import { NumberInputField, NumberInputRoot } from '../ui/number-input';
 import { Tooltip } from '../ui/tooltip';
-import { revalidatePath } from 'next/cache';
-import { Button } from '../ui/button';
 
 interface BidProps {
   tokenId: bigint;
@@ -36,6 +36,8 @@ export function AuctionBid(props: BidProps) {
   const [bidValue, setBidValue] = useState('111111');
   const [isLoading, setIsLoading] = useState(false);
 
+  const [playSound] = useSound('/audio/cashier.mp3', { volume: 0.5 });
+
   const { writeContractAsync: writeBid } = useWriteAuctionCreateBid();
   const onClickBid = useCallback(async () => {
     setIsLoading(true);
@@ -52,6 +54,7 @@ export function AuctionBid(props: BidProps) {
       if (props.onBid) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         props.onBid();
+        playSound();
       }
     } catch (error) {
       console.error(error);
