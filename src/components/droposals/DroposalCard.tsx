@@ -19,7 +19,7 @@ export default function DroposalCard() {
         'proposalNumber',
         'desc',
         1,
-        { targets_contains: [TARGET_ADDRESS] },
+        { targets_contains: [TARGET_ADDRESS], executed: true },
         true
       );
 
