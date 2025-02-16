@@ -9,11 +9,11 @@ import {
     DialogRoot,
 } from "@/components/ui/dialog";
 import { Box, Flex, Text, VStack, Image, DialogFooter, Heading, Textarea } from '@chakra-ui/react';
-import ReactFlow, { Background, Controls, Node, Edge, Handle, Position } from 'react-flow-renderer';
+import { ReactFlow, Background, Controls, Node, Edge, Handle, Position } from 'reactflow';
 import CustomVideoPlayer from './CustomVideoPlayer';
 import { FormattedAddress } from '../utils/names';
 import { useAccount } from 'wagmi';
-
+import 'reactflow/dist/style.css'; // Import the required CSS
 
 // TODO: Learn how to query the NFT contract from the proposal data, 
 // there is no NFT contract address at the moment of the proposal transaction creation, so we need to seek a relationship between the proposal and the NFT contract that was created after
