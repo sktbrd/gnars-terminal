@@ -267,7 +267,8 @@ export default function CastVote({ proposal }: CastVoteProps) {
   ]);
 
   if (
-    [Status.EXPIRED, Status.CANCELLED].includes(getProposalStatus(proposal))
+    [Status.EXPIRED, Status.CANCELLED].includes(getProposalStatus(proposal)) ||
+    account.isDisconnected
   ) {
     return null;
   }
