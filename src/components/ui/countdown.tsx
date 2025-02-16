@@ -17,8 +17,8 @@ const CountdownRenderer = ({
   seconds,
 }: CountdownRendererProps) => (
   <Text display={'inline-block'}>
-    {days >= 0 && `${zeroPad(days)}d `}
-    {hours >= 0 && `${zeroPad(hours)}h `}
+    {days > 0 && `${zeroPad(days)}d `}
+    {hours > 0 && `${zeroPad(hours)}h `}
     {minutes >= 0 && `${zeroPad(minutes)}m `}
     {zeroPad(seconds)}s
   </Text>
