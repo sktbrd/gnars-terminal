@@ -51,16 +51,14 @@ export default function Navbar() {
       >
         <Image asChild boxSize={6} mr={2} onClick={onOpen}>
           <NextImage
-            src='https://gnars.com/images/logo.png'
+            src='/images/gnars.webp'
             alt='gnars-terminal'
             width={80}
             height={80}
             objectFit='contain'
           />
         </Image>
-        {!isLargerThanMd && (
-          <p onClick={onOpen}>Menu</p>
-        )}
+        {!isLargerThanMd && <p onClick={onOpen}>Menu</p>}
         {isLargerThanMd && <NavbarLinks />}
       </Stack>
       {isLargerThanMd ? (
@@ -120,26 +118,46 @@ function NavbarLinks() {
           HOME
         </NextLink>
       </Link>
-      <Link {...linkProps} _open={{ animation: 'fade-in 600ms ease-out' }} _hidden={{ animation: 'fade-out 600ms ease-in' }}>
+      <Link
+        {...linkProps}
+        _open={{ animation: 'fade-in 600ms ease-out' }}
+        _hidden={{ animation: 'fade-out 600ms ease-in' }}
+      >
         <NextLink href='/dao' style={{ width: '100%' }}>
           <FaVoteYea />
           DAO
         </NextLink>
       </Link>
-      <Link {...linkProps} _open={{ animation: 'fade-in 900ms ease-out' }} _hidden={{ animation: 'fade-out 900ms ease-in' }}>
+      <Link
+        {...linkProps}
+        _open={{ animation: 'fade-in 900ms ease-out' }}
+        _hidden={{ animation: 'fade-out 900ms ease-in' }}
+      >
         <NextLink href='/propdates' style={{ width: '100%' }}>
           <FaNewspaper />
           PROPDATES
         </NextLink>
       </Link>
-      <Link {...linkProps} _open={{ animation: 'fade-in 1200ms ease-out' }} _hidden={{ animation: 'fade-out 1200ms ease-in' }}>
+      <Link
+        {...linkProps}
+        _open={{ animation: 'fade-in 1200ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1200ms ease-in' }}
+      >
         <NextLink href='/treasure' style={{ width: '100%' }}>
           <FaEthereum />
           TREASURE
         </NextLink>
       </Link>
-      <Link {...linkProps} _open={{ animation: 'fade-in 1500ms ease-out' }} _hidden={{ animation: 'fade-out 1500ms ease-in' }}>
-        <NextLink target='_blank' href='https://gnars.center' style={{ width: '100%' }}>
+      <Link
+        {...linkProps}
+        _open={{ animation: 'fade-in 1500ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1500ms ease-in' }}
+      >
+        <NextLink
+          target='_blank'
+          href='https://gnars.center'
+          style={{ width: '100%' }}
+        >
           <IoDocumentText />
           ABOUT
         </NextLink>
