@@ -3,21 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { formatEthAddress } from '@/utils/helpers';
 import { Text } from '@chakra-ui/react';
-import { base, mainnet } from 'viem/chains';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useEnsAvatar,
-  useEnsName,
-} from 'wagmi';
+import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 import { Avatar } from '../ui/avatar';
 
 function ConnectButton() {
   const { isConnected, address, isConnecting } = useAccount();
-  const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
+  const { openConnectModal } = useConnectModal();
 
   const { data: ensName } = useEnsName({
     address: address,
@@ -39,16 +34,7 @@ function ConnectButton() {
 
   if (!isConnected) {
     return (
-      <Button
-        size={'xs'}
-        variant={'surface'}
-        onClick={() =>
-          connect({
-            connector: connectors[0],
-            chainId: base.id,
-          })
-        }
-      >
+      <Button size={'xs'} variant={'surface'} onClick={openConnectModal}>
         Connect
       </Button>
     );

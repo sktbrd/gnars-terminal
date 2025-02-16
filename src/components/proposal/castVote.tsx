@@ -125,7 +125,7 @@ const VoteBody = forwardRef<HTMLDivElement, VoteBodyProps>(
   function VoteBody(props, ref) {
     return (
       <VStack gap={4} align='stretch'>
-        <RadioCardRoot defaultValue={'Abstain'} disabled={props.disableFields}>
+        <RadioCardRoot disabled={props.disableFields}>
           <HStack align='stretch'>
             <RadioCardItem
               value={'For'}
