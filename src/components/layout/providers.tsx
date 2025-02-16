@@ -51,7 +51,6 @@ export function Providers(props: { children: ReactNode }) {
 
 function RainbowProvider(props: { children: ReactNode }) {
   const { theme } = useTheme();
-  console.log({ theme });
   return (
     <RainbowKitProvider theme={theme === 'dark' ? darkTheme() : lightTheme()}>
       {props.children}
