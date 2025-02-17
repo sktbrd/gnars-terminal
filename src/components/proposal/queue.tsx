@@ -25,8 +25,6 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
     args: [proposal.proposalId],
   });
 
-  console.log('eta', proposalEta);
-
   const write = useWriteGovernorQueue();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
