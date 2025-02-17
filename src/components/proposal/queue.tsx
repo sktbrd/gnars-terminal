@@ -3,10 +3,7 @@
 import { Proposal } from '@/app/services/proposal';
 import { getProposalStatus, Status } from '@/components/proposal/status';
 import { Button } from '@/components/ui/button';
-import {
-  useReadGovernorProposalEta,
-  useWriteGovernorQueue,
-} from '@/hooks/wagmiGenerated';
+import { useWriteGovernorQueue } from '@/hooks/wagmiGenerated';
 import { isAddressEqualTo } from '@/utils/ethereum';
 import { Text, VStack } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useEffect } from 'react';
@@ -21,9 +18,6 @@ interface QueueProposalProps {
 function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
   const { address } = useAccount();
   const proposalStatus = getProposalStatus(proposal);
-  const { data: proposalEta } = useReadGovernorProposalEta({
-    args: [proposal.proposalId],
-  });
 
   const write = useWriteGovernorQueue();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
