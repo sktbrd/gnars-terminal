@@ -1,10 +1,6 @@
 'use client';
 
 import { useLastAuction } from '@/hooks/auction';
-import {
-  useWatchAuctionAuctionBidEvent,
-  useWatchAuctionAuctionSettledEvent,
-} from '@/hooks/wagmiGenerated';
 import { Auction } from '@/services/auction';
 import { weiToSparks } from '@/utils/spark';
 import {
@@ -18,7 +14,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { revalidatePath } from 'next/cache';
 import { default as NextImage } from 'next/image';
 import Countdown from 'react-countdown';
 import { BsEmojiAstonished } from 'react-icons/bs';
@@ -33,24 +28,6 @@ export default function AuctionCard({
   defaultAuction: Auction;
 }) {
   const { data: activeAuction, refetch } = useLastAuction(defaultAuction);
-
-  useWatchAuctionAuctionBidEvent({
-    onLogs(logs) {
-      // @todo: remove logs
-      console.log('AuctionBidEvent', logs);
-      refetch();
-      revalidatePath('/');
-    },
-  });
-
-  useWatchAuctionAuctionSettledEvent({
-    onLogs(logs) {
-      // @todo: remove logs
-      console.log('AuctionSettledEvent', logs);
-      refetch();
-      revalidatePath('/');
-    },
-  });
 
   if (!activeAuction) {
     return (
