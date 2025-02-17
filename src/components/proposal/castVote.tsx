@@ -152,6 +152,7 @@ const VoteBody = forwardRef<HTMLDivElement, VoteBodyProps>(
             placeholder='Enter your reason here'
             onChange={(event) => props.setReason(event.target.value)}
             disabled={props.disableFields}
+            size={'lg'}
           />
         </Field>
       </VStack>
