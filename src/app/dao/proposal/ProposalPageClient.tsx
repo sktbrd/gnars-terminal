@@ -4,6 +4,7 @@ import { Proposal } from '@/app/services/proposal';
 import PropdatesTimeline from '@/components/propdates/timeline';
 import CancelProposal from '@/components/proposal/cancel';
 import CastVote from '@/components/proposal/castVote';
+import ExecuteProposal from '@/components/proposal/execute';
 import ProposalDescriptionContent from '@/components/proposal/ProposalDescriptionContent';
 import ProposalTransactionsContent from '@/components/proposal/ProposalTransactionsContent';
 import ProposalVotesContent from '@/components/proposal/ProposalVotesContent';
@@ -199,6 +200,7 @@ export default function ProposalPageClient({
 
           <CastVote proposal={proposal} />
           <QueueProposal proposal={proposal} setProposal={setProposal} />
+          <ExecuteProposal proposal={proposal} setProposal={setProposal} />
           <CancelProposal proposal={proposal} setProposal={setProposal} />
         </Box>
 

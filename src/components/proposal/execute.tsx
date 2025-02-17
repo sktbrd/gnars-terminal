@@ -5,29 +5,28 @@ import { getProposalStatus, Status } from '@/components/proposal/status';
 import { Button } from '@/components/ui/button';
 import {
   useReadGovernorProposalEta,
-  useWriteGovernorQueue,
+  useWriteGovernorExecute,
 } from '@/hooks/wagmiGenerated';
 import { isAddressEqualTo } from '@/utils/ethereum';
 import { Text, VStack } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Address } from 'viem';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { Countdown } from '../ui/countdown';
 
-interface QueueProposalProps {
+interface ExecuteProposalProps {
   proposal: Proposal;
   setProposal: Dispatch<SetStateAction<Proposal>>;
 }
 
-function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
+function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
   const { address } = useAccount();
   const proposalStatus = getProposalStatus(proposal);
   const { data: proposalEta } = useReadGovernorProposalEta({
     args: [proposal.proposalId],
   });
 
-  console.log('eta', proposalEta);
-
-  const write = useWriteGovernorQueue();
+  const write = useWriteGovernorExecute();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash: write.data,
@@ -35,20 +34,29 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
 
   useEffect(() => {
     if (isConfirmed) {
-      setProposal((proposal) => ({ ...proposal, queued: true }));
+      setProposal((proposal) => ({ ...proposal, executed: true }));
     }
   }, [isConfirmed]);
 
   const handleClick = async () => {
     try {
-      await write.writeContractAsync({ args: [proposal.proposalId] });
+      write.writeContract({
+        args: [
+          proposal.targets as Address[],
+          proposal.values.map((value) => BigInt(value)),
+          proposal.calldatas.split(':') as Address[],
+          proposal.descriptionHash,
+          proposal.proposer,
+        ],
+      });
     } catch (error) {
       console.error(error);
     }
   };
 
   if (
-    proposalStatus !== Status.SUCCEEDED ||
+    Status.QUEUED !== proposalStatus ||
+    proposalEta === 0n ||
     !isAddressEqualTo(proposal.proposer, address)
   ) {
     return null;
@@ -58,13 +66,13 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
     <VStack mt={2}>
       <Button
         w='full'
-        variant='subtle'
-        colorPalette={'blue'}
+        variant='surface'
+        colorPalette={'purple'}
         size='lg'
         loading={write.isPending || isConfirming}
         onClick={handleClick}
       >
-        Queue proposal
+        Execute proposal
       </Button>
       {proposal.expiresAt && (
         <Text fontSize={'xs'}>
@@ -76,4 +84,4 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
   );
 }
 
-export default QueueProposal;
+export default ExecuteProposal;

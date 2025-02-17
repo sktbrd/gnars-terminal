@@ -80,6 +80,7 @@ const GET_DATA = gql`
       canceled
       vetoed
       voteCount
+      descriptionHash
       description
       votes {
         weight
