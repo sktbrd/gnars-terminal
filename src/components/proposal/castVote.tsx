@@ -176,7 +176,7 @@ const VoteFooter: React.FC<VoteFooterProps> = (props) => {
         onClick={props.onClickVote}
         w={'full'}
       >
-        {props.disableFields ? 'Submited' : 'Submit'}
+        {props.disableFields ? 'Submitted' : 'Submit'}
       </Button>
       {props.txHash && (
         <ChakraLink asChild>
