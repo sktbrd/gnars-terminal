@@ -198,7 +198,7 @@ export default function ProposalPageClient({
             </Box>
           </HStack>
 
-          <CastVote proposal={proposal} />
+          <CastVote proposal={proposal} setProposal={setProposal} />
           <QueueProposal proposal={proposal} setProposal={setProposal} />
           <ExecuteProposal proposal={proposal} setProposal={setProposal} />
           <CancelProposal proposal={proposal} setProposal={setProposal} />

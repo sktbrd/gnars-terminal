@@ -5,6 +5,7 @@ import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogRoot,
@@ -16,6 +17,7 @@ import {
   DrawerBody,
   DrawerCloseTrigger,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerRoot,
@@ -23,6 +25,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import {
+  useReadGovernorGetVotes,
   useWriteGovernorCastVote,
   useWriteGovernorCastVoteWithReason,
 } from '@/hooks/wagmiGenerated';
@@ -36,10 +39,18 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import {
+  Dispatch,
+  forwardRef,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import Countdown, { zeroPad } from 'react-countdown';
 import { LuExternalLink } from 'react-icons/lu';
-import { zeroAddress } from 'viem';
+import { Address, zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 import { Button } from '../ui/button';
 import { Field } from '../ui/field';
@@ -48,6 +59,7 @@ import { getProposalStatus, Status } from './status';
 
 interface CastVoteProps {
   proposal: Proposal;
+  setProposal: Dispatch<SetStateAction<Proposal>>;
 }
 
 type Vote = 'For' | 'Against' | 'Abstain';
@@ -89,6 +101,7 @@ interface VoteButtonProps extends ButtonProps {
   voteStarted: boolean;
   voteEnded: boolean;
   voteStart: number;
+  userVotes: bigint;
 }
 
 const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
@@ -98,7 +111,9 @@ const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
         size={'xl'}
         w={'full'}
         variant={props.voteStart ? 'surface' : 'solid'}
-        disabled={!props.voteStarted || props.voteEnded}
+        disabled={
+          !props.voteStarted || props.voteEnded || props.userVotes === 0n
+        }
         {...props}
         ref={ref}
       >
@@ -165,6 +180,7 @@ interface VoteFooterProps {
   disableFields: boolean;
   onClickVote: () => void;
   txHash: string | null;
+  voteEmpty: boolean;
 }
 
 const VoteFooter: React.FC<VoteFooterProps> = (props) => {
@@ -172,7 +188,7 @@ const VoteFooter: React.FC<VoteFooterProps> = (props) => {
     <VStack w={'full'}>
       <Button
         loading={props.loading}
-        disabled={props.disableFields}
+        disabled={props.disableFields || props.voteEmpty}
         onClick={props.onClickVote}
         w={'full'}
       >
@@ -190,7 +206,7 @@ const VoteFooter: React.FC<VoteFooterProps> = (props) => {
   );
 };
 
-export default function CastVote({ proposal }: CastVoteProps) {
+export default function CastVote({ proposal, setProposal }: CastVoteProps) {
   const account = useAccount();
   const userAddress = account.address
     ? account.address.toLocaleLowerCase()
@@ -200,6 +216,11 @@ export default function CastVote({ proposal }: CastVoteProps) {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [reason, setReason] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { data: userVotes } = useReadGovernorGetVotes({
+    args: [userAddress as Address, BigInt(proposal.timeCreated)],
+  });
+  console.log({ userVotes, vote });
 
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
     fallback: [true],
@@ -237,16 +258,46 @@ export default function CastVote({ proposal }: CastVoteProps) {
   const onClickVote = useCallback(async () => {
     setLoading(true);
     try {
+      let receipt: string | null = null;
       if (reason && reason !== '') {
-        const receipt = await writeCastVoteReason({
+        receipt = await writeCastVoteReason({
           args: [proposal.proposalId, voteValue, reason],
         });
         setTxHash(receipt);
       } else {
-        const receipt = await writeCastVote({
+        receipt = await writeCastVote({
           args: [proposal.proposalId, voteValue],
         });
         setTxHash(receipt);
+      }
+      if (receipt) {
+        setProposal((prevProposal) => {
+          const voteCount = parseInt(userVotes?.toString() || '0');
+          const voteKey =
+            vote === 'For'
+              ? 'forVotes'
+              : vote === 'Against'
+                ? 'againstVotes'
+                : 'abstainVotes';
+          return {
+            ...prevProposal,
+            [voteKey]: prevProposal[voteKey] + voteCount,
+            votes: [
+              ...prevProposal.votes,
+              {
+                voter: userAddress as Address,
+                weight: userVotes?.toString() || '0',
+                support:
+                  vote === 'For'
+                    ? 'FOR'
+                    : vote === 'Against'
+                      ? 'AGAINST'
+                      : 'ABSTAIN',
+                reason,
+              },
+            ],
+          };
+        });
       }
     } catch (error) {
       console.error(error);
@@ -265,6 +316,8 @@ export default function CastVote({ proposal }: CastVoteProps) {
     proposal.proposalId,
     voteValue,
     writeCastVoteReason,
+    setProposal,
+    userAddress,
   ]);
 
   if (
@@ -302,11 +355,15 @@ export default function CastVote({ proposal }: CastVoteProps) {
             voteStarted={voteStarted}
             voteEnded={voteEnded}
             voteStart={parseInt(proposal.voteStart) * 1000}
+            userVotes={userVotes || 0n}
           />
         </DialogTrigger>
         <DialogContent>
           <DialogHeader pb={2}>
             <DialogTitle>Submit Votes</DialogTitle>
+            <DialogDescription>
+              You are voting with {userVotes?.toString()} votes
+            </DialogDescription>
           </DialogHeader>
           <DialogBody pb={2}>
             <VoteBody
@@ -321,6 +378,7 @@ export default function CastVote({ proposal }: CastVoteProps) {
               disableFields={disableFields}
               onClickVote={onClickVote}
               txHash={txHash}
+              voteEmpty={vote === null}
             />
           </DialogFooter>
           <DialogCloseTrigger />
@@ -337,11 +395,15 @@ export default function CastVote({ proposal }: CastVoteProps) {
           voteStarted={voteStarted}
           voteEnded={voteEnded}
           voteStart={parseInt(proposal.voteStart) * 1000}
+          userVotes={userVotes || 0n}
         />
       </DrawerTrigger>
       <DrawerContent roundedTop={'md'}>
         <DrawerHeader>
           <DrawerTitle>Submit Votes</DrawerTitle>
+          <DrawerDescription>
+            You are voting with {userVotes?.toString()} votes
+          </DrawerDescription>
         </DrawerHeader>
         <DrawerBody>
           <VoteBody
@@ -356,6 +418,7 @@ export default function CastVote({ proposal }: CastVoteProps) {
             disableFields={disableFields}
             onClickVote={onClickVote}
             txHash={txHash}
+            voteEmpty={vote === null}
           />
         </DrawerFooter>
         <DrawerCloseTrigger />
