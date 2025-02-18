@@ -59,7 +59,7 @@ function CancelProposal({ proposal, setProposal }: CancelProposalProps) {
       <DialogTrigger asChild>
         <Button
           w='full'
-          variant='subtle'
+          variant='ghost'
           colorPalette={'red'}
           size='lg'
           loading={write.isPending || isConfirming}

@@ -97,7 +97,7 @@ const VoteButton = forwardRef<HTMLButtonElement, VoteButtonProps>(
       <Button
         size={'xl'}
         w={'full'}
-        variant={props.voteStart ? 'ghost' : 'solid'}
+        variant={props.voteStart ? 'surface' : 'solid'}
         disabled={!props.voteStarted || props.voteEnded}
         {...props}
         ref={ref}
