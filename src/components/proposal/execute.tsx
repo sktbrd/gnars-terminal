@@ -26,6 +26,8 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
     args: [proposal.proposalId],
   });
 
+  const isExecutable = proposalEta !== undefined && proposalEta === 0n;
+
   const write = useWriteGovernorExecute();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
@@ -40,7 +42,7 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
 
   const handleClick = async () => {
     try {
-      write.writeContract({
+      await write.writeContractAsync({
         args: [
           proposal.targets as Address[],
           proposal.values.map((value) => BigInt(value)),
@@ -56,7 +58,6 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
 
   if (
     Status.QUEUED !== proposalStatus ||
-    proposalEta === 0n ||
     !isAddressEqualTo(proposal.proposer, address)
   ) {
     return null;
@@ -71,13 +72,20 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
         size='lg'
         loading={write.isPending || isConfirming}
         onClick={handleClick}
+        disabled={!isExecutable}
       >
         Execute proposal
       </Button>
-      {proposal.expiresAt && (
+      {proposal.expiresAt && isExecutable && (
         <Text fontSize={'xs'}>
           Time until proposal expires:{' '}
           <Countdown date={parseInt(proposal.expiresAt) * 1000} />
+        </Text>
+      )}
+      {!isExecutable && proposalEta && proposalEta > 0n && (
+        <Text fontSize={'xs'}>
+          Time remaining before this proposal can be executed:{' '}
+          <Countdown date={parseInt(proposalEta.toString()) * 1000} />
         </Text>
       )}
     </VStack>
