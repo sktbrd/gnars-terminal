@@ -26,15 +26,9 @@ export default function PropdatesContentCardList({
   proposals,
   isMobile = false,
 }: PropdatesContentCardProps) {
-  const [propdates, setPropdates] = useState(_propdates);
-
-  useEffect(() => {
-    console.log('PropdatesContentCardList - Propdates:', propdates);
-  }, [propdates]);
-
   return (
     <Stack gap={2} w='full'>
-      {propdates.map((propdate) => {
+      {_propdates.map((propdate) => {
         const proposal = proposals.filter(
           (proposal) => proposal.proposalId === propdate.proposal.id
         )[0];
@@ -43,7 +37,6 @@ export default function PropdatesContentCardList({
             key={propdate.id}
             propdate={propdate}
             proposal={proposal}
-            setPropdates={setPropdates}
             isMobile={isMobile}
           />
         );
@@ -85,7 +78,9 @@ export function PropdatesContentCardContent({
             <HStack justify={'space-between'} w='full'>
               <HStack>
                 <EnsAvatar address={propdate.author.e_address as Address} />
-                <FormattedAddress address={propdate.author.e_address as Address} />
+                <FormattedAddress
+                  address={propdate.author.e_address as Address}
+                />
                 in{' '}
                 {proposal && (
                   <Link asChild>

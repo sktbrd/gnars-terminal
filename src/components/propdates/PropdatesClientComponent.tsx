@@ -21,11 +21,9 @@ export default function PropdatesClientComponent({
   const filteredPropdates = selectedProposalId
     ? propdates?.data?.filter(
         (pd: { proposal: { id: string } }) =>
-          pd.proposal.id == selectedProposalId
+          pd.proposal.id === selectedProposalId
       )
     : propdates?.data;
-
-  console.log('PropdatesClientComponent - Propdates:', filteredPropdates);
 
   // Does this proposal have any matching propdates at all?
   const hasPropdates = (proposalId: string) =>
