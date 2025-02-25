@@ -21,13 +21,14 @@ import {
   StepsPrevTrigger,
   StepsCompletedContent,
 } from "@/components/ui/steps";
-import { LuFileText, LuPlus, LuCheckCircle } from "react-icons/lu";
+import { LuFileText, LuPlus, LuCheckCircle, LuPencil } from "react-icons/lu";
 import TransactionTypes from "@/components/create-proposal/TransactionTypes";
 import TransactionList from "@/components/create-proposal/TransactionList";
 import TransactionItem from "@/components/create-proposal/TransactionItem";
 import Editor from "@/components/create-proposal/Editor";
 import Markdown from "@/components/proposal/markdown";
 import SubmitProposalButton from "@/components/create-proposal/SubmitProposalButton"; // Import the new component
+import { FaEthereum } from "react-icons/fa";
 
 interface Transaction {
   type: string;
@@ -81,11 +82,11 @@ const CreateProposalPage = () => {
         <StepsRoot defaultStep={0} count={4} step={currentStep} onStepChange={(details) => setCurrentStep(details.step)}>
           <StepsList>
             {/* Step 1: Proposal Title */}
-            <StepsItem index={0} icon={<LuFileText />} />
+            <StepsItem index={0} icon={<LuPencil />} />
             {/* Step 2: Add Transactions */}
-            <StepsItem index={1} icon={<LuPlus />} />
+            <StepsItem index={1} icon={<FaEthereum />} />
             {/* Step 3: Proposal Description */}
-            <StepsItem index={2} icon={<LuCheckCircle />} />
+            <StepsItem index={2} icon={<LuFileText />} />
             {/* Step 4: Review and Submit */}
             <StepsItem index={3} icon={<LuPlus />} />
           </StepsList>
