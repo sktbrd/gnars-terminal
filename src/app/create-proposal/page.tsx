@@ -78,11 +78,16 @@ const CreateProposalPage = () => {
   return (
     <Container maxW="container.lg" px={{ base: "0", md: "20%" }}>
       <form onSubmit={handleSubmit(() => { })}>
-        <StepsRoot defaultStep={0} count={3} step={currentStep} onStepChange={(details) => setCurrentStep(details.step)}>
+        <StepsRoot defaultStep={0} count={4} step={currentStep} onStepChange={(details) => setCurrentStep(details.step)}>
           <StepsList>
+            {/* Step 1: Proposal Title */}
             <StepsItem index={0} icon={<LuFileText />} />
+            {/* Step 2: Add Transactions */}
             <StepsItem index={1} icon={<LuPlus />} />
+            {/* Step 3: Proposal Description */}
             <StepsItem index={2} icon={<LuCheckCircle />} />
+            {/* Step 4: Review and Submit */}
+            <StepsItem index={3} icon={<LuPlus />} />
           </StepsList>
 
           {/* Step 1: Proposal Title */}
@@ -171,13 +176,17 @@ const CreateProposalPage = () => {
               />
             </VStack>
           </StepsContent>
+          <StepsContent index={3}>
 
-          {/* Review and Submit */}
-          <StepsCompletedContent>
+            {/* Review and Submit */}
             <VStack gap={4} align="stretch" p={4}>
               <Text fontSize="2xl" fontWeight="bold">Review and Submit</Text>
-              <Text>Title: <strong>{proposalTitle}</strong></Text>
               <TransactionList transactions={transactions} onDelete={handleDeleteTransaction} />
+              <Center border='0.6px solid' borderColor='gray.200' p={4} borderRadius='md'>
+                <Text fontSize='2xl' fontWeight='bold'>
+                  {proposalTitle}
+                </Text>
+              </Center>
               <Box
                 borderWidth="1px"
                 borderRadius="md"
@@ -193,7 +202,7 @@ const CreateProposalPage = () => {
                 editorContent={editorContent}
               />
             </VStack>
-          </StepsCompletedContent>
+          </StepsContent>
 
           {/* Navigation Buttons */}
           <Group mt={6} justify="space-between">
