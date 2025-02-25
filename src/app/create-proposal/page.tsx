@@ -10,6 +10,7 @@ import {
   Box,
   Group,
   Container,
+  Center,
 } from '@chakra-ui/react';
 import {
   StepsRoot,
@@ -145,9 +146,16 @@ const CreateProposalPage = () => {
           {/* Step 3: Proposal Description */}
           <StepsContent index={2}>
             <VStack gap={4} align='stretch' p={4}>
-              <Text fontSize='2xl' fontWeight='bold'>
-                Proposal Description
-              </Text>
+              <Center border='0.6px solid' borderColor='gray.200' p={4} borderRadius='md'>
+                <Text fontSize='2xl' fontWeight='bold'>
+                  {proposalTitle}
+                </Text>
+              </Center>
+              <Center>
+                <Text fontSize='2xl' fontWeight='bold'>
+                  Proposal Description
+                </Text>
+              </Center>
               <Controller
                 name='editorContent'
                 control={control}
