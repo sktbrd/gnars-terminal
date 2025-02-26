@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { VStack, Input, Button, HStack, Text } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field"; // Assuming this exists
 
@@ -9,9 +9,10 @@ type TransactionFormProps = {
     onCancel: () => void;
     onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onAmountChange?: (amount: number) => void; // Add callback for amount change
+    formatNumber: (value: string) => string; // Add formatNumber prop
 };
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange, onAmountChange }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange, onAmountChange, formatNumber }) => {
     const [formData, setFormData] = React.useState<Record<string, string | undefined>>(
         fields.reduce((acc, field) => {
             acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
@@ -19,15 +20,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
         }, {} as Record<string, string | undefined>)
     );
     const [errors, setErrors] = React.useState<Record<string, string>>({});
+    const amountInputRef = useRef<HTMLInputElement>(null);
 
     const handleChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-        if (fields.find(f => f.name === field)?.validate) {
-            const validation = fields.find(f => f.name === field)?.validate!(value);
-            setErrors((prev) => ({ ...prev, [field]: typeof validation === 'string' ? validation : '' }));
+        if (field === "amount") {
+            const formattedValue = formatNumber(value.replace(/,/g, "")); // Ensure you format only valid numeric input
+            setFormData((prev) => ({ ...prev, [field]: formattedValue }));
+
+            if (onAmountChange) {
+                onAmountChange(value === "" ? 0 : parseFloat(value.replace(/,/g, ''))); // Convert formatted string to number
+            }
+        } else {
+            setFormData((prev) => ({ ...prev, [field]: value }));
         }
-        if (field === "amount" && onAmountChange) {
-            onAmountChange(value === "" ? 0 : parseFloat(value)); // Call the callback with the new amount or 0 if empty
+
+        if (fields.find(f => f.name === field)?.validate) {
+            const validation = fields.find(f => f.name === field)?.validate!(value.replace(/,/g, ''));
+            setErrors((prev) => ({ ...prev, [field]: typeof validation === 'string' ? validation : '' }));
         }
     };
 
@@ -76,6 +85,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                         />
                     ) : (
                         <Input
+                            ref={field.name === "amount" ? amountInputRef : undefined}
                             placeholder={field.placeholder}
                             value={formData[field.name] || ""}
                             onChange={(e) => {

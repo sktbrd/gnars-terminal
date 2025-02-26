@@ -19,6 +19,13 @@ type TransactionItemProps = {
 
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
 
+const formatNumber = (value: string) => {
+    if (!value) return "";
+    const [integerPart, decimalPart] = value.split(".");
+    const formattedInteger = new Intl.NumberFormat("en-US").format(parseFloat(integerPart.replace(/,/g, '')));
+    return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+};
+
 const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel }) => {
     const [file, setFile] = useState<File | null>(null);
     const [editionType, setEditionType] = useState<string>("Fixed");
@@ -52,23 +59,23 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
 
     const fieldsMapping: Record<string, Field[]> = {
         "SEND ETH": [
-            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value.replace(/,/g, ''))) || "Invalid amount." },
             { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "SEND USDC": [
-            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value.replace(/,/g, ''))) || "Invalid amount." },
             { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "SEND IT": [
-            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+            { name: "amount", placeholder: "Enter amount", validate: (value: string) => !isNaN(Number(value.replace(/,/g, ''))) || "Invalid amount." },
             { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "SEND NFT": [
-            { name: "tokenId", placeholder: "Enter tokenId", validate: (value: string) => !isNaN(Number(value)) || "Invalid tokenId." },
+            { name: "tokenId", placeholder: "Enter tokenId", validate: (value: string) => !isNaN(Number(value.replace(/,/g, ''))) || "Invalid tokenId." },
             { name: "toAddress", placeholder: "Enter destination address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "AIRDROP RANDOM GNAR": [
-            { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value)) || "Invalid amount." },
+            { name: "amount", placeholder: "Amount", validate: (value: string) => !isNaN(Number(value.replace(/,/g, ''))) || "Invalid amount." },
             { name: "toAddress", placeholder: "Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "DROPOSAL MINT": [
@@ -149,6 +156,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         </HStack>
     );
 
+    const handleAmountChange = (amount: number) => {
+        setAmount(amount);
+    };
+
     return (
         <VStack gap={4} align="stretch" p={4} borderWidth="1px" borderRadius="md">
             <HStack justifyContent="space-between">
@@ -182,12 +193,13 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 type={type}
                 fields={fields}
                 onAdd={(transaction) => {
-                    setAmount(parseFloat(transaction.details.amount));
+                    setAmount(parseFloat(transaction.details.amount.replace(/,/g, '')));
                     handleAdd(transaction);
                 }}
                 onCancel={onCancel}
                 onFileChange={handleFileChange}
-                onAmountChange={setAmount}
+                onAmountChange={handleAmountChange}
+                formatNumber={formatNumber} // Pass the formatNumber function
             />
         </VStack>
     );

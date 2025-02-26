@@ -39,7 +39,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
     let fromAddress: Address = details.fromAddress || treasureAddress;
     let toAddress: Address = details.toAddress;
     let value = "0"; // Default value for Non-ETH transactions
-    console.log(`Preparing transaction data for type: ${type}, details:`, details);
     switch (type) {
         case "SEND ETH":
             fromAddress = treasureAddress;
@@ -97,18 +96,18 @@ export const formatTransactionDetails = (type: string, details: any) => {
         case "SEND ETH":
             return {
                 ...details,
-                value: parseEther(details.amount).toString(),
+                value: parseEther(details.amount.replace(/,/g, '')).toString(),
             };
         case "SEND USDC":
             return {
                 ...details,
-                formattedAmount: parseUnits(details.amount, 6).toString(), // Format amount correctly
+                formattedAmount: parseUnits(details.amount.replace(/,/g, ''), 6).toString(), // Format amount correctly
                 value: "0",
             };
         case "SEND IT":
             return {
                 ...details,
-                formattedAmount: parseUnits(details.amount, 18).toString(), // Format amount correctly
+                formattedAmount: parseUnits(details.amount.replace(/,/g, ''), 18).toString(), // Format amount correctly
                 value: "0",
             };
         case "DROPOSAL MINT":
@@ -116,7 +115,7 @@ export const formatTransactionDetails = (type: string, details: any) => {
                 ...details,
                 toAddress: DROPOSAL_CONTRACT_ADDRESS,
                 saleConfig: {
-                    publicSalePrice: parseEther(details.price).toString(),
+                    publicSalePrice: parseEther(details.price.replace(/,/g, '')).toString(),
                     maxSalePurchasePerAddress: details.mintLimit ? parseInt(details.mintLimit) : 1000000,
                     publicSaleStart: BigInt(new Date(details.startTime).getTime() / 1000),
                     publicSaleEnd: BigInt(new Date(details.endTime).getTime() / 1000),
