@@ -60,6 +60,8 @@ export default function ProposalPageClient({
     defaultPropdates || []
   );
 
+  console.log({ proposal });
+
   const tabMap = ['description', 'votes', 'transactions', 'propdates'];
 
   const [activeTab, setActiveTab] = useState(0);
@@ -78,7 +80,7 @@ export default function ProposalPageClient({
   };
 
   return (
-    <Container maxW='container.lg' px={{ base: '0', md: '20%' }}>
+    <Container maxW={'breakpoint-lg'} p={0}>
       <VStack gap={4} align={'start'} w='full'>
         {/* Proposal Details */}
         <Box
@@ -147,14 +149,7 @@ export default function ProposalPageClient({
               animation: 'fade-in 500ms ease-out',
             }}
           >
-            <Box
-              borderWidth={1}
-              borderRadius='md'
-              px={4}
-              py={2}
-              w='full'
-              bg='bg.subtle'
-            >
+            <Box borderWidth={1} borderRadius='md' px={4} py={2} w='full'>
               <Heading size='md'>For</Heading>
               <Text
                 fontWeight='bold'
@@ -163,14 +158,7 @@ export default function ProposalPageClient({
                 {proposal.forVotes}
               </Text>
             </Box>
-            <Box
-              borderWidth={1}
-              borderRadius='md'
-              px={4}
-              py={2}
-              w='full'
-              bg='bg.subtle'
-            >
+            <Box borderWidth={1} borderRadius='md' px={4} py={2} w='full'>
               <Heading size='md'>Against</Heading>
               <Text
                 fontWeight='bold'
@@ -186,7 +174,6 @@ export default function ProposalPageClient({
               px={4}
               py={2}
               w='full'
-              bg='bg.subtle'
             >
               <Heading size='md'>Abstain</Heading>
               <Text
@@ -197,6 +184,57 @@ export default function ProposalPageClient({
               </Text>
             </Box>
           </HStack>
+
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            data-state='open'
+            _open={{
+              animation: 'fade-in 600ms ease-out',
+            }}
+          >
+            <Box
+              borderWidth={1}
+              borderRadius='md'
+              px={4}
+              py={2}
+              w='full'
+              bg='bg.subtle'
+              textAlign={{ base: 'center', md: 'left' }}
+            >
+              <Heading size='md'>Threshold</Heading>
+              <Text fontWeight={'medium'} color='fg.subtle'>
+                {proposal.quorumVotes} votes
+              </Text>
+            </Box>
+            <Box
+              borderWidth={1}
+              borderRadius='md'
+              px={4}
+              py={2}
+              w='full'
+              bg='bg.subtle'
+              textAlign={{ base: 'center', md: 'left' }}
+            >
+              <Heading size='md'>Ending</Heading>
+              <Text fontWeight={'medium'} color='fg.subtle'>
+                {new Date(parseInt(proposal.voteEnd) * 1000).toLocaleString()}
+              </Text>
+            </Box>
+            <Box
+              borderWidth={1}
+              borderRadius='md'
+              px={4}
+              py={2}
+              w='full'
+              bg='bg.subtle'
+              textAlign={{ base: 'center', md: 'left' }}
+            >
+              <Heading size='md'>Snapshot</Heading>
+              <Text fontWeight={'medium'} color='fg.subtle'>
+                #{proposal.snapshotBlockNumber}
+              </Text>
+            </Box>
+          </Stack>
 
           <CastVote proposal={proposal} setProposal={setProposal} />
           <QueueProposal proposal={proposal} setProposal={setProposal} />

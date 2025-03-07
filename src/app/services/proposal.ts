@@ -82,6 +82,7 @@ const GET_DATA = gql`
       voteCount
       descriptionHash
       description
+      snapshotBlockNumber
       votes {
         weight
         voter
