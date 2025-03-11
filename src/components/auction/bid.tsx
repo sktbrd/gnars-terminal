@@ -52,13 +52,6 @@ export function AuctionBid(props: BidProps) {
 
   const minBidValueEth = formatEther(minBidValue);
 
-  console.log('winningBid', winningBid);
-  console.log('minimumBidIncrement', minimumBidIncrement);
-  console.log('reservePrice', reservePrice);
-  console.log('reservePrice', reservePrice);
-  console.log('minBidValue', minBidValue);
-  console.log('minBidValueEth', minBidValueEth);
-
   // Set up form with react-hook-form
   const {
     register,
@@ -91,7 +84,6 @@ export function AuctionBid(props: BidProps) {
           hash: txHash,
         });
 
-        console.log('Bid receipt', receipt);
         setTxHash(txHash);
 
         // Update bid amount for next bid using contract logic:
@@ -133,7 +125,6 @@ export function AuctionBid(props: BidProps) {
         hash: txHash,
         confirmations: 2,
       });
-      console.log('Settle receipt', receipt);
       setTxHash(txHash);
       if (props.onSettle) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
