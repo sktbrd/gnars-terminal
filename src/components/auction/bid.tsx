@@ -157,13 +157,9 @@ export function AuctionBid(props: BidProps) {
         {isAuctionRunning ? (
           <form onSubmit={handleSubmit(onSubmitBid)} style={{ width: '100%' }}>
             <VStack align={'stretch'} gap={2}>
-              {winningBid > 0n && (
-                <Text fontSize='sm'>
-                  Minimum bid:{' '}
-                  {Number(minBidValueEth).toLocaleString(undefined, {
-                    maximumFractionDigits: 5,
-                  })}{' '}
-                  ETH
+              {errors.bidAmount && (
+                <Text color='red.500' fontSize='sm'>
+                  {errors.bidAmount.message}
                 </Text>
               )}
               <HStack w={'100%'}>
@@ -173,11 +169,10 @@ export function AuctionBid(props: BidProps) {
                   fontFamily={'mono'}
                   size={'lg'}
                   step={0.01}
-                  min={parseFloat(minBidValueEth)}
                   defaultValue={Number(minBidValueEth).toLocaleString(
                     undefined,
                     {
-                      maximumFractionDigits: 5,
+                      maximumFractionDigits: 9,
                     }
                   )}
                 >
@@ -189,7 +184,7 @@ export function AuctionBid(props: BidProps) {
                         message: `Minimum bid is ${Number(
                           minBidValueEth
                         ).toLocaleString(undefined, {
-                          maximumFractionDigits: 5,
+                          maximumFractionDigits: 9,
                         })} ETH`,
                       },
                       validate: (value) => {
@@ -202,11 +197,6 @@ export function AuctionBid(props: BidProps) {
                   />
                 </NumberInputRoot>
               </HStack>
-              {errors.bidAmount && (
-                <Text color='red.500' fontSize='sm'>
-                  {errors.bidAmount.message}
-                </Text>
-              )}
               <Button
                 variant={'surface'}
                 type='submit'
