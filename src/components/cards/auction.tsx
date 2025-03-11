@@ -19,6 +19,7 @@ import Countdown from 'react-countdown';
 import { BsEmojiAstonished } from 'react-icons/bs';
 import { FaBirthdayCake, FaEthereum, FaUser } from 'react-icons/fa';
 import { LuClock, LuSparkles } from 'react-icons/lu';
+import { formatEther } from 'viem';
 import { AuctionBid } from '../auction/bid';
 import { FormattedAddress } from '../utils/names';
 
@@ -116,14 +117,19 @@ export default function AuctionCard({
                   <FaUser size={12} />
                   <FormattedAddress
                     address={activeAuction.highestBid.bidder}
-                    textBefore={isAuctionRunning ? 'Highest bid' : 'Winner'}
+                    textBefore={isAuctionRunning ? 'Winning' : 'Winner'}
                   />
                 </HStack>
                 <HStack gap={1}>
                   <FaEthereum size={12} style={{ scale: '1.3' }} />
                   <Text>Highest bid </Text>
                   <Badge colorPalette={'blue'} variant={'surface'} size={'sm'}>
-                    ✧{weiToSparks(activeAuction.highestBid.amount)}{' '}
+                    {Number(
+                      formatEther(BigInt(activeAuction.highestBid.amount))
+                    ).toLocaleString(undefined, {
+                      maximumFractionDigits: 5,
+                    })}{' '}
+                    ETH
                   </Badge>
                 </HStack>
                 {isAuctionRunning ? (
@@ -167,11 +173,15 @@ export default function AuctionCard({
             <AuctionBid
               tokenId={BigInt(activeAuction.token.tokenId)}
               winningBid={
-                activeAuction.winningBid
-                  ? BigInt(activeAuction.winningBid.amount)
+                activeAuction.highestBid
+                  ? BigInt(activeAuction.highestBid.amount)
                   : 0n
               }
               isAuctionRunning={isAuctionRunning}
+              reservePrice={activeAuction.dao.auctionConfig.reservePrice}
+              minimumBidIncrement={
+                activeAuction.dao.auctionConfig.minimumBidIncrement
+              }
               onBid={refetch}
               onSettle={refetch}
             />
