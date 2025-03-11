@@ -43,6 +43,7 @@ async function App() {
           Status.EXECUTED,
           Status.PENDING,
           Status.SUCCEEDED,
+          Status.DEFEATED,
           Status.QUEUED,
         ]}
       />
