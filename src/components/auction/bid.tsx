@@ -6,7 +6,13 @@ import {
   useWriteAuctionSettleCurrentAndCreateNewAuction,
 } from '@/hooks/wagmiGenerated';
 import { getConfig } from '@/utils/wagmi';
-import { Link as ChakraLink, HStack, VStack, Text } from '@chakra-ui/react';
+import {
+  Link as ChakraLink,
+  HStack,
+  VStack,
+  Text,
+  IconButton,
+} from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useCallback, useState } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
@@ -153,8 +159,14 @@ export function AuctionBid(props: BidProps) {
                   {errors.bidAmount.message}
                 </Text>
               )}
-              <HStack w={'100%'}>
-                <FaEthereum size={24} />
+              <HStack w={'100%'} gap={1} p={0}>
+                <IconButton
+                  variant={'outline'}
+                  colorPalette={'gray'}
+                  size={'lg'}
+                >
+                  <FaEthereum size={24} />
+                </IconButton>
                 <NumberInputRoot
                   w={'100%'}
                   fontFamily={'mono'}
