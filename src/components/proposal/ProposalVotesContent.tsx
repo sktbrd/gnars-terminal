@@ -34,7 +34,7 @@ export default function ProposalVotesContent({
           as='button'
           variant='surface'
           size='lg'
-          colorPalette='gray'
+          colorPalette='yellow'
           cursor='pointer'
           onClick={() => setActiveFilter('ALL')}
           opacity={activeFilter === 'ALL' ? 1 : 0.6}
@@ -70,7 +70,7 @@ export default function ProposalVotesContent({
           as='button'
           variant='surface'
           size='lg'
-          colorPalette='yellow'
+          colorPalette='gray'
           cursor='pointer'
           onClick={() => setActiveFilter('ABSTAIN')}
           opacity={activeFilter === 'ABSTAIN' ? 1 : 0.6}

@@ -117,7 +117,7 @@ const VoteCounters = memo(({ proposal }: { proposal: Proposal }) => (
     <VoteCounter
       label='Abstain'
       votes={proposal.abstainVotes}
-      positiveColor='yellow.500'
+      positiveColor='gray.500'
     />
   </HStack>
 ));
