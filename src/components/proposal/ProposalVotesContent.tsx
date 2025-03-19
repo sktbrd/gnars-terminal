@@ -102,8 +102,8 @@ export default function ProposalVotesContent({
                           : vote.support === 'AGAINST'
                             ? 'red'
                             : vote.support === 'ABSTAIN'
-                              ? 'yellow'
-                              : 'gray'
+                              ? 'gray'
+                              : 'yellow'
                       }
                     >
                       {vote.support}
