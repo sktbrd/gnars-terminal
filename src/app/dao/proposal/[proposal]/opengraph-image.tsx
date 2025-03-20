@@ -3,9 +3,11 @@ import { fetchProposals } from '@/app/services/proposal';
 import { DAO_ADDRESSES } from '@/utils/constants';
 
 export const alt = 'Gnars DAO Proposal';
+
+// Aspect ratio 3:2
 export const size = {
-  width: 1146,
-  height: 600,
+  width: 973,
+  height: 649,
 };
 
 export const contentType = 'image/png';
