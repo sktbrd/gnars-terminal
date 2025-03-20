@@ -3,8 +3,41 @@ import { fetchProposals } from '@/app/services/proposal';
 import { fetchAllEditorsByProposalId } from '@/services/supabase/editors';
 import { fetchAllPropDatesByProposalId } from '@/services/supabase/propdates';
 import { DAO_ADDRESSES } from '@/utils/constants';
+import { Metadata } from 'next';
 
 export const revalidate = 0;
+
+const appUrl = process.env.NEXT_PUBLIC_URL;
+
+// Generate metadata for a specific proposal ID
+export async function generateMetadata({
+  params,
+}: {
+  params: { proposal: string };
+}): Promise<Metadata> {
+  const proposalId = params.proposal;
+  
+  const frame = {
+    version: 'next',
+    imageUrl: `${appUrl}/dao/proposal/${proposalId}/opengraph-image`,
+    button: {
+      title: 'Launch Frame',
+      action: {
+        type: 'launch_frame',
+        name: 'Gnars DAO Proposal',
+        url: `${appUrl}/dao/proposal/${proposalId}/`,
+        splashImageUrl: `${appUrl}/splash.png`,
+        splashBackgroundColor: '#f7f7f7',
+      },
+    },
+  };
+
+  return {
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
+  };
+}
 
 export default async function ProposalPage({
   params,

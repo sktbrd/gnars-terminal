@@ -1,5 +1,6 @@
 'use client';
 
+import sdk from '@farcaster/frame-sdk';
 import { Proposal } from '@/app/services/proposal';
 import PropdatesTimeline from '@/components/propdates/timeline';
 import CancelProposal from '@/components/proposal/cancel';
@@ -352,6 +353,18 @@ export default function ProposalPageClient({
   );
 
   const { activeTab, tabMap, handleTabChange } = useTabNavigation();
+
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      sdk.actions.ready();
+    };
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+    }
+  }, [isSDKLoaded]);
 
   return (
     <Container maxW={'breakpoint-lg'} p={0}>
