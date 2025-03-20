@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   VStack,
@@ -21,7 +21,7 @@ import {
   StepsPrevTrigger,
   StepsCompletedContent,
 } from "@/components/ui/steps";
-import { LuFileText, LuPlus, LuCheckCircle, LuPencil } from "react-icons/lu";
+import { LuFileText, LuPlus, LuPencil } from "react-icons/lu";
 import TransactionTypes from "@/components/create-proposal/TransactionTypes";
 import TransactionList from "@/components/create-proposal/TransactionList";
 import TransactionItem from "@/components/create-proposal/TransactionItem";
