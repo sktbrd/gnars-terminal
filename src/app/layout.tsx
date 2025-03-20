@@ -54,8 +54,12 @@ export const viewport = {
 
 export default function RootLayout(props: { children: ReactNode }) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <body className={inter.className} style={{ minHeight: '100vh' }}>
+    <html lang='en'>
+      <body
+        className={inter.className}
+        suppressHydrationWarning
+        style={{ minHeight: '100vh' }}
+      >
         <Providers>
           <Navbar />
           <Box

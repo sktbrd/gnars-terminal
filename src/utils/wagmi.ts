@@ -9,7 +9,7 @@ export function getConfig() {
     appName: 'Gnars',
     chains: [base],
     projectId: WC_PROJECT_ID,
-    ssr: true,
+    ssr: false,
   });
 }
 

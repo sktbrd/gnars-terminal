@@ -11,9 +11,14 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTheme } from 'next-themes';
+import dynamic from 'next/dynamic';
 import { type ReactNode, useState } from 'react';
-import { WagmiProvider } from 'wagmi';
 import { Provider as ChakraProvider } from '../ui/provider';
+
+const WagmiProvider = dynamic(
+  () => import('wagmi').then((mod) => mod.WagmiProvider),
+  { ssr: false }
+);
 
 export function Providers(props: { children: ReactNode }) {
   const [config] = useState(() => getConfig());
