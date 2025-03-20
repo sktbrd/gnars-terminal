@@ -2,21 +2,21 @@ export async function GET() {
   const appUrl = process.env.NEXT_PUBLIC_URL;
 
   const config = {
-    // accountAssociation: {
-    //   header:
-    //     'eyJmaWQiOjM2MjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyY2Q4NWEwOTMyNjFmNTkyNzA4MDRBNkVBNjk3Q2VBNENlQkVjYWZFIn0',
-    //   payload: 'eyJkb21haW4iOiJmcmFtZXMtdjIudmVyY2VsLmFwcCJ9',
-    //   signature:
-    //     'MHhiNDIwMzQ1MGZkNzgzYTExZjRiOTllZTFlYjA3NmMwOTdjM2JkOTY1NGM2ODZjYjkyZTAyMzk2Y2Q0YjU2MWY1MjY5NjI5ZGQ5NTliYjU0YzEwOGI4OGVmNjdjMTVlZTdjZDc2YTRiMGU5NzkzNzA3YzkxYzFkOWFjNTg0YmQzNjFi',
-    // },
+    accountAssociation: {
+      header:
+        'eyJmaWQiOjE5NjMyOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDMwM0JlMDNiMkExQjVlMkViQjQzZEQ0NkEyYWFDZjk1YzJhQTVBODQifQ',
+      payload: 'eyJkb21haW4iOiJnbmFycy5jb20ifQ',
+      signature:
+        'MHg5ZWEzNWEyNGM0NDZjNmU2NGQxN2RlOGU4MjY4Y2QwZDExYzBjODFkOWE2NDA1NTRiNTMzMjYzMTM2MTFiZmYxMmU0YmIyMjc2ZDllZjUyOGQ4NWY1NGQ4N2E2NTUyMTlkZmViZjIxODk4NmM0MmZkMGViNjZjZWY4YzI0NzIwMzFi',
+    },
     frame: {
       version: '1',
-      name: 'Frames v2 Demo',
-      iconUrl: `${appUrl}/icon.png`,
+      name: 'Gnars Auction',
+      iconUrl: `${appUrl}/images/gnars.webp`,
       homeUrl: appUrl,
       imageUrl: `${appUrl}/frames/auction/opengraph-image`,
       buttonTitle: 'Launch Frame',
-      splashImageUrl: `${appUrl}/splash.png`,
+      splashImageUrl: `${appUrl}/images/gnars.webp`,
       splashBackgroundColor: '#f7f7f7',
       webhookUrl: `${appUrl}/api/webhook`,
     },
