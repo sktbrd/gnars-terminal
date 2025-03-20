@@ -193,7 +193,9 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 type={type}
                 fields={fields}
                 onAdd={(transaction) => {
-                    setAmount(parseFloat(transaction.details.amount.replace(/,/g, '')));
+                    if (transaction.details.amount !== undefined) {
+                        setAmount(parseFloat(transaction.details.amount.replace(/,/g, '')));
+                    }
                     handleAdd(transaction);
                 }}
                 onCancel={onCancel}
