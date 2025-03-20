@@ -21,7 +21,7 @@ export async function generateMetadata({
     version: 'next',
     imageUrl: `${appUrl}/dao/proposal/${proposalId}/opengraph-image`,
     button: {
-      title: 'Launch Frame',
+      title: 'Read Proposal',
       action: {
         type: 'launch_frame',
         name: 'Gnars DAO Proposal',
