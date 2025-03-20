@@ -4,7 +4,7 @@ import { DAO_ADDRESSES } from '@/utils/constants';
 
 export const alt = 'Gnars DAO Proposal';
 export const size = {
-  width: 1080,
+  width: 1146,
   height: 600,
 };
 
