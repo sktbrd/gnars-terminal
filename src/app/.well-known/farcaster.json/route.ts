@@ -11,14 +11,14 @@ export async function GET() {
     },
     frame: {
       version: '1',
-      name: 'Gnars Auction',
-      iconUrl: `${appUrl}/images/gnars.webp`,
+      name: 'Gnars DAO',
+      buttonTitle: 'Open Gnars',
       homeUrl: appUrl,
-      imageUrl: `${appUrl}/frames/auction/opengraph-image`,
-      buttonTitle: 'Launch App',
-      splashImageUrl: `${appUrl}/images/gnars.webp`,
-      splashBackgroundColor: '#1C1C1C',
+      imageUrl: `${appUrl}/opengraph-image`,
       webhookUrl: `${appUrl}/api/webhook`,
+      iconUrl: `${appUrl}/images/frames/icon.png`,
+      splashImageUrl: `${appUrl}/images/frames/splash.png`,
+      splashBackgroundColor: '#1C1C1C',
     },
   };
 

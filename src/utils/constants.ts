@@ -25,3 +25,5 @@ export const SUPABASE = {
   private_key: process.env.SUPABASE_PRIVATE_KEY as string,
 };
 export const IS_DEV = process.env.NODE_ENV === 'development';
+
+export const APP_URL = process.env.NEXT_PUBLIC_URL;

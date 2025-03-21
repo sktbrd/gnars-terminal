@@ -2,20 +2,19 @@
 import type { Metadata } from 'next';
 import ClientPage from './client-page';
 import { fetchAuction } from '@/services/auction';
-import { DAO_ADDRESSES } from '@/utils/constants';
+import { APP_URL, DAO_ADDRESSES } from '@/utils/constants';
 
-const appUrl = process.env.NEXT_PUBLIC_URL;
 
 const frame = {
   version: 'next',
-  imageUrl: `${appUrl}/frames/auction/opengraph-image`,
+  imageUrl: `${APP_URL}/frames/auction/opengraph-image`,
   button: {
     title: 'Launch Frame',
     action: {
       type: 'launch_frame',
       name: 'Farcaster Frames v2 Demo',
-      url: `${appUrl}/frames/auction/`,
-      splashImageUrl: `${appUrl}/splash.png`,
+      url: `${APP_URL}/frames/auction/`,
+      splashImageUrl: `${APP_URL}/splash.png`,
       splashBackgroundColor: '#f7f7f7',
     },
   },

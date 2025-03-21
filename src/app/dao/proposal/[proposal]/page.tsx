@@ -26,8 +26,6 @@ export async function generateMetadata({
         type: 'launch_frame',
         name: 'Gnars DAO Proposal',
         url: `${appUrl}/dao/proposal/${proposalId}/`,
-        splashImageUrl: `${appUrl}/splash.png`,
-        splashBackgroundColor: '#f7f7f7',
       },
     },
   };

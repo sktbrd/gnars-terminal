@@ -19,7 +19,6 @@ export default async function Image({
 }: {
   params: { proposal: string };
 }) {
-  console.log('image params', params);
   const proposalNumber = parseInt(params.proposal, 10);
 
   if (isNaN(proposalNumber)) {
@@ -55,8 +54,6 @@ export default async function Image({
     true
   );
   const proposal = proposals[0];
-
-  console.log('image proposal', proposal);
 
   if (!proposal) {
     return new ImageResponse(

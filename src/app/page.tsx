@@ -3,11 +3,30 @@ import GovernorCard from '@/components/cards/governor';
 import DroposalCard from '@/components/droposals/DroposalCard';
 import { Status } from '@/components/proposal/status';
 import { fetchAuction } from '@/services/auction';
-import { DAO_ADDRESSES } from '@/utils/constants';
+import { APP_URL, DAO_ADDRESSES } from '@/utils/constants';
 import { Grid, GridItem, VStack } from '@chakra-ui/react';
 import { headers } from 'next/headers';
 
 export const revalidate = 60;
+
+const frame = {
+  version: 'next',
+  imageUrl: `${APP_URL}/frames/home/opengraph-image`,
+  button: {
+    title: 'Open Gnars',
+    action: {
+      type: 'launch_frame',
+      name: 'Gnars Frame',
+      url: `${APP_URL}/`,
+    },
+  },
+};
+
+export const metadata = {
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
+};
 
 async function App() {
   headers();
