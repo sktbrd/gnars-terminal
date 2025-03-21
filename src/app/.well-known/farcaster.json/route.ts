@@ -15,9 +15,9 @@ export async function GET() {
       iconUrl: `${appUrl}/images/gnars.webp`,
       homeUrl: appUrl,
       imageUrl: `${appUrl}/frames/auction/opengraph-image`,
-      buttonTitle: 'Launch Frame',
+      buttonTitle: 'Launch App',
       splashImageUrl: `${appUrl}/images/gnars.webp`,
-      splashBackgroundColor: '#f7f7f7',
+      splashBackgroundColor: '#1C1C1C',
       webhookUrl: `${appUrl}/api/webhook`,
     },
   };
