@@ -40,7 +40,8 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
 
     const prepareTransaction = (transaction: any) => {
         const formattedDetails = formatTransactionDetails(transaction.type, transaction.details);
-        console.log(formattedDetails)
+        console.log("Preparing transaction:", transaction.type, formattedDetails);
+
         switch (transaction.type) {
             case "SEND ETH":
                 return {
@@ -120,23 +121,21 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     saleConfig,
                 } = formattedDetails;
 
+                console.log("DROPOSAL MINT parameters:", {
+                    name,
+                    symbol,
+                    description,
+                    animationURI,
+                    imageURI,
+                    editionSize,
+                    royalty, // Ensure this is in basis points
+                    payoutAddress,
+                    adminAddress,
+                    saleConfig,
+                });
+
                 if (!saleConfig) {
                     throw new Error("Missing saleConfig object");
-                }
-
-                const requiredProperties = [
-                    "publicSalePrice",
-                    "publicSaleStart",
-                    "publicSaleEnd",
-                    "presaleStart",
-                    "presaleEnd",
-                    "presaleMerkleRoot",
-                ];
-
-                for (const property of requiredProperties) {
-                    if (saleConfig[property] === undefined || saleConfig[property] === null) {
-                        throw new Error(`Missing or invalid saleConfig property: ${property}`);
-                    }
                 }
 
                 const saleConfigTuple = [
@@ -153,7 +152,7 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     name,
                     symbol,
                     BigInt(Math.min(Number(editionSize), 1000)),
-                    Math.min(parseInt(royalty), 1000),
+                    Math.min(parseInt(royalty), 1000), // Ensure royalty is capped at 1000 BPS
                     payoutAddress,
                     adminAddress,
                     saleConfigTuple,
@@ -161,6 +160,8 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     animationURI,
                     imageURI,
                 ];
+
+                console.log("Encoded DROPOSAL MINT args:", args);
 
                 const encodedCalldataDroposal = encodeFunctionData({
                     abi: DroposalABI,
