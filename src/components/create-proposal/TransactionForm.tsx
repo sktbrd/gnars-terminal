@@ -10,15 +10,34 @@ type TransactionFormProps = {
     onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onAmountChange?: (amount: number) => void; // Add callback for amount change
     formatNumber: (value: string) => string; // Add formatNumber prop
+    initialValues?: Record<string, any>; // Add this prop
 };
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, onCancel, onFileChange, onAmountChange, formatNumber }) => {
-    const [formData, setFormData] = React.useState<Record<string, string | undefined>>(
-        fields.reduce((acc, field) => {
-            acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
-            return acc;
-        }, {} as Record<string, string | undefined>)
-    );
+const TransactionForm: React.FC<TransactionFormProps> = ({
+    type,
+    fields,
+    onAdd,
+    onCancel,
+    onFileChange,
+    onAmountChange,
+    formatNumber,
+    initialValues
+}) => {
+    // Initialize form with initial values if provided
+    const [formData, setFormData] = React.useState<Record<string, string | undefined>>(() => {
+        if (initialValues) {
+            return fields.reduce((acc, field) => {
+                const value = initialValues[field.name];
+                acc[field.name] = value !== undefined ? String(value) : '';
+                return acc;
+            }, {} as Record<string, string | undefined>);
+        } else {
+            return fields.reduce((acc, field) => {
+                acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
+                return acc;
+            }, {} as Record<string, string | undefined>);
+        }
+    });
     const [errors, setErrors] = React.useState<Record<string, string>>({});
     const amountInputRef = useRef<HTMLInputElement>(null);
 
@@ -119,7 +138,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, fields, onAdd, 
                     onClick={handleAdd}
                     disabled={!isFormValid()}
                 >
-                    Add Transaction
+                    {initialValues ? 'Update Transaction' : 'Add Transaction'}
                 </Button>
             </HStack>
         </VStack>

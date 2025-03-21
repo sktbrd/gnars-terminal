@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { VStack, Box, Text, Button, HStack, Flex, Image } from "@chakra-ui/react";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import { transactionOptions } from "./TransactionTypes";
-import { FaCheck, FaCopy, FaSkull } from "react-icons/fa";
+import { FaCheck, FaCopy, FaEdit, FaSkull } from "react-icons/fa";
 import { toaster } from "@/components/ui/toaster";
 import { Address } from "viem";
 import { FormattedAddress } from "../utils/names";
@@ -12,9 +12,10 @@ type TransactionDetails = Record<string, string | number | React.ReactNode>;
 type TransactionListProps = {
     transactions: { type: string; details: TransactionDetails }[];
     onDelete: (index: number) => void;
+    onEdit: (index: number, transaction: { type: string; details: TransactionDetails }) => void;
 };
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelete }) => {
+const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelete, onEdit }) => {
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const [simulationResults, setSimulationResults] = useState<("success" | "fail" | "pending" | null)[]>(transactions.map(() => null));
 
@@ -186,9 +187,18 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                     </VStack>
                                 </HStack>
                                 <Flex justify="space-between" mt={2}>
-                                    <Button size="sm" onClick={() => onDelete(idx)}>
-                                        Delete
-                                    </Button>
+                                    <HStack gap={2}>
+                                        <Button size="sm"
+                                            onClick={() => onDelete(idx)}>
+                                            Delete
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            onClick={() => onEdit(idx, { type: tx.type, details: tx.details })}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </HStack>
                                     <Button
                                         colorScheme="blue"
                                         size="sm"

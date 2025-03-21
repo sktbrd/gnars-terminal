@@ -15,6 +15,7 @@ type TransactionItemProps = {
     type: string;
     onAdd: (transaction: { type: string; details: Record<string, any> }) => void;
     onCancel: () => void;
+    initialValues?: Record<string, any>; // Add this prop for editing
 };
 
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
@@ -26,7 +27,7 @@ const formatNumber = (value: string) => {
     return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
 };
 
-const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel }) => {
+const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel, initialValues }) => {
     const [file, setFile] = useState<File | null>(null);
     const [editionType, setEditionType] = useState<string>("Fixed");
     const [amount, setAmount] = useState<number>(0);
@@ -160,11 +161,19 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         setAmount(amount);
     };
 
+    // Initialize amount if initialValues has amount
+    useEffect(() => {
+        if (initialValues?.amount) {
+            const parsedAmount = parseFloat(String(initialValues.amount).replace(/,/g, ''));
+            setAmount(parsedAmount);
+        }
+    }, [initialValues]);
+
     return (
         <VStack gap={4} align="stretch" p={4} borderWidth="1px" borderRadius="md">
             <HStack justifyContent="space-between">
                 <Text fontWeight="bold" fontSize="lg">
-                    {type}
+                    {initialValues ? `Edit ${type}` : type}
                 </Text>
                 <LuChevronDown />
             </HStack>
@@ -194,6 +203,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 fields={fields}
                 onAdd={(transaction) => {
                     if (transaction.details.amount !== undefined) {
+                        //TODO: Trocar por 0x ?
                         setAmount(parseFloat(transaction.details.amount.replace(/,/g, '')));
                     }
                     handleAdd(transaction);
@@ -202,6 +212,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                 onFileChange={handleFileChange}
                 onAmountChange={handleAmountChange}
                 formatNumber={formatNumber} // Pass the formatNumber function
+                initialValues={initialValues} // Pass initial values to the form
             />
         </VStack>
     );

@@ -45,6 +45,9 @@ const CreateProposalPage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currentTransactionType, setCurrentTransactionType] = useState<string | null>(null);
   const [showTransactionOptions, setShowTransactionOptions] = useState(false);
+  // Add state to track which transaction is being edited
+  const [editingTransactionIndex, setEditingTransactionIndex] = useState<number | null>(null);
+  const [initialTransactionValues, setInitialTransactionValues] = useState<Record<string, any> | undefined>(undefined);
   const proposalTitle = watch("proposalTitle");
   const editorContent = watch("editorContent");
   const [currentStep, setCurrentStep] = useState(0);
@@ -60,14 +63,29 @@ const CreateProposalPage = () => {
 
   const handleAddTransactionDetails = useCallback(
     (transaction: Transaction) => {
-      setTransactions((prevTransactions) => [...prevTransactions, transaction]);
+      if (editingTransactionIndex !== null) {
+        // If we're editing, update the transaction at that index
+        setTransactions((prevTransactions) => {
+          const newTransactions = [...prevTransactions];
+          newTransactions[editingTransactionIndex] = transaction;
+          return newTransactions;
+        });
+        // Reset editing state
+        setEditingTransactionIndex(null);
+        setInitialTransactionValues(undefined); // Change null to undefined
+      } else {
+        // If adding new, append to array
+        setTransactions((prevTransactions) => [...prevTransactions, transaction]);
+      }
       setCurrentTransactionType(null);
     },
-    []
+    [editingTransactionIndex]
   );
 
   const handleCancelTransaction = useCallback(() => {
     setCurrentTransactionType(null);
+    setEditingTransactionIndex(null);
+    setInitialTransactionValues(undefined); // Change null to undefined
   }, []);
 
   const handleDeleteTransaction = useCallback((index: number) => {
@@ -132,6 +150,7 @@ const CreateProposalPage = () => {
                   type={currentTransactionType}
                   onAdd={handleAddTransactionDetails}
                   onCancel={handleCancelTransaction}
+                  initialValues={initialTransactionValues}
                 />
               ) : showTransactionOptions ? (
                 <TransactionTypes onSelect={handleSelectTransaction} />
@@ -140,6 +159,14 @@ const CreateProposalPage = () => {
                   <TransactionList
                     transactions={transactions}
                     onDelete={handleDeleteTransaction}
+                    onEdit={(index, transaction) => {
+                      // Set up editing state
+                      setEditingTransactionIndex(index);
+                      setCurrentTransactionType(transaction.type);
+                      // Filter out internal fields for the form
+                      const formValues = { ...transaction.details };
+                      setInitialTransactionValues(formValues);
+                    }}
                   />
                   <Button colorScheme='teal' onClick={handleAddTransaction}>
                     Add Transaction
@@ -182,7 +209,19 @@ const CreateProposalPage = () => {
             {/* Review and Submit */}
             <VStack gap={4} align="stretch" p={4}>
               <Text fontSize="2xl" fontWeight="bold">Review and Submit</Text>
-              <TransactionList transactions={transactions} onDelete={handleDeleteTransaction} />
+              <TransactionList
+                transactions={transactions}
+                onDelete={handleDeleteTransaction}
+                onEdit={(index, transaction) => {
+                  // Use same edit handler here too
+                  setEditingTransactionIndex(index);
+                  setCurrentTransactionType(transaction.type);
+                  const formValues = { ...transaction.details };
+                  setInitialTransactionValues(formValues);
+                  // Go back to the transactions step
+                  setCurrentStep(1);
+                }}
+              />
               <Center border='0.6px solid' borderColor='gray.200' p={4} borderRadius='md'>
                 <Text fontSize='2xl' fontWeight='bold'>
                   {proposalTitle}
