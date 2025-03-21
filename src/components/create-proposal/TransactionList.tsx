@@ -30,6 +30,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
 
     const handleSimulate = async (index: number, type: string, details: TransactionDetails) => {
         console.log("Simulating transaction:", type, details);
+
         const simulationToast = toaster.create({
             description: "Simulating transaction...",
             type: "loading",
@@ -56,13 +57,15 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                 const errorDetails = await response.json();
                 throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorDetails)}`);
             }
+
             const result = await response.json();
+            console.log("Simulation response:", result);
+
             setSimulationResults(prev => {
                 const newResults = [...prev];
                 newResults[index] = result.success ? "success" : "fail";
                 return newResults;
             });
-            console.log("Simulation response:", result);
 
             toaster.dismiss(simulationToast);
             toaster.create({
@@ -150,7 +153,6 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelet
                                                 return (
                                                     <HStack key={key} gap={2}>
                                                         <Text fontWeight="medium">{key}:</Text>
-
                                                         {["toAddress", "fromAddress"].includes(key) ? (
                                                             <FormattedAddress address={value as Address} />
                                                         ) : (

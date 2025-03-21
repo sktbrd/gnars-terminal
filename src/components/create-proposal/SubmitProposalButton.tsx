@@ -10,7 +10,6 @@ import { tokenAbi, tokenAddress } from "@/hooks/wagmiGenerated";
 import { toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 import { formatTransactionDetails } from "@/utils/transactionUtils";
-import { format } from "path";
 
 interface SubmitProposalButtonProps {
     isTitleValid: boolean;
@@ -115,20 +114,19 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                     animationURI,
                     imageURI,
                     editionSize,
-                    royalty,
                     payoutAddress,
                     adminAddress,
                     saleConfig,
                 } = formattedDetails;
 
-                console.log("DROPOSAL MINT parameters:", {
+                console.log("DROPOSAL MINT parameters before encoding:", {
                     name,
                     symbol,
                     description,
                     animationURI,
                     imageURI,
-                    editionSize,
-                    royalty, // Ensure this is in basis points
+                    editionSize: "18446744073709551615", // Open Edition by default
+                    royalty: "5000", // Hardcoded royalty value (50%)
                     payoutAddress,
                     adminAddress,
                     saleConfig,
@@ -151,8 +149,8 @@ const SubmitProposalButton: React.FC<SubmitProposalButtonProps> = ({
                 const args = [
                     name,
                     symbol,
-                    BigInt(Math.min(Number(editionSize), 1000)),
-                    Math.min(parseInt(royalty), 1000), // Ensure royalty is capped at 1000 BPS
+                    BigInt("18446744073709551615"), // Open Edition
+                    5000, // Hardcoded royalty value (50%)
                     payoutAddress,
                     adminAddress,
                     saleConfigTuple,

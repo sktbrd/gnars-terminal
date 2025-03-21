@@ -185,8 +185,8 @@ const encodeDroposalMint = (details: any) => {
     const args = [
         name,
         symbol,
-        BigInt(Math.min(Number(editionSize), 1000)).toString(),
-        Math.min(parseInt(royalty), 1000),
+        BigInt((editionSize)).toString(),
+        Math.min(parseInt(royalty), 5000),
         payoutAddress,
         adminAddress,
         saleConfigTuple,

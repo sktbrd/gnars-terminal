@@ -1,5 +1,5 @@
 import { Field } from "@/components/ui/field"; // Assuming this exists
-import { Button, HStack, Input, VStack, Text, Stack, Slider } from "@chakra-ui/react";
+import { Button, HStack, Input, VStack, Text, Stack } from "@chakra-ui/react";
 import React, { useRef, useState, useEffect } from "react";
 
 type TransactionFormProps = {
@@ -33,25 +33,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             }, {} as Record<string, string | undefined>);
         } else {
             return fields.reduce((acc, field) => {
-                acc[field.name] = field.name === "editionType" ? "defaultEdition" : "";
+                acc[field.name] = "";
                 return acc;
             }, {} as Record<string, string | undefined>);
         }
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const amountInputRef = useRef<HTMLInputElement>(null);
-    const [royalty, setRoyalty] = useState<number>(0);
-
-    useEffect(() => {
-        if (initialValues?.royalty) {
-            const parsedRoyalty = parseFloat(String(initialValues.royalty)) / 100;
-            console.log("Initializing royalty (percentage):", parsedRoyalty);
-            setRoyalty(parsedRoyalty);
-        }
-        if (initialValues?.editionSize) {
-            console.log("Initializing editionSize:", initialValues.editionSize);
-        }
-    }, [initialValues?.royalty, initialValues?.editionSize]);
 
     const handleChange = (field: string, value: string) => {
         console.log(`Field changed: ${field}, Value: ${value}`);
@@ -73,15 +61,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     };
 
     const handleAdd = () => {
-        console.log("Submitting form with royalty (percentage):", royalty);
         console.log("Submitting form with formData:", formData);
 
         const details = { ...formData };
-        if (type === "DROPOSAL MINT" && !formData.animationURI) {
-            details.animationURI = "";
+
+        // Ensure all required fields are included
+        if (type === "DROPOSAL MINT") {
+            if (!formData.animationURI) {
+                details.animationURI = "";
+            }
+            details.editionSize = "18446744073709551615"; // Open Edition by default
+            details.royalty = "5000"; // Hardcoded royalty value (50%)
         }
-        details.royalty = (royalty * 100).toString(); // Convert percentage to basis points
-        console.log("Final royalty (basis points):", details.royalty);
+
+        console.log("Final transaction details being submitted:", details);
         onAdd({ type, details });
     };
 
@@ -132,45 +125,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     )}
                 </Field>
             ))}
-            {type === "DROPOSAL MINT" && (
-                <Field label="Royalty (%)">
-                    <Stack width="200px" gap="4">
-                        <Slider.Root
-                            defaultValue={[royalty]}
-                            onValueChange={({ value }: { value: number[] }) => {
-                                console.log("Slider value changed:", value[0]);
-                                setRoyalty(value[0]);
-                            }}
-                        >
-                            <Slider.Label>Royalty</Slider.Label>
-                            <Slider.Control>
-                                <Slider.Track>
-                                    <Slider.Range />
-                                </Slider.Track>
-                                <Slider.Thumb index={0} />
-                            </Slider.Control>
-                        </Slider.Root>
-                        <Text width="4rem" textAlign="center">{royalty}%</Text>
-                    </Stack>
-                </Field>
-            )}
-            {formData.editionType === "limitedEdition" && (
-                <Field
-                    key="editionSize"
-                    label="Edition Size"
-                    invalid={!!errors.editionSize}
-                    errorText={errors.editionSize}
-                >
-                    <Input
-                        placeholder="Edition Size"
-                        value={formData.editionSize || ""}
-                        onChange={(e) => {
-                            console.log("Edition size changed:", e.target.value);
-                            handleChange("editionSize", e.target.value);
-                        }}
-                    />
-                </Field>
-            )}
             <HStack justify="space-between">
                 <Button colorScheme="red" onClick={onCancel}>
                     Cancel

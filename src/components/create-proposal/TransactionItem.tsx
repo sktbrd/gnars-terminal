@@ -29,7 +29,6 @@ const formatNumber = (value: string) => {
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel, initialValues }) => {
     const [file, setFile] = useState<File | null>(null);
-    const [editionType, setEditionType] = useState<string>("Fixed");
     const [amount, setAmount] = useState<number>(0);
     // Add a state to track the form data that needs to be passed to TransactionForm
     const [formValues, setFormValues] = useState<Record<string, any>>(initialValues || {});
@@ -88,15 +87,8 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => true },
             { name: "imageURI", placeholder: "Image URI", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
             { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid price." },
-            ...(editionType === "Fixed" ? [{ name: "editionSize", placeholder: "Edition Size", type: "text", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid edition size." }] : []),
             { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid start time." },
             { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid end time." },
-            { name: "mintLimit", placeholder: "Mint Limit Per Address", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid mint limit." },
-            // {
-            //     name: "royalty", placeholder: "Royalty % (e.g., 10 for 10%)", validate: (value: string) =>
-            //         !isNaN(Number(value.trim())) && Number(value.trim()) >= 0 && Number(value.trim()) <= 100 ||
-            //         "Invalid royalty. Enter a percentage between 0-100%"
-            // },
             { name: "payoutAddress", placeholder: "Payout Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
             { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." }
         ],
@@ -114,25 +106,28 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
     };
 
     const handleAdd = (transaction: { type: string; details: Record<string, any> }) => {
-        const treasureAddress = process.env.NEXT_PUBLIC_TREASURY as Address || '0x';
+        console.log("Received transaction details before formatting:", transaction.details);
 
-        // Remove redundant conversion of royalty to BPS
-        console.log("Received royalty (basis points):", transaction.details.royalty);
+        // Ensure all required fields are included
+        if (type === "DROPOSAL MINT") {
+            transaction.details.editionSize = "18446744073709551615"; // Open Edition by default
+            transaction.details.royalty = "5000"; // Hardcoded royalty value (50%)
+        }
 
         const formattedDetails = formatTransactionDetails(type, transaction.details);
         console.log("Formatted transaction details:", formattedDetails);
 
-        const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, formattedDetails, treasureAddress);
+        const { input, contractAbi, fromAddress, toAddress, value } = prepareTransactionData(type, formattedDetails, treasuryAddress);
         const details = {
-            ...transaction.details,
+            ...transaction.details, // Ensure original details are preserved
             calldata: input,
             contractAbi,
             fromAddress,
             toAddress,
             value,
         };
-        console.log("Final transaction details:", details);
 
+        console.log("Final transaction details being added:", details);
         onAdd({ type: `${transaction.type}`, details });
     };
 
@@ -183,36 +178,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
         }
     }, [initialValues]);
 
-    // Handle edition type change
-    const handleEditionTypeChange = (details: { value: string }) => {
-        const newEditionType = details.value;
-        setEditionType(newEditionType);
-
-        // Set the editionSize to max value for Open Edition
-        if (newEditionType === "Open") {
-            setFormValues(prev => ({
-                ...prev,
-                editionSize: "18446744073709551615"
-            }));
-        } else {
-            // If switching back to Fixed, remove the preset editionSize
-            const updatedValues = { ...formValues };
-            if (updatedValues.editionSize === "18446744073709551615") {
-                updatedValues.editionSize = "";
-            }
-            setFormValues(updatedValues);
-        }
-    };
-
     // Initialize with initial values if provided
     useEffect(() => {
         if (initialValues) {
             setFormValues(initialValues);
-            // Set edition type if it's a droposal mint
-            if (type === "DROPOSAL MINT" && initialValues.editionSize) {
-                // Check if the editionSize indicates an open edition
-                setEditionType(initialValues.editionSize === "18446744073709551615" ? "Open" : "Fixed");
-            }
         }
     }, [initialValues, type]);
 
@@ -234,17 +203,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                     {type === "SEND NFT" && <BalanceDisplay balance={gnarsNftBalance} name={name} image={image} amount={amount} />}
                 </>
             )}
-            {type === "DROPOSAL MINT" && (
-                <RadioGroup
-                    value={editionType}
-                    onValueChange={handleEditionTypeChange}
-                >
-                    <SimpleGrid columns={2} gap={4}>
-                        <Radio value="Fixed">Fixed Edition</Radio>
-                        <Radio value="Open">Open Edition</Radio>
-                    </SimpleGrid>
-                </RadioGroup>
-            )}
             <TransactionForm
                 type={type}
                 fields={fields}
@@ -254,22 +212,14 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
                         setAmount(parseFloat(transaction.details.amount.replace(/,/g, '')));
                     }
 
-                    // For open editions, ensure the max value is set
-                    if (type === "DROPOSAL MINT" && editionType === "Open") {
-                        transaction.details.editionSize = "18446744073709551615";
-                    }
-
+                    console.log("Transaction details:", transaction.details);
                     handleAdd(transaction);
                 }}
                 onCancel={onCancel}
                 onFileChange={handleFileChange}
                 onAmountChange={handleAmountChange}
                 formatNumber={formatNumber} // Pass the formatNumber function
-                initialValues={
-                    type === "DROPOSAL MINT" && editionType === "Open"
-                        ? { ...initialValues, editionSize: "18446744073709551615" }
-                        : initialValues
-                }
+                initialValues={initialValues}
             />
         </VStack>
     );
