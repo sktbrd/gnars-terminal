@@ -11,7 +11,7 @@ export const revalidate = 60;
 
 const frame = {
   version: 'next',
-  imageUrl: `${APP_URL}/frames/home/opengraph-image`,
+  imageUrl: `${APP_URL}/opengraph-image`,
   button: {
     title: 'Open Gnars',
     action: {
