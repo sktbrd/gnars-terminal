@@ -11,7 +11,15 @@ import DroposalTransaction from './transactions/DroposalTransaction';
 import NftTransferTransaction from './transactions/NFTTransfer';
 import SenditTransaction from './transactions/SenditTransaction';
 import { tokenAddress } from '@/hooks/wagmiGenerated';
-import { SENDIT_CONTRACT_ADDRESS } from '@/utils/constants';
+import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '@/utils/constants';
+
+// Utility function to normalize calldata
+const normalizeCalldata = (calldata: Address): Address =>
+  calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
+
+// Utility function to validate calldata
+const isValidCalldata = (calldata: Address): boolean =>
+  calldata !== '0x' && calldata.length >= 10;
 
 interface ProposalTransactionsContentProps {
   proposal: {
@@ -32,44 +40,43 @@ function TransactionItem({
   value: string;
   calldata: Address;
 }) {
-  // Normalize calldata to ensure consistency
-  const normalizedCalldata =
-    calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
+  const normalizedCalldata = normalizeCalldata(calldata);
 
-  // Validate calldata before decoding
-  const isCalldataValid =
-    normalizedCalldata !== '0x' && normalizedCalldata.length >= 10;
+  console.debug(`Transaction ${index + 1}:`);
+  console.debug(`Target Address: ${target}`);
+  console.debug(`Normalized Calldata: ${normalizedCalldata}`);
 
   if (target === SENDIT_CONTRACT_ADDRESS) {
-    // Decode Sendit Token transaction
-    const senditTransaction = isCalldataValid
+    const senditTransaction = isValidCalldata(normalizedCalldata)
       ? decodeSenditTransaction(normalizedCalldata)
       : null;
 
     if (senditTransaction) {
       const { to, value: decodedValue } = senditTransaction;
-
-      // Format Sendit Token value (divide by 10^18)
       const formattedValue = (
         BigInt(decodedValue) / BigInt(10 ** 18)
       ).toString();
-
       return <SenditTransaction index={index} to={to} value={formattedValue} />;
     }
   }
 
-  // Identify USDC transaction by decoding calldata (only if calldata is valid)
-  const usdcTransaction = isCalldataValid
-    ? decodeUsdcTransaction(normalizedCalldata)
-    : null;
+  // Debug log for USDC transaction check
+  console.debug(
+    `Checking if target matches USDC contract: ${target.toLowerCase()} === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'`
+  );
 
-  if (usdcTransaction) {
-    const { to, value: decodedValue } = usdcTransaction;
+  if (target.toLowerCase() === USDC_CONTRACT_ADDRESS.toLowerCase()) {
+    const usdcTransaction = isValidCalldata(normalizedCalldata)
+      ? decodeUsdcTransaction(normalizedCalldata)
+      : null;
 
-    // Format USDC value (divide by 10^6)
-    const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 6)).toString();
-
-    return <USDCTransaction index={index} to={to} value={formattedValue} />;
+    if (usdcTransaction) {
+      const { to, value: decodedValue } = usdcTransaction;
+      const formattedValue = (BigInt(decodedValue) / BigInt(10 ** 6)).toString();
+      return <USDCTransaction index={index} to={to} value={formattedValue} />;
+    } else {
+      console.debug(`Failed to decode USDC transaction for calldata: ${normalizedCalldata}`);
+    }
   }
 
   if (normalizedCalldata === '0x' && value !== '0') {
@@ -81,32 +88,28 @@ function TransactionItem({
     );
   }
 
-  // Handle Droposal transaction
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
     return <DroposalTransaction calldata={calldata} index={index} />;
   }
 
-  // Handle transactions for target contract
-  if (target.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase()) {
-    const functionSignature = normalizedCalldata.slice(0, 10); // Extract function selector
+  if (target.toLowerCase() === tokenAddress.toLowerCase()) {
+    const functionSignature = normalizedCalldata.slice(0, 10);
 
     if (functionSignature === '0x23b872dd') {
-      // Handle NFT Transfer (ERC721 transferFrom)
       return (
         <NftTransferTransaction calldata={normalizedCalldata} index={index} />
       );
     }
 
     if (functionSignature === '0xd52fbd91') {
-      // Handle MintBatch transaction
       return (
         <MintBatchTransaction calldata={normalizedCalldata} index={index} />
       );
     }
-    // Fallback for unrecognized calldata
+
     return (
-      <Box p={4} borderWidth={1} rounded='md' shadow='sm' mb={4}>
-        <Heading size='sm' mb={2}>
+      <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
+        <Heading size="sm" mb={2}>
           Transaction {index + 1}: Unrecognized Transaction
         </Heading>
         <Text>
@@ -119,11 +122,11 @@ function TransactionItem({
     );
   }
 
-  // Fallback for unsupported transaction types
+  console.debug(`Transaction ${index + 1} fell into the generic case.`);
   return (
-    <Box p={4} borderWidth={1} rounded='md' shadow='sm' mb={4}>
-      <Heading size='sm' mb={2}>
-        Transaction {index + 1}: {'Generic Transaction'}
+    <Box p={4} borderWidth={1} rounded="md" shadow="sm" mb={4}>
+      <Heading size="sm" mb={2}>
+        Transaction {index + 1}: Generic Transaction
       </Heading>
       <Text>
         <strong>Target:</strong> {target}
@@ -142,12 +145,12 @@ export default function ProposalTransactionsContent({
   proposal,
 }: ProposalTransactionsContentProps) {
   const { targets, values, calldatas } = proposal;
-  // Parse and normalize calldatas
-  const parsedCalldatas =
-    typeof calldatas === 'string' ? calldatas.split(':') : calldatas;
-  const normalizedCalldatas = parsedCalldatas.map((calldata) =>
-    calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata
-  );
+
+  const parsedCalldatas: Address[] =
+    typeof calldatas === 'string'
+      ? (calldatas.split(':') as Address[])
+      : (calldatas as Address[]);
+  const normalizedCalldatas = parsedCalldatas.map(normalizeCalldata);
 
   if (
     !targets ||
@@ -159,15 +162,15 @@ export default function ProposalTransactionsContent({
   ) {
     console.error('Proposal data is inconsistent or missing!');
     return (
-      <Box maxW='100%' minW='100%' p={2}>
+      <Box maxW="100%" minW="100%" p={2}>
         <Text>No transactions available for this proposal.</Text>
       </Box>
     );
   }
 
   return (
-    <Box maxW='100%' minW='100%' p={2}>
-      <VStack gap={2} align={'stretch'}>
+    <Box maxW="100%" minW="100%" p={2}>
+      <VStack gap={2} align="stretch">
         {targets.map((target, index) => (
           <TransactionItem
             key={index}
