@@ -3,6 +3,7 @@ import GovernorCard from '@/components/cards/governor';
 import MapCard from '@/components/cards/map';
 import DroposalCard from '@/components/droposals/DroposalCard';
 import { Status } from '@/components/proposal/status';
+import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 import { fetchAuction } from '@/services/auction';
 import { APP_URL, DAO_ADDRESSES } from '@/utils/constants';
 import { Grid, GridItem, VStack } from '@chakra-ui/react';
@@ -41,6 +42,7 @@ async function App() {
 
   return (
     <VStack gap={4} align={'start'}>
+      <InitFrameSDK />
       <Grid
         templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }}
         templateRows={{ base: 'auto', md: 'repeat(2, 1fr)', lg: 'auto' }}
