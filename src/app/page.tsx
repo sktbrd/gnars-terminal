@@ -1,5 +1,6 @@
 import AuctionCard from '@/components/cards/auction';
 import GovernorCard from '@/components/cards/governor';
+import MapCard from '@/components/cards/map';
 import DroposalCard from '@/components/droposals/DroposalCard';
 import { Status } from '@/components/proposal/status';
 import { fetchAuction } from '@/services/auction';
@@ -66,6 +67,7 @@ async function App() {
           Status.QUEUED,
         ]}
       />
+      <MapCard />
     </VStack>
   );
 }
