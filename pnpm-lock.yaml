@@ -107,6 +107,9 @@ importers:
       wagmi:
         specifier: latest
         version: 2.12.33(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-native@0.76.2(@babel/core@7.26.0(supports-color@8.1.1))(@babel/preset-env@7.26.0(@babel/core@7.26.0(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(supports-color@8.1.1)(utf-8-validate@5.0.10))(react@18.3.1)(supports-color@8.1.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@types/node':
         specifier: ^20.12.10
@@ -5901,9 +5904,6 @@ packages:
   zen-observable@0.8.15:
     resolution: {integrity: sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==}
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
@@ -6912,7 +6912,7 @@ snapshots:
       prettier: 3.3.3
       scule: 1.3.0
       sucrase: 3.35.0
-      zod: 3.23.8
+      zod: 3.24.2
     transitivePeerDependencies:
       - supports-color
 
@@ -8465,7 +8465,7 @@ snapshots:
 
   '@wagmi/cli@2.1.18(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)':
     dependencies:
-      abitype: 1.0.6(typescript@5.6.3)(zod@3.23.8)
+      abitype: 1.0.6(typescript@5.6.3)(zod@3.24.2)
       bundle-require: 4.2.1(esbuild@0.19.12)
       cac: 6.7.14
       change-case: 5.4.4
@@ -8483,8 +8483,8 @@ snapshots:
       picocolors: 1.1.1
       picomatch: 3.0.1
       prettier: 3.3.3
-      viem: 2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      zod: 3.23.8
+      viem: 2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+      zod: 3.24.2
     optionalDependencies:
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -9362,20 +9362,10 @@ snapshots:
 
   '@zag-js/utils@0.77.1': {}
 
-  abitype@1.0.6(typescript@5.6.3)(zod@3.23.8):
-    optionalDependencies:
-      typescript: 5.6.3
-      zod: 3.23.8
-
   abitype@1.0.6(typescript@5.6.3)(zod@3.24.2):
     optionalDependencies:
       typescript: 5.6.3
       zod: 3.24.2
-
-  abitype@1.0.8(typescript@5.6.3)(zod@3.23.8):
-    optionalDependencies:
-      typescript: 5.6.3
-      zod: 3.23.8
 
   abitype@1.0.8(typescript@5.6.3)(zod@3.24.2):
     optionalDependencies:
@@ -11935,20 +11925,6 @@ snapshots:
       strip-ansi: 7.1.0
       wcwidth: 1.0.1
 
-  ox@0.1.2(typescript@5.6.3)(zod@3.23.8):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.6.3)(zod@3.23.8)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.6.3
-    transitivePeerDependencies:
-      - zod
-
   ox@0.1.2(typescript@5.6.3)(zod@3.24.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
@@ -13167,24 +13143,6 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8):
-    dependencies:
-      '@noble/curves': 1.6.0
-      '@noble/hashes': 1.5.0
-      '@scure/bip32': 1.5.0
-      '@scure/bip39': 1.4.0
-      abitype: 1.0.6(typescript@5.6.3)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10))
-      ox: 0.1.2(typescript@5.6.3)(zod@3.23.8)
-      webauthn-p256: 0.0.10
-      ws: 8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-    optionalDependencies:
-      typescript: 5.6.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   viem@2.21.48(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.2):
     dependencies:
       '@noble/curves': 1.6.0
@@ -13410,8 +13368,6 @@ snapshots:
       zen-observable: 0.8.15
 
   zen-observable@0.8.15: {}
-
-  zod@3.23.8: {}
 
   zod@3.24.2: {}
 

@@ -42,7 +42,8 @@
     "steps": "^0.0.2",
     "use-sound": "^4.0.3",
     "viem": "latest",
-    "wagmi": "latest"
+    "wagmi": "latest",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20.12.10",
