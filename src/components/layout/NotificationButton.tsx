@@ -18,7 +18,7 @@ import {
   VStack
 } from '@chakra-ui/react';
 import sdk, { FrameNotificationDetails } from '@farcaster/frame-sdk';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LuBell } from 'react-icons/lu';
 import { Tooltip } from '../ui/tooltip';
 
@@ -30,6 +30,19 @@ export default function NotificationButton() {
   const [sendingNotification, setSendingNotification] = useState(false);
   const [notificationDetails, setNotificationDetails] = useState<FrameNotificationDetails|null>(null);
   const [notificationResult, setNotificationResult] = useState<string | null>(null);
+  const [context, setContext] = useState<any>(null);
+
+  useEffect(() => {
+    const loadContext = async () => {
+      const ctx = await sdk.context;
+      setContext(ctx);
+      setAdded(ctx.client.added);
+      if (ctx.client.notificationDetails) {
+        setNotificationDetails(ctx.client.notificationDetails);
+      }
+    };
+    loadContext();
+  }, []);
 
   const handleAddFrame = useCallback(async () => {
     try {
@@ -42,6 +55,24 @@ export default function NotificationButton() {
 
       if (result.notificationDetails) {
         setNotificationDetails(result.notificationDetails);
+        
+        // Store notification details in Supabase
+        const response = await fetch('/api/farcaster/frame', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fid: context?.user?.fid,
+            notificationDetails: result.notificationDetails,
+            targetUrl: window.location.href,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to store notification details');
+        }
       }
 
       console.log('Frame added successfully', result);
@@ -55,10 +86,10 @@ export default function NotificationButton() {
     } finally {
       setAddingFrame(false);
     }
-  }, []);
+  }, [context?.user?.fid]);
 
   const handleSendNotification = useCallback(async () => {
-    if (!notificationDetails) return;
+    if (!context?.user?.fid) return;
 
     try {
       setSendingNotification(true);
@@ -71,16 +102,20 @@ export default function NotificationButton() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token: notificationDetails.token,
-          url: notificationDetails.url,
           targetUrl: window.location.href,
+          title: 'Test Notification',
+          body: 'This is a test notification from Gnars DAO',
+          fid: context.user.fid, // Send to specific FID for test
         }),
       });
 
       const data = await response.json();
 
-      if (response.status === 200) {
+      if (response.ok) {
         setNotificationResult('Notification sent successfully!');
+        if (data.summary) {
+          setNotificationResult(`Notification sent successfully! (${data.summary.successful} delivered, ${data.summary.rateLimited} rate limited)`);
+        }
       } else if (response.status === 429) {
         setErrorMessage('Rate limited. Please try again later.');
       } else {
@@ -96,14 +131,13 @@ export default function NotificationButton() {
     } finally {
       setSendingNotification(false);
     }
-  }, [notificationDetails]);
+  }, [context?.user?.fid]);
 
   return (
     <>
       <Tooltip content="Get DAO Notifications">
         <IconButton
           aria-label="Get DAO notifications"
-
           variant="ghost"
           size="sm"
           onClick={onOpen}
@@ -161,7 +195,7 @@ export default function NotificationButton() {
                   w="full"
                   colorScheme="blue"
                   onClick={handleSendNotification}
-                  disabled={sendingNotification || !notificationDetails}
+                  disabled={sendingNotification || !notificationDetails || !context?.user?.fid}
                   loading={sendingNotification}
                 >
                   Send Test Notification
@@ -171,6 +205,11 @@ export default function NotificationButton() {
               {added && (
                 <Text fontSize="sm" color="green.500">
                   You'll now receive notifications about Gnars DAO activities
+                </Text>
+              )}
+              {notificationDetails && (
+                <Text fontSize="sm" color="yellow.500">
+                  {JSON.stringify(notificationDetails, null, 2)}
                 </Text>
               )}
             </VStack>

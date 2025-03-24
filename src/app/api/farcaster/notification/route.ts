@@ -4,11 +4,13 @@ import {
 } from "@farcaster/frame-sdk";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { supabase } from "@/utils/database/supabase_server";
 
 const requestSchema = z.object({
-  token: z.string(),
-  url: z.string(),
   targetUrl: z.string(),
+  title: z.string().optional(),
+  body: z.string().optional(),
+  fid: z.number().optional(), // Make FID optional
 });
 
 export async function POST(request: NextRequest) {
@@ -22,45 +24,79 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const response = await fetch(requestBody.data.url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      notificationId: crypto.randomUUID(),
-      title: "Gnars DAO Update",
-      body: "There's new activity in the Gnars DAO!",
-      targetUrl: requestBody.data.targetUrl,
-      tokens: [requestBody.data.token],
-    } satisfies SendNotificationRequest),
-  });
+  // Get notification recipients
+  const { data: recipients, error: dbError } = await supabase
+    .from('notifications')
+    .select('fid, token, callback_url')
+    .eq(requestBody.data.fid ? 'fid' : 'fid', requestBody.data.fid || -1); // If no FID, use impossible value to get all
 
-  const responseJson = await response.json();
-
-  if (response.status === 200) {
-    // Ensure correct response
-    const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
-    if (responseBody.success === false) {
-      return Response.json(
-        { success: false, errors: responseBody.error.errors },
-        { status: 500 }
-      );
-    }
-
-    // Fail when rate limited
-    if (responseBody.data.result.rateLimitedTokens.length) {
-      return Response.json(
-        { success: false, error: "Rate limited" },
-        { status: 429 }
-      );
-    }
-
-    return Response.json({ success: true });
-  } else {
+  if (dbError) {
+    console.error('Error fetching notification details:', dbError);
     return Response.json(
-      { success: false, error: responseJson },
+      { success: false, error: 'Failed to fetch notification details' },
       { status: 500 }
     );
   }
+
+  if (!recipients || recipients.length === 0) {
+    return Response.json(
+      { success: false, error: 'No notification recipients found' },
+      { status: 404 }
+    );
+  }
+
+  // Send notifications to all recipients
+  const results = await Promise.all(
+    recipients.map(async (recipient) => {
+      try {
+        const response = await fetch(recipient.callback_url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            notificationId: crypto.randomUUID(),
+            title: requestBody.data.title || "Gnars DAO Update",
+            body: requestBody.data.body || "There's new activity in the Gnars DAO!",
+            targetUrl: requestBody.data.targetUrl,
+            tokens: [recipient.token],
+          } satisfies SendNotificationRequest),
+        });
+
+        const responseJson = await response.json();
+        const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
+
+        if (!responseBody.success) {
+          return { fid: recipient.fid, status: "error", error: responseBody.error.errors };
+        }
+
+        if (responseBody.data.result.rateLimitedTokens.length) {
+          return { fid: recipient.fid, status: "rate_limited" };
+        }
+
+        return { fid: recipient.fid, status: "success" };
+      } catch (error) {
+        return { 
+          fid: recipient.fid, 
+          status: "error", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        };
+      }
+    })
+  );
+
+  const successCount = results.filter(r => r.status === "success").length;
+  const rateLimitedCount = results.filter(r => r.status === "rate_limited").length;
+  const errorCount = results.filter(r => r.status === "error").length;
+
+  return Response.json({
+    success: true,
+    summary: {
+      total: results.length,
+      successful: successCount,
+      rateLimited: rateLimitedCount,
+      failed: errorCount
+    },
+    details: results
+  });
 }
