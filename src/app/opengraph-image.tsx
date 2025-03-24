@@ -14,6 +14,8 @@ export const dynamic = 'force-dynamic';
 
 
 export default async function Image() {
+
+  console.log("opengraph image", `${appUrl}/images/shredquarters.png`);
   return new ImageResponse(
     (
       <div

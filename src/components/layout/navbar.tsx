@@ -17,6 +17,7 @@ import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
 import AccountMenu from './account-menu';
 import Sparks from './sparks';
+import NotificationButton from './NotificationButton';
 import {
   DrawerRoot,
   DrawerContent,
@@ -73,7 +74,10 @@ export default function Navbar() {
           <Sparks />
         </HStack>
       ) : (
-        <AccountMenu />
+        <HStack gap={1}>
+          <NotificationButton />
+          <AccountMenu />
+        </HStack>
       )}
       <DrawerRoot open={open} onOpenChange={onClose}>
         <DrawerBackdrop />
