@@ -5,12 +5,19 @@ import {
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { supabase } from "@/utils/database/supabase_server";
+import { fetchProposals } from "@/app/services/proposal";
+import { DAO_ADDRESSES } from "@/utils/constants";
 
 const requestSchema = z.object({
-  targetUrl: z.string(),
-  title: z.string().optional(),
-  body: z.string().optional(),
+  proposalNumber: z.number().optional(),
   fid: z.number().optional(),
+  event: z.object({
+    data: z.object({
+      block: z.object({
+        timestamp: z.number(),
+      }).required(),
+    }).required(),
+  }).required(),
 });
 
 export async function POST(request: NextRequest) {
@@ -51,6 +58,49 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Fetch the latest proposal with retries
+  async function fetchProposalWithRetry(timestamp: number, maxRetries = 4): Promise<any> {
+    for (let i = 0; i < maxRetries; i++) {
+      const latestProposals = await fetchProposals(
+        DAO_ADDRESSES.token,
+        'proposalNumber',
+        'desc',
+        1
+      );
+
+      if (!latestProposals || latestProposals.length === 0) {
+        if (i === maxRetries - 1) {
+          return null;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+        continue;
+      }
+
+      const proposal = latestProposals[0];
+      if (Math.abs(Number(proposal.timeCreated) - timestamp) <= 60) { // Allow 60 seconds difference
+        return proposal;
+      }
+
+      console.log(`Attempt ${i + 1}: Proposal timestamp mismatch. Expected: ${timestamp}, Got: ${proposal.timeCreated}`);
+      if (i < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      }
+    }
+    return null;
+  }
+
+  const blockTimestamp = requestBody.data.event.data.block.timestamp;
+  const latestProposal = await fetchProposalWithRetry(blockTimestamp);
+
+  if (!latestProposal) {
+    return Response.json(
+      { success: false, error: 'No matching proposal found after retries' },
+      { status: 404 }
+    );
+  }
+
+  const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/dao/proposal/${latestProposal.proposalNumber}`;
+
   // Send notifications to all recipients
   const results = await Promise.all(
     recipients.map(async (recipient) => {
@@ -62,9 +112,9 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify({
             notificationId: crypto.randomUUID(),
-            title: requestBody.data.title || "Gnars DAO Update",
-            body: requestBody.data.body || "There's new activity in the Gnars DAO!",
-            targetUrl: requestBody.data.targetUrl,
+            title: "New Gnars DAO Proposal",
+            body: `Proposal #${latestProposal.proposalNumber}: ${latestProposal.title || 'New proposal'}`,
+            targetUrl: proposalUrl,
             tokens: [recipient.token],
           } satisfies SendNotificationRequest),
         });
