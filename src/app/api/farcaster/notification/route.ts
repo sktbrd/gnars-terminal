@@ -25,10 +25,16 @@ export async function POST(request: NextRequest) {
   }
 
   // Get notification recipients
-  const { data: recipients, error: dbError } = await supabase
+  let query = supabase
     .from('notifications')
-    .select('fid, token, callback_url')
-    .eq(requestBody.data.fid ? 'fid' : 'fid', requestBody.data.fid || -1); // If no FID, use impossible value to get all
+    .select('fid, token, callback_url');
+
+  // Only filter by FID if one is provided
+  if (requestBody.data.fid) {
+    query = query.eq('fid', requestBody.data.fid);
+  }
+
+  const { data: recipients, error: dbError } = await query;
 
   if (dbError) {
     console.error('Error fetching notification details:', dbError);
