@@ -11,8 +11,9 @@ function MapCard() {
       flexDirection={'column'}
       gap={2}
       overflow={'hidden'}
+      h={'100%'}
     >
-      <iframe src="https://gnars.center/map" width="100%" height="500px" style={{ border: 'none' }}></iframe>
+      <iframe src="https://gnars.center/map" width="100%" height="100%" style={{ border: 'none' }}></iframe>
     </Box>
   )
 }

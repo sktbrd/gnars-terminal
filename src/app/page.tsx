@@ -6,7 +6,7 @@ import { Status } from '@/components/proposal/status';
 import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 import { fetchAuction } from '@/services/auction';
 import { APP_URL, DAO_ADDRESSES } from '@/utils/constants';
-import { Grid, GridItem, VStack } from '@chakra-ui/react';
+import { Box, Grid, GridItem, VStack } from '@chakra-ui/react';
 import { headers } from 'next/headers';
 
 export const revalidate = 60;
@@ -25,9 +25,9 @@ const frame = {
 };
 
 export const metadata = {
-    other: {
-      'fc:frame': JSON.stringify(frame),
-    },
+  other: {
+    'fc:frame': JSON.stringify(frame),
+  },
 };
 
 async function App() {
@@ -50,7 +50,18 @@ async function App() {
         w={'full'}
       >
         <GridItem>
-          <DroposalCard />
+          <Box
+            shadow={'sm'}
+            w={'full'}
+            height='full'
+            padding={4}
+            rounded={'md'}
+            gap={4}
+            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+            _light={{ borderColor: 'blue', borderWidth: 1 }}
+          >
+            <MapCard />
+          </Box>
         </GridItem>
         <GridItem>
           <AuctionCard defaultAuction={activeAuction} />
@@ -69,7 +80,6 @@ async function App() {
           Status.QUEUED,
         ]}
       />
-      <MapCard />
     </VStack>
   );
 }
