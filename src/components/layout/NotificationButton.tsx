@@ -28,7 +28,7 @@ export default function NotificationButton() {
   const [addingFrame, setAddingFrame] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sendingNotification, setSendingNotification] = useState(false);
-  const [notificationDetails, setNotificationDetails] = useState<FrameNotificationDetails|null>(null);
+  const [notificationDetails, setNotificationDetails] = useState<FrameNotificationDetails | null>(null);
   const [notificationResult, setNotificationResult] = useState<string | null>(null);
   const [context, setContext] = useState<any>(null);
 
@@ -36,9 +36,12 @@ export default function NotificationButton() {
     const loadContext = async () => {
       const ctx = await sdk.context;
       setContext(ctx);
-      setAdded(ctx.client.added);
-      if (ctx.client.notificationDetails) {
-        setNotificationDetails(ctx.client.notificationDetails);
+
+      if (ctx.client) {
+        setAdded(ctx.client.added);
+        if (ctx.client.notificationDetails) {
+          setNotificationDetails(ctx.client.notificationDetails);
+        }
       }
     };
     loadContext();
@@ -55,7 +58,7 @@ export default function NotificationButton() {
 
       if (result.notificationDetails) {
         setNotificationDetails(result.notificationDetails);
-        
+
         // Store notification details in Supabase
         const response = await fetch('/api/farcaster/frame', {
           method: 'POST',
