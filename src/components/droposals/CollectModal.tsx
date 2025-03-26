@@ -8,7 +8,7 @@ import {
     DialogTitle,
     DialogRoot,
 } from "@/components/ui/dialog";
-import { Box, Flex, Text, VStack, Image, DialogFooter, Heading, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack, Image, DialogFooter, Heading, Textarea, Input } from '@chakra-ui/react';
 import { ReactFlow, Background, Controls, Node, Edge, Handle, Position } from 'reactflow';
 import CustomVideoPlayer from './CustomVideoPlayer';
 import { FormattedAddress } from '../utils/names';
@@ -79,54 +79,24 @@ const CollectModal = ({
     const percentageSplit = parseInt(royalties)
     const [numMints, setNumMints] = useState(1); // Add state for number of mints
     const userAccount = useAccount();
-    const nftContract = droposalContractDictionary[index] || 'Unknown Contract'; // Assign NFT contract based on index
+    // TODO: Thats not the nftcontract, this is the contract that creates the nfts with the method CreateEdition
+    const ZoraNFTreator = droposalContractDictionary[index] || 'Unknown Contract'; // Assign NFT contract based on index
 
-    const nodes: Node[] = useMemo(() => [
-        {
-            id: 'user',
-            data: { label: 'You', imageUrl: '/images/ethereum.png' },
-            position: { x: 50, y: 75 }, // Adjusted position
-            type: 'custom',
-        },
-        {
-            id: 'fundRecipient',
-            data: { label: fundsRecipient, imageUrl: '/images/gnars.webp' }, // Address
-            position: { x: 300, y: 25 }, // Adjusted position
-            type: 'custom',
-        },
-        {
-            id: 'proposer',
-            data: { label: proposer, imageUrl: '/images/ethereum.png' }, // Address
-            position: { x: 300, y: 125 }, // Adjusted position
-            type: 'custom',
-        },
-    ], [fundsRecipient, proposer]);
+    console.log('all props', {
+        title,
+        royalties,
+        proposer,
+        fundsRecipient,
+        description,
+        saleConfig,
+        mediaSrc,
+        isVideo,
+        index,
+    }
+    )
 
-
-    const edges: Edge[] = useMemo(() => [
-        {
-            id: 'user-to-recipient',
-            source: 'user',
-            target: 'fundRecipient',
-            type: 'smoothstep',
-            animated: true,
-            label: `${percentageSplit}%`, // Add percentage label
-            style: { stroke: '#000', strokeWidth: 3 },
-        },
-        {
-            id: 'user-to-proposer',
-            source: 'user',
-            target: 'proposer',
-            type: 'smoothstep',
-            animated: true,
-            label: `${100 - percentageSplit}%`, // Add remaining percentage label
-            style: { stroke: '#000', strokeWidth: 3 },
-        },
-    ], [percentageSplit]);
-    console.log(saleConfig)
-    console.log(`Proposal index: ${index}`); // Use the index as needed
     return (
-        <DialogRoot open={isOpen} onOpenChange={onClose} size="cover" placement="center" motionPreset="slide-in-bottom">
+        <DialogRoot open={isOpen} onOpenChange={onClose} size="sm" placement="center" motionPreset="slide-in-bottom">
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Collect {title}</DialogTitle>
@@ -135,26 +105,11 @@ const CollectModal = ({
                 <DialogBody>
                     <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
                         <VStack align="start" w={{ base: '100%', md: '50%' }}>
-                            {isVideo ? (
-                                <CustomVideoPlayer
-                                    src={mediaSrc}
-                                    isVideo={isVideo}
-                                    title={title}
-                                    royalties={royalties}
-                                    proposer={proposer}
-                                    fundsRecipient={fundsRecipient}
-                                    description={description}
-                                    saleConfig={saleConfig}
-                                    index={index} // Pass the index here
-                                />
-                            ) : (
-                                <Image src={mediaSrc} alt={title} width="100%" />
-                            )}
-                            <Text mt={4}>Description: {description}</Text>
-                            <Text mt={4}>NFT Contract: {nftContract}</Text> {/* Display NFT contract */}
+                            <Text mt={4}>NFT Creator: {ZoraNFTreator}</Text> {/* Display NFT contract */}
+                            <Text mt={4}>Token Created: </Text>
                             <Text mt={4}>
                                 Number of Mints:
-                                <input
+                                <Input
                                     type="number"
                                     value={numMints}
                                     onChange={(e) => setNumMints(Number(e.target.value))}
@@ -163,21 +118,6 @@ const CollectModal = ({
                                 />
                             </Text>
                         </VStack>
-                        <Box position="relative" p={5} w={{ base: '100%', md: '50%' }} h="200px" bg="gray.100" borderRadius="md"> {/* Adjusted height */}
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                fitView
-                                nodeTypes={{ custom: CustomNode }}
-                            >
-                                <Background gap={16} size={1} color="#888" />
-                            </ReactFlow>
-                        </Box>
-                        {/* <Heading as="h3" size="md" mt={4}>
-                            Collect {title}
-                        </Heading>
-                        <Textarea placeholder="Enter your message here" h={200} /> */}
-
 
                     </Flex>
                 </DialogBody>

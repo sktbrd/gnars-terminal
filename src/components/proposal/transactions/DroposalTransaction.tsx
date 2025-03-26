@@ -3,6 +3,7 @@ import { Address, decodeFunctionData } from 'viem';
 import droposalABI from './utils/droposalABI';
 import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
+import CustomVideoPlayer from '@/components/droposals/CustomVideoPlayer';
 
 interface DroposalTransactionProps {
   calldata: `0x${string}`;
@@ -112,14 +113,31 @@ export default function DroposalTransaction({
             {decodedData.name} ({decodedData.symbol})
           </Code>
         </HStack>
-        <HStack gap={2} align='center'>
-          <Text>
-            Edition Size:
-          </Text>
-          <Code size={'sm'} variant={'surface'}>
-            {decodedData.editionSize}
-          </Code>
-        </HStack>
+        {decodedData.animationURI ? (
+          <CustomVideoPlayer
+            src={decodedData.animationURI}
+            isVideo
+            title='Droposal Animation'
+            royalties={decodedData.royaltyBPS}
+            proposer={decodedData.defaultAdmin}
+            fundsRecipient={decodedData.fundsRecipient}
+            description={decodedData.description}
+            saleConfig={null}
+            index={index}
+          />
+        ) : (
+          'N/A'
+        )}
+        {decodedData.imageURI ? (
+          <img
+            src={decodedData.imageURI}
+            alt='Droposal Image'
+            style={{ maxWidth: '100%' }}
+          />
+        ) : (
+          'N/A'
+        )}
+
         <HStack gap={2} align='center'>
           <Text>
             Royalty:
@@ -148,34 +166,7 @@ export default function DroposalTransaction({
             {decodedData.description || 'N/A'}
           </Code>
         </HStack>
-        <VStack gap={2} align='start'>
-          <Text>
-            Image:
-          </Text>
-          {decodedData.imageURI ? (
-            <img
-              src={decodedData.imageURI}
-              alt='Droposal Image'
-              style={{ maxWidth: '100%' }}
-            />
-          ) : (
-            'N/A'
-          )}
-        </VStack>
-        <VStack gap={2} align={'start'}>
-          <Text>
-            Animation:
-          </Text>
-          {decodedData.animationURI ? (
-            <video
-              src={decodedData.animationURI}
-              className='w-full rounded-md'
-              controls
-            />
-          ) : (
-            'N/A'
-          )}
-        </VStack>
+
       </VStack>
     </TransactionWrapper>
   );

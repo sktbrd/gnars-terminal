@@ -49,7 +49,7 @@ export default function DroposalCard() {
               abi: droposalABI,
               data: finalCalldata as `0x${string}`,
             });
-
+            console.log('decodedCalldatas:', args);
             const [
               name,
               symbol,

@@ -41,9 +41,9 @@ async function GovernorCard({
 
   const filteredProposals = filterBy
     ? proposals.filter((proposal) => {
-        const status = getProposalStatus(proposal);
-        return filterBy.includes(status);
-      })
+      const status = getProposalStatus(proposal);
+      return filterBy.includes(status);
+    })
     : proposals;
 
   const limitedProposals = limit

@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: { proposal: string };
 }): Promise<Metadata> {
   const proposalId = params.proposal;
-  
+
   const frame = {
     version: 'next',
     imageUrl: `${appUrl}/dao/proposal/${proposalId}/opengraph-image`,
@@ -76,7 +76,7 @@ export default async function ProposalPage({
     proposal.proposalId
   );
   const editors = await fetchAllEditorsByProposalId(proposal.proposalId);
-
+  console.log("proposal", proposal);
   return (
     <ProposalPageClient
       proposal={proposal}

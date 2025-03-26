@@ -220,7 +220,6 @@ export default function CastVote({ proposal, setProposal }: CastVoteProps) {
   const { data: userVotes } = useReadGovernorGetVotes({
     args: [userAddress as Address, BigInt(proposal.timeCreated)],
   });
-  console.log({ userVotes, vote });
 
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
     fallback: [true],
