@@ -37,7 +37,7 @@ export default function NotificationButton() {
       const ctx = await sdk.context;
       setContext(ctx);
 
-      if (ctx.client) {
+      if (ctx?.client) {
         setAdded(ctx.client.added);
         if (ctx.client.notificationDetails) {
           setNotificationDetails(ctx.client.notificationDetails);
