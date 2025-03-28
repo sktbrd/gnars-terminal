@@ -9,17 +9,83 @@ import { NextResponse } from 'next/server';
 import { http, createPublicClient, decodeFunctionData, Address } from 'viem';
 import { base } from 'viem/chains';
 
+// Create a client outside of the handler function to be reused
 const etherscanClient = createPublicClient({
     chain: base,
     transport: http(),
 });
 
+// Define type for event logs
+type EventLog = {
+    transactionHash: string;
+    blockNumber: string;
+    [key: string]: any;
+};
+
+// Define type for transaction
+type Transaction = {
+    hash: string;
+    input: string;
+    [key: string]: any;
+};
+
+// Helper function to recursively convert BigInt to strings
+const convertBigIntToString = (data: any): any => {
+    if (data === null || data === undefined) {
+        return data;
+    }
+
+    if (typeof data === 'bigint') {
+        return data.toString();
+    }
+
+    if (Array.isArray(data)) {
+        return data.map(item => convertBigIntToString(item));
+    }
+
+    if (typeof data === 'object') {
+        const result: Record<string, any> = {};
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                result[key] = convertBigIntToString(data[key]);
+            }
+        }
+        return result;
+    }
+
+    return data;
+};
+
+// Helper function to decode nested fields
+const decodeNestedFields = (data: any): any => {
+    if (Array.isArray(data)) {
+        return data.map((item) => decodeNestedFields(item));
+    }
+    if (typeof data === 'bigint') {
+        return data.toString();
+    }
+    if (typeof data === 'string' && data.startsWith('0x')) {
+        try {
+            const decoded = decodeFunctionData({
+                abi: DroposalABI,
+                data: data as `0x${string}`,
+            });
+            return decoded;
+        } catch {
+            return data;
+        }
+    }
+    return data;
+};
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const contractAddress = searchParams.get('contractAddress');
     const startingBlock = searchParams.get('blockNumber');
-    const eventTopic = searchParams.get('topic0') || '0x7b1bcf1ccf901a11589afff5504d59fd0a53780eed2a952adade0348985139e0'; // Default topic0
+    const eventTopic = searchParams.get('topic0') || '0x7b1bcf1ccf901a11589afff5504d59fd0a53780eed2a952adade0348985139e0';
+    const descriptionHash = searchParams.get('descriptionHash');
 
+    // Validate required parameters
     if (!contractAddress || !startingBlock) {
         return NextResponse.json({ error: 'Missing contractAddress or blockNumber' }, { status: 400 });
     }
@@ -32,10 +98,10 @@ export async function GET(request: Request) {
     try {
         const maxLogsPerRequest = 100;
         let currentBlock = parseInt(startingBlock);
-        let allEventLogs: any[] = [];
+        let allEventLogs: EventLog[] = [];
         let hasMoreLogs = true;
 
-        // Fetch logs filtered by eventTopic
+        // Fetch logs with pagination
         while (hasMoreLogs) {
             const etherscanApiUrl = `https://api.etherscan.io/v2/api?chainid=8453&module=logs&action=getLogs&address=${contractAddress}&fromBlock=${currentBlock}&toBlock=latest&topic0=${eventTopic}&page=1&offset=${maxLogsPerRequest}&apikey=${etherscanApiKey}`;
 
@@ -43,7 +109,7 @@ export async function GET(request: Request) {
 
             if (!response.ok) {
                 console.error('Etherscan API Response Status:', response.status);
-                throw new Error('Failed to fetch contract events from Etherscan');
+                throw new Error(`Failed to fetch contract events from Etherscan: ${response.status}`);
             }
 
             const responseData = await response.json();
@@ -64,33 +130,40 @@ export async function GET(request: Request) {
                 hasMoreLogs = false;
             } else {
                 const lastBlockNumber = parseInt(eventLogs[eventLogs.length - 1].blockNumber);
-                currentBlock = lastBlockNumber - 1;
+                currentBlock = lastBlockNumber + 1; // Start from the next block
             }
         }
 
-        // Extract transaction hashes from logs
-        const transactionHashes = allEventLogs.map((log: { transactionHash: string }) => log.transactionHash);
+        // Extract unique transaction hashes from logs
+        const uniqueTransactionHashes = [...new Set(allEventLogs.map(log => log.transactionHash))];
 
-        // Fetch transaction details
-        const transactions = await Promise.all(transactionHashes.map(async (hash: string) => {
-            const transaction = await etherscanClient.getTransaction({
-                hash: hash.startsWith('0x') ? hash as Address : `0x${hash}` as Address,
-            });
-            return transaction;
+        // Fetch transaction details in parallel
+        const transactions = await Promise.all(uniqueTransactionHashes.map(async (hash: string) => {
+            const formattedHash = hash.startsWith('0x') ? hash as Address : `0x${hash}` as Address;
+            try {
+                return await etherscanClient.getTransaction({ hash: formattedHash });
+            } catch (error) {
+                console.error(`Failed to fetch transaction ${hash}:`, error);
+                return null;
+            }
         }));
 
-        // Decode transaction input data
-        const decodedTransactions = await Promise.all(transactions.map(async (transaction: any) => {
+        // Filter out any null transactions
+        const validTransactions = transactions.filter(tx => tx !== null) as Transaction[];
+
+        // Decode transaction input data in parallel
+        const decodedTransactions = await Promise.all(validTransactions.map(async (transaction) => {
             try {
                 const decodedData = decodeFunctionData({
                     abi: governorAbi,
-                    data: transaction.input,
+                    data: transaction.input as Address,
                 });
                 return {
                     ...transaction,
                     decodedData,
                 };
-            } catch {
+            } catch (error) {
+                console.debug(`Could not decode transaction ${transaction.hash}:`, error);
                 return {
                     ...transaction,
                     decodedData: null,
@@ -100,65 +173,54 @@ export async function GET(request: Request) {
 
         // Filter transactions related to the target contract
         const targetContractAddress = '0x58C3ccB2dcb9384E5AB9111CD1a5DEA916B0f33c';
-        const relevantTransactions = decodedTransactions.filter((transaction: any) => {
+        const relevantTransactions = decodedTransactions.filter((transaction) => {
             return (
                 transaction.decodedData &&
                 transaction.decodedData.args &&
+                Array.isArray(transaction.decodedData.args[0]) &&
                 transaction.decodedData.args[0]?.includes(targetContractAddress)
             );
         });
 
-        // Extract transaction hashes for relevant transactions
-        const relevantTransactionHashes = relevantTransactions.map((transaction: any) => transaction.hash);
-
-        // Fetch transaction receipts for relevant transactions
-        const transactionReceipts = await Promise.all(relevantTransactionHashes.map(async (hash: string) => {
-            const receipt = await etherscanClient.getTransactionReceipt({
-                hash: hash.startsWith('0x') ? hash as Address : `0x${hash}` as Address,
-            });
-            console.log('Transaction Receipt:', { hash, logs: receipt.logs }); // Log transaction receipt
-            return receipt;
-        }));
-
-        // Helper function to decode nested fields and convert BigInt to strings
-        const decodeNestedFields = (data: any): any => {
-            if (Array.isArray(data)) {
-                return data.map((item) => decodeNestedFields(item));
-            }
-            if (typeof data === 'bigint') {
-                return data.toString();
-            }
-            if (typeof data === 'string' && data.startsWith('0x')) {
-                try {
-                    const decoded = decodeFunctionData({
-                        abi: DroposalABI,
-                        data: data as `0x${string}`,
-                    });
-                    return decoded;
-                } catch {
-                    return data;
-                }
-            }
-            return data;
-        };
-
         // Decode arguments and extract descriptionHash
-        const decodedRelevantTransactions = relevantTransactions.map((transaction: any) => {
-            const decodedArgs = transaction.decodedData.args.map((arg: any) => decodeNestedFields(arg));
-            const descriptionHash = transaction.decodedData.args[3] || null;
-            console.log('Description Hash:', { transactionHash: transaction.hash, descriptionHash }); // Log descriptionHash
+        const decodedRelevantTransactions = relevantTransactions.map((transaction) => {
+            const decodedArgs = transaction.decodedData?.args.map((arg: any) => decodeNestedFields(arg));
+            const txDescriptionHash = transaction.decodedData?.args[3] || null;
+
             return {
                 ...transaction,
                 decodedData: {
                     ...transaction.decodedData,
                     args: decodedArgs,
-                    descriptionHash,
+                    descriptionHash: txDescriptionHash,
                 },
             };
         });
 
-        // Return the transactions with decoded arguments and descriptionHash
-        return NextResponse.json({ transactionDetails: decodedRelevantTransactions }, { status: 200 });
+        // Find transaction matching the provided descriptionHash
+        let matchedTransaction = null;
+        if (descriptionHash) {
+            console.log('Searching for transaction with descriptionHash:', descriptionHash);
+            matchedTransaction = decodedRelevantTransactions.find((transaction) =>
+                transaction.decodedData.descriptionHash === descriptionHash
+            );
+
+            if (matchedTransaction) {
+                console.log('Found matching transaction:', matchedTransaction.hash);
+            } else {
+                console.log('No matching transaction found for descriptionHash:', descriptionHash);
+            }
+        }
+
+        // Convert all BigInt values to strings before returning
+        const safeTransactionDetails = convertBigIntToString(decodedRelevantTransactions);
+        const safeMatchedTransaction = matchedTransaction ? convertBigIntToString(matchedTransaction) : null;
+
+        // Return the transactions with decoded arguments and the matched transaction if any
+        return NextResponse.json({
+            transactionDetails: safeTransactionDetails,
+            matchedTransaction: safeMatchedTransaction
+        }, { status: 200 });
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error('Error:', errorMessage);

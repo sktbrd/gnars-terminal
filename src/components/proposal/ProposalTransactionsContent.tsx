@@ -1,4 +1,5 @@
 import { Box, VStack, Heading, Text } from '@chakra-ui/react';
+import { useMemo } from 'react';
 import {
   decodeSenditTransaction,
   decodeUsdcTransaction,
@@ -14,12 +15,14 @@ import { tokenAddress } from '@/hooks/wagmiGenerated';
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '@/utils/constants';
 
 // Utility function to normalize calldata
-const normalizeCalldata = (calldata: Address): Address =>
-  calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
+const normalizeCalldata = (calldata: Address): Address => {
+  return calldata === '0x' || calldata === ('0' as Address) ? '0x' : calldata;
+};
 
 // Utility function to validate calldata
-const isValidCalldata = (calldata: Address): boolean =>
-  calldata !== '0x' && calldata.length >= 10;
+const isValidCalldata = (calldata: Address): boolean => {
+  return calldata !== '0x' && calldata.length >= 10;
+};
 
 interface ProposalTransactionsContentProps {
   proposal: {
@@ -92,7 +95,7 @@ function TransactionItem({
   }
   // TODO: fix me 
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
-    return <DroposalTransaction calldata={calldata} index={index} descriptionHash='' />;
+    return <DroposalTransaction calldata={calldata} index={index} descriptionHash={descriptionHash} />;
   }
 
   if (target.toLowerCase() === tokenAddress.toLowerCase()) {
@@ -147,13 +150,19 @@ function TransactionItem({
 export default function ProposalTransactionsContent({
   proposal,
 }: ProposalTransactionsContentProps) {
-  const { targets, values, calldatas } = proposal;
+  const { targets, values, calldatas, descriptionHash } = proposal;
 
-  const parsedCalldatas: Address[] =
-    typeof calldatas === 'string'
+  const memoizedDescriptionHash = useMemo(() => descriptionHash, [descriptionHash]);
+
+  const parsedCalldatas = useMemo(() => {
+    return typeof calldatas === 'string'
       ? (calldatas.split(':') as Address[])
       : (calldatas as Address[]);
-  const normalizedCalldatas = parsedCalldatas.map(normalizeCalldata);
+  }, [calldatas]);
+
+  const normalizedCalldatas = useMemo(() => {
+    return parsedCalldatas.map(normalizeCalldata);
+  }, [parsedCalldatas]);
 
   if (
     !targets ||
@@ -181,7 +190,7 @@ export default function ProposalTransactionsContent({
             target={target}
             value={values[index]}
             calldata={normalizedCalldatas[index] as Address}
-            descriptionHash={proposal.descriptionHash}
+            descriptionHash={memoizedDescriptionHash}
           />
         ))}
       </VStack>

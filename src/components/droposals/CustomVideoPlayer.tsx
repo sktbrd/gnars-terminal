@@ -1,8 +1,8 @@
-import { Box, Button, Image, Text } from '@chakra-ui/react';
-import { useState } from 'react';
-import CollectModal from './CollectModal'; // Import CollectModal
+import React, { useState } from 'react';
+import { Box, Image } from '@chakra-ui/react';
+import CollectButton from './CollectButton'; // Import CollectButton
 
-const CustomVideoPlayer = ({
+const CustomVideoPlayer = React.memo(({
   src,
   isVideo,
   desxcriptionHash,
@@ -12,7 +12,33 @@ const CustomVideoPlayer = ({
   desxcriptionHash?: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Handle hover events only when modal is not open
+  const handleMouseEnter = () => {
+    if (!isModalOpen) {
+      setIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isModalOpen) {
+      setIsHovered(false);
+    }
+  };
+
+  // Track modal state
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+    // Keep hover state active when modal is open
+    setIsHovered(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    // Reset hover state based on mouse position
+    setIsHovered(false);
+  };
 
   return (
     <>
@@ -22,8 +48,8 @@ const CustomVideoPlayer = ({
         rounded='md'
         overflow='hidden'
         aspectRatio={'16/9'}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {isVideo ? (
           <video
@@ -45,31 +71,10 @@ const CustomVideoPlayer = ({
         )}
 
         {/* Collect button - only visible on hover */}
-        {isHovered && (
-          <Box position='absolute' top={4} right={4} zIndex={2}>
-            <Button
-              size='xs'
-              colorScheme='teal'
-              variant={'surface'}
-              fontFamily={'mono'}
-              onClick={() => setIsModalOpen(true)} // Open modal on click
-            >
-              Collect
-            </Button>
-          </Box>
-        )}
+        {isHovered && <CollectButton descriptionHash={desxcriptionHash} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
       </Box>
-
-      {/* CollectModal */}
-      {isModalOpen && (
-        <CollectModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)} // Close modal handler
-          descriptionHash={desxcriptionHash}
-        />
-      )}
     </>
   );
-};
+});
 
 export default CustomVideoPlayer;

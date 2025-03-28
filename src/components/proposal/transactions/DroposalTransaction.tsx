@@ -4,8 +4,7 @@ import droposalABI from './utils/droposalABI';
 import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 import CustomVideoPlayer from '@/components/droposals/CustomVideoPlayer';
-import { Proposal } from '@/app/services/proposal';
-
+import { useMemo } from 'react';
 interface DroposalTransactionProps {
   calldata: `0x${string}`;
   index: number;
@@ -17,75 +16,64 @@ export default function DroposalTransaction({
   index,
   descriptionHash,
 }: DroposalTransactionProps) {
-  let decodedData: {
-    name: string;
-    symbol: string;
-    editionSize: string;
-    royaltyBPS: string;
-    fundsRecipient: Address;
-    defaultAdmin: Address;
-    description: string;
-    imageURI: string;
-    animationURI: string;
-  } | null = null;
-
-  try {
-    // Decode calldata using viem's decodeFunctionData
-    const { args } = decodeFunctionData({
-      abi: droposalABI,
-      data: calldata,
-    });
-
-    // Map decoded arguments to named variables
-    const [
-      name,
-      symbol,
-      editionSize,
-      royaltyBPS,
-      fundsRecipient,
-      defaultAdmin,
-      ,
-      description,
-      animationURI,
-      imageURI,
-    ] = args as [
-      string,
-      string,
-      bigint,
-      number,
-      Address,
-      Address,
-      unknown,
-      string,
-      string,
-      string,
-    ];
-
-    decodedData = {
-      name,
-      symbol,
-      editionSize: editionSize.toString(),
-      royaltyBPS: (royaltyBPS / 100).toFixed(2), // Convert BPS to percentage
-      fundsRecipient,
-      defaultAdmin,
-      description,
-      imageURI: formatURI(imageURI),
-      animationURI: formatURI(animationURI),
-    };
-  } catch (error) {
-    console.error('Error decoding calldata for DroposalTransaction:', error);
-    console.error('Calldata:', calldata); // Log the raw calldata for debugging
-    decodedData = null;
-  }
-
-  // Helper function to format IPFS URIs
-  function formatURI(uri: string): string {
+  const formatURI = (uri: string): string => {
     uri = uri.trim();
     if (uri.startsWith('ipfs://')) {
       return `https://gateway.pinata.cloud/ipfs/${uri.slice(7)}`;
     }
     return uri;
-  }
+  };
+
+  const decodedData = useMemo(() => {
+    try {
+      const { args } = decodeFunctionData({
+        abi: droposalABI,
+        data: calldata,
+      });
+
+      const [
+        name,
+        symbol,
+        editionSize,
+        royaltyBPS,
+        fundsRecipient,
+        defaultAdmin,
+        descriptionHash,
+        description,
+        animationURI,
+        imageURI,
+      ] = args as [
+        string,
+        string,
+        bigint,
+        number,
+        Address,
+        Address,
+        unknown,
+        string,
+        string,
+        string,
+      ];
+
+      return {
+        name,
+        symbol,
+        editionSize: editionSize.toString(),
+        royaltyBPS: (royaltyBPS / 100).toFixed(2),
+        fundsRecipient,
+        defaultAdmin,
+        description,
+        imageURI: formatURI(imageURI),
+        animationURI: formatURI(animationURI),
+      };
+    } catch (error) {
+      console.error('Error decoding calldata for DroposalTransaction:', error);
+      console.error('Calldata:', calldata);
+      return null;
+    }
+  }, [calldata]);
+
+  const memoizedDescriptionHash = useMemo(() => descriptionHash, [descriptionHash]);
 
   if (!decodedData) {
     return (
@@ -120,7 +108,7 @@ export default function DroposalTransaction({
           <CustomVideoPlayer
             src={decodedData.animationURI}
             isVideo
-            desxcriptionHash={descriptionHash}
+            desxcriptionHash={memoizedDescriptionHash}
           />
         ) : (
           'N/A'
