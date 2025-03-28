@@ -30,6 +30,7 @@ interface ProposalTransactionsContentProps {
     values: string[];
     calldatas: string[] | string; // Allow both string[] and delimited string
     descriptionHash?: string;
+    blockNumber?: number;
   };
 }
 
@@ -39,12 +40,14 @@ function TransactionItem({
   value,
   calldata,
   descriptionHash,
+  blockNumber,
 }: {
   index: number;
   target: string;
   value: string;
   calldata: Address;
   descriptionHash?: string;
+  blockNumber?: number;
 }) {
   const normalizedCalldata = normalizeCalldata(calldata);
 
@@ -95,7 +98,7 @@ function TransactionItem({
   }
   // TODO: fix me 
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
-    return <DroposalTransaction calldata={calldata} index={index} descriptionHash={descriptionHash} />;
+    return <DroposalTransaction calldata={calldata} index={index} descriptionHash={descriptionHash} blockNumber={blockNumber} />;
   }
 
   if (target.toLowerCase() === tokenAddress.toLowerCase()) {

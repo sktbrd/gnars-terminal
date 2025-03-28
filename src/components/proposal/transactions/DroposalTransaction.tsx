@@ -9,12 +9,14 @@ interface DroposalTransactionProps {
   calldata: `0x${string}`;
   index: number;
   descriptionHash?: string;
+  blockNumber?: number;
 }
 
 export default function DroposalTransaction({
   calldata,
   index,
   descriptionHash,
+  blockNumber,
 }: DroposalTransactionProps) {
   const formatURI = (uri: string): string => {
     uri = uri.trim();
@@ -109,6 +111,7 @@ export default function DroposalTransaction({
             src={decodedData.animationURI}
             isVideo
             desxcriptionHash={memoizedDescriptionHash}
+            blockNumber={blockNumber}
           />
         ) : (
           'N/A'

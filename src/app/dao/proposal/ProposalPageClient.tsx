@@ -50,7 +50,6 @@ const useTabNavigation = (initialTab = 'description') => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabMap = ['description', 'votes', 'transactions', 'propdates'];
-
   const tabFromQuery = searchParams?.get('t') || initialTab;
   const initialTabIndex =
     tabMap.indexOf(tabFromQuery) >= 0 ? tabMap.indexOf(tabFromQuery) : 0;

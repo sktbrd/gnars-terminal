@@ -6,7 +6,8 @@ import {
     DialogHeader,
     DialogTitle,
     DialogRoot,
-    DialogFooter
+    DialogFooter,
+    DialogCloseTrigger
 } from "@/components/ui/dialog";
 import { Box, Flex, Text, VStack, Input } from '@chakra-ui/react';
 import 'reactflow/dist/style.css';
@@ -38,12 +39,10 @@ const CollectModal = ({
     isOpen,
     onClose,
     descriptionHash,
-    blockNumber = 27896666
+    blockNumber
 }: CollectModalProps) => {
     const [numMints, setNumMints] = useState(1);
-    const zoraNFTCreator = process.env.NEXT_PUBLIC_DROPOSAL_ADDRESS || '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c';
 
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [matchedTransaction, setMatchedTransaction] = useState<Transaction | null>(null);
     const [matchedTransactionReceipt, setMatchedTransactionReceipt] = useState<TransactionReceipt | null>(null);
     const [loading, setLoading] = useState(false);
@@ -71,8 +70,6 @@ const CollectModal = ({
             if (data.error) {
                 throw new Error(data.error);
             }
-
-            setTransactions(data.transactionDetails || []);
 
             if (data.matchedTransaction) {
                 setMatchedTransaction(data.matchedTransaction);
@@ -117,19 +114,11 @@ const CollectModal = ({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Collect</DialogTitle>
-                    <Button
-                        onClick={onClose}
-                        variant="ghost"
-                        aria-label="Close"
-                        className="absolute right-4 top-4"
-                    >
-                        ✕
-                    </Button>
+                    <DialogCloseTrigger onClick={onClose} />
                 </DialogHeader>
                 <DialogBody>
                     <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
                         <VStack align="start" w={{ base: '100%', md: '50%' }}>
-                            <Text mt={4}>NFT Creator: {zoraNFTCreator}</Text>
                             <Text mt={4}>Token Created: {tokenCreated || 'Waiting for data...'}</Text>
                             <Text mt={4}>
                                 Number of Mints:

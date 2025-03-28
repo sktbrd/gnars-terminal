@@ -6,10 +6,12 @@ const CustomVideoPlayer = React.memo(({
   src,
   isVideo,
   desxcriptionHash,
+  blockNumber,
 }: {
   src: string;
   isVideo: boolean;
   desxcriptionHash?: string;
+  blockNumber?: number;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,7 +73,7 @@ const CustomVideoPlayer = React.memo(({
         )}
 
         {/* Collect button - only visible on hover */}
-        {isHovered && <CollectButton descriptionHash={desxcriptionHash} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
+        {isHovered && <CollectButton blocknumber={blockNumber} descriptionHash={desxcriptionHash} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
       </Box>
     </>
   );

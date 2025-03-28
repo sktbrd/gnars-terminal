@@ -10,6 +10,7 @@ interface CollectButtonProps {
 }
 
 const CollectButton: React.FC<CollectButtonProps> = ({
+    blocknumber,
     descriptionHash,
     onModalOpen,
     onModalClose
@@ -47,6 +48,7 @@ const CollectButton: React.FC<CollectButtonProps> = ({
                 isOpen={showModal}
                 onClose={handleCloseModal}
                 descriptionHash={descriptionHash}
+                blockNumber={blocknumber}
             />
         </>
     );
