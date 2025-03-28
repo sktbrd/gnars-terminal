@@ -76,7 +76,6 @@ export default async function ProposalPage({
     proposal.proposalId
   );
   const editors = await fetchAllEditorsByProposalId(proposal.proposalId);
-  console.log("proposal", proposal);
   return (
     <ProposalPageClient
       proposal={proposal}

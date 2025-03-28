@@ -26,6 +26,7 @@ interface ProposalTransactionsContentProps {
     targets: string[];
     values: string[];
     calldatas: string[] | string; // Allow both string[] and delimited string
+    descriptionHash?: string;
   };
 }
 
@@ -34,11 +35,13 @@ function TransactionItem({
   target,
   value,
   calldata,
+  descriptionHash,
 }: {
   index: number;
   target: string;
   value: string;
   calldata: Address;
+  descriptionHash?: string;
 }) {
   const normalizedCalldata = normalizeCalldata(calldata);
 
@@ -87,9 +90,9 @@ function TransactionItem({
       />
     );
   }
-
+  // TODO: fix me 
   if (target === '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c') {
-    return <DroposalTransaction calldata={calldata} index={index} />;
+    return <DroposalTransaction calldata={calldata} index={index} descriptionHash='' />;
   }
 
   if (target.toLowerCase() === tokenAddress.toLowerCase()) {
@@ -178,6 +181,7 @@ export default function ProposalTransactionsContent({
             target={target}
             value={values[index]}
             calldata={normalizedCalldatas[index] as Address}
+            descriptionHash={proposal.descriptionHash}
           />
         ))}
       </VStack>

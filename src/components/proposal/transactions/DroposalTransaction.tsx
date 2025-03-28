@@ -4,15 +4,18 @@ import droposalABI from './utils/droposalABI';
 import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 import CustomVideoPlayer from '@/components/droposals/CustomVideoPlayer';
+import { Proposal } from '@/app/services/proposal';
 
 interface DroposalTransactionProps {
   calldata: `0x${string}`;
   index: number;
+  descriptionHash?: string;
 }
 
 export default function DroposalTransaction({
   calldata,
   index,
+  descriptionHash,
 }: DroposalTransactionProps) {
   let decodedData: {
     name: string;
@@ -117,13 +120,7 @@ export default function DroposalTransaction({
           <CustomVideoPlayer
             src={decodedData.animationURI}
             isVideo
-            title='Droposal Animation'
-            royalties={decodedData.royaltyBPS}
-            proposer={decodedData.defaultAdmin}
-            fundsRecipient={decodedData.fundsRecipient}
-            description={decodedData.description}
-            saleConfig={null}
-            index={index}
+            desxcriptionHash={descriptionHash}
           />
         ) : (
           'N/A'

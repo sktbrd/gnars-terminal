@@ -157,13 +157,6 @@ export default function DroposalCard() {
             key={idx}
             src={data.animationURI || data.imageURI}
             isVideo={!!data.animationURI}
-            title={data.name}
-            royalties={data.royaltyBPS}
-            proposer={lastProposal.proposer}
-            fundsRecipient={data.fundsRecipient}
-            description={data.description}
-            saleConfig={data.saleConfig}
-            index={idx} // Pass the index here
           />
         ))
       ) : (

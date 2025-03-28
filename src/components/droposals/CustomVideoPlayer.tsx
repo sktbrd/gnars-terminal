@@ -5,23 +5,11 @@ import CollectModal from './CollectModal'; // Import CollectModal
 const CustomVideoPlayer = ({
   src,
   isVideo,
-  title,
-  royalties,
-  proposer,
-  fundsRecipient,
-  description,
-  saleConfig,
-  index,
+  desxcriptionHash,
 }: {
   src: string;
   isVideo: boolean;
-  title: string;
-  royalties: string;
-  proposer: string;
-  fundsRecipient: string;
-  description: string;
-  saleConfig: any;
-  index: number;
+  desxcriptionHash?: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
@@ -48,7 +36,7 @@ const CustomVideoPlayer = ({
         ) : (
           <Image
             src={src}
-            alt={title || 'Droposal Media'}
+            alt={'Video Thumbnail'}
             width='100%'
             height='100%'
             objectFit='cover'
@@ -77,15 +65,7 @@ const CustomVideoPlayer = ({
         <CollectModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)} // Close modal handler
-          title={title}
-          royalties={royalties}
-          proposer={proposer}
-          fundsRecipient={fundsRecipient}
-          description={description}
-          saleConfig={saleConfig}
-          mediaSrc={src}
-          isVideo={isVideo}
-          index={index}
+          descriptionHash={desxcriptionHash}
         />
       )}
     </>
