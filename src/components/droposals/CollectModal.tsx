@@ -9,11 +9,12 @@ import {
     DialogFooter,
     DialogCloseTrigger
 } from "@/components/ui/dialog";
-import { Box, Flex, Text, VStack, Input } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack, Input, Textarea } from '@chakra-ui/react';
 import 'reactflow/dist/style.css';
 import { governorAddress } from '@/hooks/wagmiGenerated';
 import { http, createPublicClient, Address, TransactionReceipt } from 'viem';
 import { base } from 'viem/chains';
+import MintButton from './MintButton';
 
 // Define proper types for better type safety
 type Transaction = {
@@ -39,10 +40,10 @@ const CollectModal = ({
     isOpen,
     onClose,
     descriptionHash,
-    blockNumber
+    blockNumber,
 }: CollectModalProps) => {
     const [numMints, setNumMints] = useState(1);
-
+    const [comment, setComment] = useState(''); // New state for comment
     const [matchedTransaction, setMatchedTransaction] = useState<Transaction | null>(null);
     const [matchedTransactionReceipt, setMatchedTransactionReceipt] = useState<TransactionReceipt | null>(null);
     const [loading, setLoading] = useState(false);
@@ -130,6 +131,22 @@ const CollectModal = ({
                                     style={{ marginLeft: '10px', width: '60px' }}
                                 />
                             </Text>
+
+                            {/* New comment input */}
+                            <Box mt={4} width="100%">
+                                <Text mb={2}>Mint Comment:</Text>
+                                <Textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="Add an optional comment to your mint..."
+                                    size="sm"
+                                    maxLength={200}
+                                />
+                                <Text fontSize="xs" mt={1} textAlign="right">
+                                    {comment.length}/200
+                                </Text>
+                            </Box>
+
                             {descriptionHash && (
                                 <Text mt={4} fontSize="sm">Description Hash: {descriptionHash?.substring(0, 10)}...</Text>
                             )}
@@ -154,17 +171,15 @@ const CollectModal = ({
                     </Box>
                 </DialogBody>
                 <DialogFooter>
-                    <Flex justify="flex-end" mt={4}>
+                    <Flex justify="flex-end" mt={4} gap={2}>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>
                             Close
                         </Button>
-                        <Button
-                            variant="ghost"
-                            disabled={!matchedTransaction}
-                            aria-label="Confirm collection"
-                        >
-                            Confirm
-                        </Button>
+                        <MintButton
+                            tokenCreated={tokenCreated}
+                            quantity={numMints}
+                            comment={comment}
+                        />
                     </Flex>
                 </DialogFooter>
             </DialogContent>

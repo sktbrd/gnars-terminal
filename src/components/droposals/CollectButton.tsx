@@ -5,6 +5,15 @@ import CollectModal from './CollectModal';
 interface CollectButtonProps {
     blocknumber?: number;
     descriptionHash?: string;
+    salesConfig?: {
+        publicSalePrice: number;
+        maxSalePurchasePerAddress: number;
+        publicSaleStart: number;
+        publicSaleEnd: number;
+        presaleStart: number;
+        presaleEnd: number;
+        presaleMerkleRoot: string;
+    };
     onModalOpen?: () => void;
     onModalClose?: () => void;
 }
@@ -12,6 +21,7 @@ interface CollectButtonProps {
 const CollectButton: React.FC<CollectButtonProps> = ({
     blocknumber,
     descriptionHash,
+    salesConfig,
     onModalOpen,
     onModalClose
 }) => {

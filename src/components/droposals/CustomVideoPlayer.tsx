@@ -7,11 +7,21 @@ const CustomVideoPlayer = React.memo(({
   isVideo,
   desxcriptionHash,
   blockNumber,
+  salesConfig,
 }: {
   src: string;
   isVideo: boolean;
   desxcriptionHash?: string;
   blockNumber?: number;
+  salesConfig?: {
+    publicSalePrice: number;
+    maxSalePurchasePerAddress: number;
+    publicSaleStart: number;
+    publicSaleEnd: number;
+    presaleStart: number;
+    presaleEnd: number;
+    presaleMerkleRoot: string;
+  };
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +69,7 @@ const CustomVideoPlayer = React.memo(({
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             controls
             autoPlay
+            loop
             muted
           />
         ) : (
