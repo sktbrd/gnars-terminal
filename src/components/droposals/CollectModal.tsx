@@ -43,12 +43,21 @@ const CollectModal = ({
     blockNumber,
 }: CollectModalProps) => {
     const [numMints, setNumMints] = useState(1);
-    const [comment, setComment] = useState(''); // New state for comment
+    const [comment, setComment] = useState('');
     const [matchedTransaction, setMatchedTransaction] = useState<Transaction | null>(null);
     const [matchedTransactionReceipt, setMatchedTransactionReceipt] = useState<TransactionReceipt | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [tokenCreated, setTokenCreated] = useState<string | null>(null);
+
+    // Refined price states
+    const [mintPricePerUnit, setMintPricePerUnit] = useState(0.008); // Base mint price per unit
+    const [zoraFeePerUnit, setZoraFeePerUnit] = useState(0.002); // Zora fee per unit (example: 20% of mint price)
+
+    // Calculate total price
+    const totalMintPrice = mintPricePerUnit * numMints;
+    const totalZoraFee = zoraFeePerUnit * numMints;
+    const totalPrice = totalMintPrice + totalZoraFee;
 
     // Fetch transaction data from the API
     const fetchGovernorTransactions = useCallback(async () => {
@@ -121,8 +130,10 @@ const CollectModal = ({
                     <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
                         <VStack align="start" w={{ base: '100%', md: '50%' }}>
                             <Text mt={4}>Token Created: {tokenCreated || 'Waiting for data...'}</Text>
-                            <Text mt={4}>
-                                Number of Mints:
+
+                            {/* Number of mints input */}
+                            <Flex mt={4} width="100%" align="center">
+                                <Text>Number of Mints:</Text>
                                 <Input
                                     type="number"
                                     value={numMints}
@@ -130,7 +141,24 @@ const CollectModal = ({
                                     min="1"
                                     style={{ marginLeft: '10px', width: '60px' }}
                                 />
-                            </Text>
+                            </Flex>
+
+                            {/* Enhanced price breakdown */}
+                            <Box mt={3} p={3} borderRadius="md" bg="blackAlpha.100" width="100%">
+                                <Text fontWeight="medium" mb={2}>Price Breakdown:</Text>
+                                <Flex justify="space-between">
+                                    <Text>Mint Price:</Text>
+                                    <Text>{totalMintPrice.toFixed(4)} ETH</Text>
+                                </Flex>
+                                <Flex justify="space-between">
+                                    <Text>Zora Fee:</Text>
+                                    <Text>{totalZoraFee.toFixed(4)} ETH</Text>
+                                </Flex>
+                                <Flex justify="space-between" mt={2} pt={2} borderTop="1px solid" borderColor="gray.300" fontWeight="bold">
+                                    <Text>Total:</Text>
+                                    <Text>{totalPrice.toFixed(4)} ETH</Text>
+                                </Flex>
+                            </Box>
 
                             {/* New comment input */}
                             <Box mt={4} width="100%">
