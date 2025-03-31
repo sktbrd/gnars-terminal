@@ -128,7 +128,7 @@ const CollectModal = ({
                 </DialogHeader>
                 <DialogBody>
                     <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-                        <VStack align="start" w={{ base: '100%', md: '50%' }}>
+                        <VStack align="start" w={{ base: '100%', md: '100%' }}>
                             <Text mt={4}>Token Created: {tokenCreated || 'Waiting for data...'}</Text>
 
                             {/* Number of mints input */}
@@ -186,7 +186,17 @@ const CollectModal = ({
                         {matchedTransaction && (
                             <Box p={3} borderRadius="md">
                                 <Text fontWeight="bold">Matched Transaction</Text>
-                                <Text>Hash: {matchedTransaction.hash.substring(0, 10)}...</Text>
+                                <Text>
+                                    Hash:{' '}
+                                    <a
+                                        href={`https://basescan.org/tx/${matchedTransaction.hash}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {matchedTransaction.hash.substring(0, 10)}...
+                                    </a>
+                                </Text>
+
                                 <Text>Block: {matchedTransaction.blockNumber}</Text>
                                 {matchedTransactionReceipt && (
                                     <>
