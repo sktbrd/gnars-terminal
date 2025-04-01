@@ -9,12 +9,14 @@ import {
     DialogFooter,
     DialogCloseTrigger
 } from "@/components/ui/dialog";
-import { Box, Flex, Text, VStack, Input, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack, Input, Textarea, Collapsible, Icon } from '@chakra-ui/react';
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import 'reactflow/dist/style.css';
 import { governorAddress } from '@/hooks/wagmiGenerated';
 import { http, createPublicClient, Address, TransactionReceipt } from 'viem';
 import { base } from 'viem/chains';
 import MintButton from './MintButton';
+import Image from 'next/image';
 
 // Define proper types for better type safety
 type Transaction = {
@@ -28,6 +30,7 @@ type CollectModalProps = {
     onClose: () => void;
     descriptionHash?: string;
     blockNumber?: number;
+    thumbnail?: string;
 };
 
 // Move the client outside the component to avoid recreating it on each render
@@ -41,6 +44,7 @@ const CollectModal = ({
     onClose,
     descriptionHash,
     blockNumber,
+    thumbnail,
 }: CollectModalProps) => {
     const [numMints, setNumMints] = useState(1);
     const [comment, setComment] = useState('');
@@ -58,6 +62,8 @@ const CollectModal = ({
     const totalMintPrice = mintPricePerUnit * numMints;
     const totalZoraFee = zoraFeePerUnit * numMints;
     const totalPrice = totalMintPrice + totalZoraFee;
+
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     // Fetch transaction data from the API
     const fetchGovernorTransactions = useCallback(async () => {
@@ -129,6 +135,7 @@ const CollectModal = ({
                 <DialogBody>
                     <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
                         <VStack align="start" w={{ base: '100%', md: '100%' }}>
+                            <Image src={thumbnail || '/images/logo.png'} alt="Thumbnail" width={500} height={100} style={{ borderRadius: '8px', width: '100%', height: 'auto' }} />
                             <Text mt={4}>Token Created: {tokenCreated || 'Waiting for data...'}</Text>
 
                             {/* Number of mints input */}
@@ -145,7 +152,6 @@ const CollectModal = ({
 
                             {/* Enhanced price breakdown */}
                             <Box mt={3} p={3} borderRadius="md" bg="blackAlpha.100" width="100%">
-                                <Text fontWeight="medium" mb={2}>Price Breakdown:</Text>
                                 <Flex justify="space-between">
                                     <Text>Mint Price:</Text>
                                     <Text>{totalMintPrice.toFixed(4)} ETH</Text>
@@ -175,37 +181,66 @@ const CollectModal = ({
                                 </Text>
                             </Box>
 
+                            {/* 
+                            keep commented for debugging 
                             {descriptionHash && (
                                 <Text mt={4} fontSize="sm">Description Hash: {descriptionHash?.substring(0, 10)}...</Text>
-                            )}
+                            )} */}
                         </VStack>
                     </Flex>
-                    <Box mt={4} bg="bg" p={4} borderRadius="md">
-                        {loading && <Text>Loading transaction data...</Text>}
-                        {error && <Text color="red.500">Error: {error}</Text>}
-                        {matchedTransaction && (
-                            <Box p={3} borderRadius="md">
-                                <Text fontWeight="bold">Matched Transaction</Text>
-                                <Text>
-                                    Hash:{' '}
-                                    <a
-                                        href={`https://basescan.org/tx/${matchedTransaction.hash}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {matchedTransaction.hash.substring(0, 10)}...
-                                    </a>
-                                </Text>
+                    {/* Transaction details collapsible section */}
+                    <Box mt={4}>
+                        <Collapsible.Root
+                            open={isDetailsOpen}
+                            onOpenChange={details => setIsDetailsOpen(details.open)}
+                        >
+                            <Collapsible.Trigger
+                                as={Flex}
+                                p={3}
+                                borderRadius="md"
+                                bg="bg"
+                                cursor="pointer"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                borderWidth="1px"
+                                borderColor="gray.200"
+                                width="100%"
+                            >
+                                <Text fontWeight="bold">Details</Text>
+                                {isDetailsOpen ? <IoIosArrowUp size={16} /> : <IoIosArrowDown size={16} />}
+                            </Collapsible.Trigger>
 
-                                <Text>Block: {matchedTransaction.blockNumber}</Text>
-                                {matchedTransactionReceipt && (
-                                    <>
-                                        <Text>Gas Used: {matchedTransactionReceipt.gasUsed.toString()}</Text>
-                                        <Text>Log Events: {matchedTransactionReceipt.logs.length}</Text>
-                                    </>
-                                )}
-                            </Box>
-                        )}
+                            <Collapsible.Content>
+                                <Box p={4} bg="bg" borderWidth="1px" borderTop="0" borderBottomRadius="md">
+                                    {loading && <Text>Loading transaction data...</Text>}
+                                    {error && <Text color="red.500">Error: {error}</Text>}
+                                    {matchedTransaction && (
+                                        <Box p={3} borderRadius="md">
+                                            <Text fontWeight="bold">Matched Transaction</Text>
+                                            <Text>
+                                                Hash:{' '}
+                                                <a
+                                                    href={`https://basescan.org/tx/${matchedTransaction.hash}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {matchedTransaction.hash}
+                                                </a>
+                                            </Text>
+                                            <Text>Block: {matchedTransaction.blockNumber}</Text>
+                                            {/* keep commented for debugging 
+                                            
+                                            {matchedTransactionReceipt && (
+                                                <>
+                                                    <Text>Gas Used: {matchedTransactionReceipt.gasUsed.toString()}</Text>
+                                                    <Text>Log Events: {matchedTransactionReceipt.logs.length}</Text>
+                                                </>
+                                            )} */}
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Collapsible.Content>
+                        </Collapsible.Root>
                     </Box>
                 </DialogBody>
                 <DialogFooter>

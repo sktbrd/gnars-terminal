@@ -5,6 +5,7 @@ import CollectModal from './CollectModal';
 interface CollectButtonProps {
     blocknumber?: number;
     descriptionHash?: string;
+    thumbnail?: string;
     salesConfig?: {
         publicSalePrice: number;
         maxSalePurchasePerAddress: number;
@@ -21,6 +22,7 @@ interface CollectButtonProps {
 const CollectButton: React.FC<CollectButtonProps> = ({
     blocknumber,
     descriptionHash,
+    thumbnail,
     salesConfig,
     onModalOpen,
     onModalClose
@@ -59,6 +61,7 @@ const CollectButton: React.FC<CollectButtonProps> = ({
                 onClose={handleCloseModal}
                 descriptionHash={descriptionHash}
                 blockNumber={blocknumber}
+                thumbnail={thumbnail}
             />
         </>
     );

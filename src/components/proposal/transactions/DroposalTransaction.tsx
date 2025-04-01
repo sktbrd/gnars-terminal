@@ -112,6 +112,7 @@ export default function DroposalTransaction({
             isVideo
             desxcriptionHash={memoizedDescriptionHash}
             blockNumber={blockNumber}
+            thumbnail={decodedData.imageURI}
           />
         ) : (
           'N/A'

@@ -8,6 +8,7 @@ const CustomVideoPlayer = React.memo(({
   desxcriptionHash,
   blockNumber,
   salesConfig,
+  thumbnail,
 }: {
   src: string;
   isVideo: boolean;
@@ -22,6 +23,7 @@ const CustomVideoPlayer = React.memo(({
     presaleEnd: number;
     presaleMerkleRoot: string;
   };
+  thumbnail?: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -84,7 +86,7 @@ const CustomVideoPlayer = React.memo(({
         )}
 
         {/* Collect button - only visible on hover */}
-        {isHovered && <CollectButton blocknumber={blockNumber} descriptionHash={desxcriptionHash} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
+        {isHovered && <CollectButton blocknumber={blockNumber} descriptionHash={desxcriptionHash} thumbnail={thumbnail} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
       </Box>
     </>
   );
