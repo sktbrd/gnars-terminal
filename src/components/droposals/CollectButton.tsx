@@ -3,8 +3,7 @@ import { Box, Button } from '@chakra-ui/react';
 import CollectModal from './CollectModal';
 
 interface CollectButtonProps {
-    blocknumber?: number;
-    descriptionHash?: string;
+    name?: string;
     thumbnail?: string;
     salesConfig?: {
         publicSalePrice: number;
@@ -20,8 +19,7 @@ interface CollectButtonProps {
 }
 
 const CollectButton: React.FC<CollectButtonProps> = ({
-    blocknumber,
-    descriptionHash,
+    name,
     thumbnail,
     salesConfig,
     onModalOpen,
@@ -59,9 +57,9 @@ const CollectButton: React.FC<CollectButtonProps> = ({
             <CollectModal
                 isOpen={showModal}
                 onClose={handleCloseModal}
-                descriptionHash={descriptionHash}
-                blockNumber={blocknumber}
                 thumbnail={thumbnail}
+                name={name}
+                salesConfig={salesConfig}
             />
         </>
     );

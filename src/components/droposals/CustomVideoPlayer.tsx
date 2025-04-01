@@ -5,15 +5,13 @@ import CollectButton from './CollectButton'; // Import CollectButton
 const CustomVideoPlayer = React.memo(({
   src,
   isVideo,
-  desxcriptionHash,
-  blockNumber,
   salesConfig,
   thumbnail,
+  name
 }: {
   src: string;
   isVideo: boolean;
-  desxcriptionHash?: string;
-  blockNumber?: number;
+  name?: string;
   salesConfig?: {
     publicSalePrice: number;
     maxSalePurchasePerAddress: number;
@@ -25,19 +23,16 @@ const CustomVideoPlayer = React.memo(({
   };
   thumbnail?: string;
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle hover events only when modal is not open
   const handleMouseEnter = () => {
     if (!isModalOpen) {
-      setIsHovered(true);
     }
   };
 
   const handleMouseLeave = () => {
     if (!isModalOpen) {
-      setIsHovered(false);
     }
   };
 
@@ -45,13 +40,10 @@ const CustomVideoPlayer = React.memo(({
   const handleModalOpen = () => {
     setIsModalOpen(true);
     // Keep hover state active when modal is open
-    setIsHovered(true);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    // Reset hover state based on mouse position
-    setIsHovered(false);
   };
 
   return (
@@ -86,7 +78,7 @@ const CustomVideoPlayer = React.memo(({
         )}
 
         {/* Collect button - only visible on hover */}
-        {isHovered && <CollectButton blocknumber={blockNumber} descriptionHash={desxcriptionHash} thumbnail={thumbnail} onModalOpen={handleModalOpen} onModalClose={handleModalClose} />}
+        <CollectButton name={name} thumbnail={thumbnail} onModalOpen={handleModalOpen} onModalClose={handleModalClose} salesConfig={salesConfig} />
       </Box>
     </>
   );

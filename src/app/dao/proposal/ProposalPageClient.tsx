@@ -37,6 +37,7 @@ import {
   LuScroll,
   LuVote,
 } from 'react-icons/lu';
+import { ProposalProvider } from '@/contexts/ProposalContext';
 
 interface ProposalPageClientProps {
   proposal: Proposal;
@@ -366,45 +367,53 @@ export default function ProposalPageClient({
   }, [isSDKLoaded]);
 
   return (
-    <Container maxW={'breakpoint-lg'} p={0}>
-      <VStack gap={4} align={'start'} w='full'>
-        {/* Proposal Details */}
-        <Box
-          shadow='sm'
-          w='full'
-          padding={4}
-          rounded='md'
-          display='flex'
-          flexDirection='column'
-          gap={2}
-          _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-        >
-          <ProposalHeader
-            proposalNumber={proposalNumber}
-            latestProposalNumber={latestProposalNumber}
+    <ProposalProvider
+      initialProposal={defaultProposal}
+      initialProposalNumber={proposalNumber}
+      initialDescriptionHash={defaultProposal.descriptionHash}
+      initialBlockNumber={defaultProposal.snapshotBlockNumber} // Use snapshotBlockNumber instead of blockNumber
+      initialPropdates={defaultPropdates || []} // Handle null case
+    >
+      <Container maxW={'breakpoint-lg'} p={0}>
+        <VStack gap={4} align={'start'} w='full'>
+          {/* Proposal Details */}
+          <Box
+            shadow='sm'
+            w='full'
+            padding={4}
+            rounded='md'
+            display='flex'
+            flexDirection='column'
+            gap={2}
+            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+          >
+            <ProposalHeader
+              proposalNumber={proposalNumber}
+              latestProposalNumber={latestProposalNumber}
+              proposal={proposal}
+            />
+
+            <VoteCounters proposal={proposal} />
+            <ProposalMetadata proposal={proposal} />
+
+            <CastVote proposal={proposal} setProposal={setProposal} />
+            <QueueProposal proposal={proposal} setProposal={setProposal} />
+            <ExecuteProposal proposal={proposal} setProposal={setProposal} />
+            <CancelProposal proposal={proposal} setProposal={setProposal} />
+          </Box>
+
+          {/* Tabs */}
+          <ProposalTabs
+            activeTab={activeTab}
+            tabMap={tabMap}
+            handleTabChange={handleTabChange}
             proposal={proposal}
+            propdates={propdates}
+            setPropdates={setPropdates}
+            editors={editors || []}
           />
-
-          <VoteCounters proposal={proposal} />
-          <ProposalMetadata proposal={proposal} />
-
-          <CastVote proposal={proposal} setProposal={setProposal} />
-          <QueueProposal proposal={proposal} setProposal={setProposal} />
-          <ExecuteProposal proposal={proposal} setProposal={setProposal} />
-          <CancelProposal proposal={proposal} setProposal={setProposal} />
-        </Box>
-
-        {/* Tabs */}
-        <ProposalTabs
-          activeTab={activeTab}
-          tabMap={tabMap}
-          handleTabChange={handleTabChange}
-          proposal={proposal}
-          propdates={propdates}
-          setPropdates={setPropdates}
-          editors={editors || []}
-        />
-      </VStack>
-    </Container>
+        </VStack>
+      </Container>
+    </ProposalProvider>
   );
 }

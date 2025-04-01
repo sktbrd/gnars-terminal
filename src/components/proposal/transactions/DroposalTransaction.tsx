@@ -5,11 +5,23 @@ import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 import CustomVideoPlayer from '@/components/droposals/CustomVideoPlayer';
 import { useMemo } from 'react';
+
 interface DroposalTransactionProps {
   calldata: `0x${string}`;
   index: number;
   descriptionHash?: string;
   blockNumber?: number;
+}
+
+// Define proper type for SalesConfig
+interface SalesConfig {
+  publicSalePrice: bigint;
+  maxSalePurchasePerAddress: number;
+  publicSaleStart: bigint;
+  publicSaleEnd: bigint;
+  presaleStart: bigint;
+  presaleEnd: bigint;
+  presaleMerkleRoot: string;
 }
 
 export default function DroposalTransaction({
@@ -32,7 +44,7 @@ export default function DroposalTransaction({
         abi: droposalABI,
         data: calldata,
       });
-
+      console.log("args", args);
       const [
         name,
         symbol,
@@ -40,7 +52,7 @@ export default function DroposalTransaction({
         royaltyBPS,
         fundsRecipient,
         defaultAdmin,
-        descriptionHash,
+        saleConfig,
         description,
         animationURI,
         imageURI,
@@ -51,11 +63,24 @@ export default function DroposalTransaction({
         number,
         Address,
         Address,
-        unknown,
+        SalesConfig,
         string,
         string,
         string,
       ];
+
+      // Extract the sales config properly
+      const salesConfig = {
+        publicSalePrice: Number(saleConfig.publicSalePrice) / 1e18, // Convert to ETH
+        maxSalePurchasePerAddress: saleConfig.maxSalePurchasePerAddress,
+        publicSaleStart: Number(saleConfig.publicSaleStart),
+        publicSaleEnd: Number(saleConfig.publicSaleEnd),
+        presaleStart: Number(saleConfig.presaleStart),
+        presaleEnd: Number(saleConfig.presaleEnd),
+        presaleMerkleRoot: saleConfig.presaleMerkleRoot,
+      };
+
+      console.log("Extracted salesConfig:", salesConfig);
 
       return {
         name,
@@ -64,6 +89,7 @@ export default function DroposalTransaction({
         royaltyBPS: (royaltyBPS / 100).toFixed(2),
         fundsRecipient,
         defaultAdmin,
+        salesConfig, // Add salesConfig to the return
         description,
         imageURI: formatURI(imageURI),
         animationURI: formatURI(animationURI),
@@ -75,7 +101,7 @@ export default function DroposalTransaction({
     }
   }, [calldata]);
 
-  const memoizedDescriptionHash = useMemo(() => descriptionHash, [descriptionHash]);
+  // const memoizedDescriptionHash = useMemo(() => descriptionHash, [descriptionHash]);
 
   if (!decodedData) {
     return (
@@ -106,17 +132,19 @@ export default function DroposalTransaction({
             {decodedData.name} ({decodedData.symbol})
           </Code>
         </HStack>
+
         {decodedData.animationURI ? (
           <CustomVideoPlayer
             src={decodedData.animationURI}
             isVideo
-            desxcriptionHash={memoizedDescriptionHash}
-            blockNumber={blockNumber}
             thumbnail={decodedData.imageURI}
+            name={decodedData.name}
+            salesConfig={decodedData.salesConfig} // Pass salesConfig to CustomVideoPlayer
           />
         ) : (
           'N/A'
         )}
+
         {decodedData.imageURI ? (
           <img
             src={decodedData.imageURI}
@@ -125,6 +153,30 @@ export default function DroposalTransaction({
           />
         ) : (
           'N/A'
+        )}
+
+        {/* Add Sales Config information */}
+        {decodedData.salesConfig && (
+          <>
+            <HStack gap={2} align='center'>
+              <Text>Price:</Text>
+              <Code size={'sm'} variant={'surface'}>
+                {decodedData.salesConfig.publicSalePrice} ETH
+              </Code>
+            </HStack>
+            <HStack gap={2} align='center'>
+              <Text>Max Purchase Per Address:</Text>
+              <Code size={'sm'} variant={'surface'}>
+                {decodedData.salesConfig.maxSalePurchasePerAddress}
+              </Code>
+            </HStack>
+            <HStack gap={2} align='center'>
+              <Text>Sale Period:</Text>
+              <Code size={'sm'} variant={'surface'}>
+                {new Date(decodedData.salesConfig.publicSaleStart * 1000).toLocaleDateString()} to {new Date(decodedData.salesConfig.publicSaleEnd * 1000).toLocaleDateString()}
+              </Code>
+            </HStack>
+          </>
         )}
 
         <HStack gap={2} align='center'>

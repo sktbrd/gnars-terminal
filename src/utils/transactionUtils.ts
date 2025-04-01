@@ -2,35 +2,9 @@ import { Address, encodeFunctionData, isAddress, parseUnits, parseEther } from '
 import USDC_ABI from '../components/proposal/transactions/utils/USDC_abi';
 import SENDIT_ABI from '../components/proposal/transactions/utils/SENDIT_abi';
 import DroposalABI from '../components/proposal/transactions/utils/droposalABI';
-import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '../utils/constants';
-import { governorAddress, tokenAbi, tokenAddress } from '@/hooks/wagmiGenerated';
+import { tokenAbi } from '@/hooks/wagmiGenerated';
 
-type DroposalMintDetails = {
-    name: string;
-    symbol: string;
-    description: string;
-    media?: string; // TODO: IMPLEMENT IPFS FILE UPLOAD AND optimize media URL
-    price: string;
-    editionSize?: string;
-    startTime: string;
-    endTime: string;
-    mintLimit: string;
-    royalty: string;
-    payoutAddress: string;
-    adminAddress: string;
-    saleConfig: {
-        publicSalePrice: bigint;
-        maxSalePurchasePerAddress: number;
-        publicSaleStart: bigint;
-        publicSaleEnd: bigint;
-        presaleStart: bigint;
-        presaleEnd: bigint;
-        presaleMerkleRoot: string;
-    };
-    editionType: string;
-    animationURI?: string;
-    imageURI?: string;
-};
+
 const DROPOSAL_CONTRACT_ADDRESS = "0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c";
 
 export const prepareTransactionData = (type: string, details: any, treasureAddress: Address) => {

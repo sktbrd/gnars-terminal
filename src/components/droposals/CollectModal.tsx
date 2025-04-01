@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import {
     DialogBody,
@@ -13,10 +13,13 @@ import { Box, Flex, Text, VStack, Input, Textarea, Collapsible, Icon } from '@ch
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import 'reactflow/dist/style.css';
 import { governorAddress } from '@/hooks/wagmiGenerated';
-import { http, createPublicClient, Address, TransactionReceipt } from 'viem';
+import { http, createPublicClient, Address, TransactionReceipt, formatEther } from 'viem';
 import { base } from 'viem/chains';
 import MintButton from './MintButton';
 import Image from 'next/image';
+import { useProposal } from '@/contexts/ProposalContext';
+import { useReadContract } from 'wagmi';
+import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 
 // Define proper types for better type safety
 type Transaction = {
@@ -28,9 +31,17 @@ type Transaction = {
 type CollectModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    descriptionHash?: string;
-    blockNumber?: number;
     thumbnail?: string;
+    name?: string;
+    salesConfig?: {
+        publicSalePrice: number;
+        maxSalePurchasePerAddress: number;
+        publicSaleStart: number;
+        publicSaleEnd: number;
+        presaleStart: number;
+        presaleEnd: number;
+        presaleMerkleRoot: string;
+    };
 };
 
 // Move the client outside the component to avoid recreating it on each render
@@ -42,26 +53,58 @@ const etherscanClient = createPublicClient({
 const CollectModal = ({
     isOpen,
     onClose,
-    descriptionHash,
-    blockNumber,
     thumbnail,
+    name,
+    salesConfig
 }: CollectModalProps) => {
+    const { descriptionHash, blockNumber, tokenCreated, setTokenCreated, setTransactionReceipt, proposal } = useProposal();
     const [numMints, setNumMints] = useState(1);
     const [comment, setComment] = useState('');
     const [matchedTransaction, setMatchedTransaction] = useState<Transaction | null>(null);
     const [matchedTransactionReceipt, setMatchedTransactionReceipt] = useState<TransactionReceipt | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [tokenCreated, setTokenCreated] = useState<string | null>(null);
 
-    // Refined price states
-    const [mintPricePerUnit, setMintPricePerUnit] = useState(0.008); // Base mint price per unit
-    const [zoraFeePerUnit, setZoraFeePerUnit] = useState(0.002); // Zora fee per unit (example: 20% of mint price)
+    // Fixed Zora protocol fee
+    const zoraProtocolFee = 0.000777; // Zora protocol fee in ETH per token
+
+    // Read contract sales configuration if token is created
+    const contractSalesConfig = useReadContract({
+        address: tokenCreated as Address,
+        abi: zoraMintAbi,
+        functionName: 'salesConfig',
+        args: [],
+    });
+
+    // Determine mint price - prefer contract data if available
+    const mintPricePerUnit = useMemo(() => {
+        // If we have contract data, use that
+        if (contractSalesConfig.data && contractSalesConfig.data.length > 0) {
+            const pricePerTokenInWei = contractSalesConfig.data[0] as bigint;
+            return Number(formatEther(pricePerTokenInWei));
+        }
+
+        // Otherwise fall back to prop data
+        return salesConfig?.publicSalePrice
+            ? (typeof salesConfig.publicSalePrice === 'number'
+                ? salesConfig.publicSalePrice
+                : Number(salesConfig.publicSalePrice) / 1e18)
+            : 0;
+    }, [contractSalesConfig.data, salesConfig]);
 
     // Calculate total price
     const totalMintPrice = mintPricePerUnit * numMints;
-    const totalZoraFee = zoraFeePerUnit * numMints;
+    const totalZoraFee = zoraProtocolFee * numMints;
     const totalPrice = totalMintPrice + totalZoraFee;
+
+    console.log("[CollectModal] Price info:", {
+        mintPricePerUnit,
+        totalMintPrice,
+        totalZoraFee,
+        totalPrice,
+        contractData: contractSalesConfig.data,
+        propData: salesConfig
+    });
 
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -109,6 +152,7 @@ const CollectModal = ({
             const receipt = await etherscanClient.getTransactionReceipt({ hash });
 
             setMatchedTransactionReceipt(receipt);
+            setTransactionReceipt(receipt);
 
             // Extract the created token address from the logs if available
             if (receipt.logs && receipt.logs.length > 0) {
@@ -118,7 +162,7 @@ const CollectModal = ({
             console.error('Error fetching transaction receipt:', error);
             setError('Failed to fetch transaction receipt');
         }
-    }, []);
+    }, [setTokenCreated, setTransactionReceipt]);
 
     // Effect to fetch data when modal opens
     useEffect(() => {
@@ -129,7 +173,7 @@ const CollectModal = ({
         <DialogRoot open={isOpen}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Collect</DialogTitle>
+                    <DialogTitle>Collect {name ? `"${name}"` : proposal.title}</DialogTitle>
                     <DialogCloseTrigger onClick={onClose} />
                 </DialogHeader>
                 <DialogBody>
@@ -150,20 +194,26 @@ const CollectModal = ({
                                 />
                             </Flex>
 
-                            {/* Enhanced price breakdown */}
+                            {/* Price breakdown - estimated UI only */}
                             <Box mt={3} p={3} borderRadius="md" bg="blackAlpha.100" width="100%">
                                 <Flex justify="space-between">
                                     <Text>Mint Price:</Text>
                                     <Text>{totalMintPrice.toFixed(4)} ETH</Text>
                                 </Flex>
                                 <Flex justify="space-between">
-                                    <Text>Zora Fee:</Text>
+                                    <Text>Zora Protocol Fee:</Text>
                                     <Text>{totalZoraFee.toFixed(4)} ETH</Text>
                                 </Flex>
                                 <Flex justify="space-between" mt={2} pt={2} borderTop="1px solid" borderColor="gray.300" fontWeight="bold">
                                     <Text>Total:</Text>
                                     <Text>{totalPrice.toFixed(4)} ETH</Text>
                                 </Flex>
+                                {contractSalesConfig.isLoading && (
+                                    <Text fontSize="xs" mt={2} color="gray.500">Loading price data from contract...</Text>
+                                )}
+                                {contractSalesConfig.error && (
+                                    <Text fontSize="xs" mt={2} color="red.400">Contract price data unavailable. Using estimated price.</Text>
+                                )}
                             </Box>
 
                             {/* New comment input */}
@@ -249,7 +299,6 @@ const CollectModal = ({
                             Close
                         </Button>
                         <MintButton
-                            tokenCreated={tokenCreated}
                             quantity={numMints}
                             comment={comment}
                         />

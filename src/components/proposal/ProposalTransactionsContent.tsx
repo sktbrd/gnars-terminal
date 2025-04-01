@@ -13,6 +13,7 @@ import NftTransferTransaction from './transactions/NFTTransfer';
 import SenditTransaction from './transactions/SenditTransaction';
 import { tokenAddress } from '@/hooks/wagmiGenerated';
 import { SENDIT_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from '@/utils/constants';
+import { useProposal } from '@/contexts/ProposalContext';
 
 // Utility function to normalize calldata
 const normalizeCalldata = (calldata: Address): Address => {
@@ -29,8 +30,6 @@ interface ProposalTransactionsContentProps {
     targets: string[];
     values: string[];
     calldatas: string[] | string; // Allow both string[] and delimited string
-    descriptionHash?: string;
-    blockNumber?: number;
   };
 }
 
@@ -39,16 +38,13 @@ function TransactionItem({
   target,
   value,
   calldata,
-  descriptionHash,
-  blockNumber,
 }: {
   index: number;
   target: string;
   value: string;
   calldata: Address;
-  descriptionHash?: string;
-  blockNumber?: number;
 }) {
+  const { descriptionHash, blockNumber } = useProposal(); // Get from context
   const normalizedCalldata = normalizeCalldata(calldata);
 
   console.debug(`Transaction ${index + 1}:`);
@@ -153,7 +149,8 @@ function TransactionItem({
 export default function ProposalTransactionsContent({
   proposal,
 }: ProposalTransactionsContentProps) {
-  const { targets, values, calldatas, descriptionHash } = proposal;
+  const { targets, values, calldatas } = proposal;
+  const { descriptionHash } = useProposal(); // Get from context
 
   const memoizedDescriptionHash = useMemo(() => descriptionHash, [descriptionHash]);
 
@@ -193,7 +190,6 @@ export default function ProposalTransactionsContent({
             target={target}
             value={values[index]}
             calldata={normalizedCalldatas[index] as Address}
-            descriptionHash={memoizedDescriptionHash}
           />
         ))}
       </VStack>
