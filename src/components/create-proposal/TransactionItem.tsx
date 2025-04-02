@@ -84,12 +84,12 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             { name: "name", placeholder: "Name", validate: (value: string) => value.trim() !== "" || "Name is required." },
             { name: "symbol", placeholder: "Symbol", validate: (value: string) => value.trim() !== "" || "Symbol is required." },
             { name: "description", placeholder: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
-            { name: "animationURI", placeholder: "Animation URI", validate: (value: string) => true },
-            { name: "imageURI", placeholder: "Image URI", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
+            { name: "animationURI", placeholder: "Video", validate: (value: string) => true },
+            { name: "imageURI", placeholder: "Image or Thumbnail", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
             { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid price." },
             { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid start time." },
             { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid end time." },
-            { name: "payoutAddress", placeholder: "Payout Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
+            { name: "payoutAddress", placeholder: "Split Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
             { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." }
         ],
         "CUSTOM TRANSACTION": [
