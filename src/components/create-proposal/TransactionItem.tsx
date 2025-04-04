@@ -55,6 +55,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
     type Field = {
         name: string;
         placeholder: string;
+        label?: string; // Add support for custom label
         validate: (value: string) => boolean | string;
         type?: string;
     };
@@ -81,16 +82,16 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ type, onAdd, onCancel
             { name: "toAddress", placeholder: "Address", validate: (value: string) => isAddress(value) || "Invalid Ethereum address." }
         ],
         "DROPOSAL MINT": [
-            { name: "name", placeholder: "Name", validate: (value: string) => value.trim() !== "" || "Name is required." },
-            { name: "symbol", placeholder: "Symbol", validate: (value: string) => value.trim() !== "" || "Symbol is required." },
-            { name: "description", placeholder: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
-            { name: "animationURI", placeholder: "Video", validate: (value: string) => true },
-            { name: "imageURI", placeholder: "Image or Thumbnail", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
-            { name: "price", placeholder: "Price (ETH)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid price." },
-            { name: "startTime", placeholder: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid start time." },
-            { name: "endTime", placeholder: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid end time." },
-            { name: "payoutAddress", placeholder: "Split Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
-            { name: "adminAddress", placeholder: "Default Admin Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." }
+            { name: "name", placeholder: "Enter collection name", label: "Name", validate: (value: string) => value.trim() !== "" || "Name is required." },
+            { name: "symbol", placeholder: "Enter token symbol", label: "Token Symbol", validate: (value: string) => value.trim() !== "" || "Symbol is required." },
+            { name: "description", placeholder: "Enter description", label: "Description", validate: (value: string) => value.trim() !== "" || "Description is required." },
+            { name: "animationURI", placeholder: "Enter video CID on IPFS", label: "Video CID (Optional)", validate: (value: string) => true },
+            { name: "imageURI", placeholder: "Enter image CID on IPFS", label: "Image CID", validate: (value: string) => value.trim() !== "" || "Image URI is required." },
+            { name: "price", placeholder: "Enter price in ETH", label: "Price (ETH)", validate: (value: string) => !isNaN(Number(value.trim())) || "Invalid price." },
+            { name: "startTime", placeholder: "Select start date", label: "Start Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid start time." },
+            { name: "endTime", placeholder: "Select end date", label: "End Time", type: "date", validate: (value: string) => !isNaN(Date.parse(value.trim())) || "Invalid end time." },
+            { name: "payoutAddress", placeholder: "Enter split address", label: "Split Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." },
+            { name: "adminAddress", placeholder: "Enter admin address", label: "Default Admin Address", validate: (value: string) => isAddress(value.trim()) || "Invalid Ethereum address." }
         ],
         "CUSTOM TRANSACTION": [
             { name: "customData", placeholder: "Enter custom transaction data", validate: (value: string) => value.trim() !== "" || "Custom data is required." }

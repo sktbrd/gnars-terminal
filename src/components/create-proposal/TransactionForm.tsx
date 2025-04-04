@@ -1,10 +1,17 @@
-import { Field } from "@/components/ui/field"; // Assuming this exists
-import { Button, HStack, Input, VStack, Text, Stack } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field";
+import { Button, HStack, Input, VStack, Flex } from "@chakra-ui/react";
 import React, { useRef, useState, useEffect } from "react";
-
+import Link from "next/link"; // Import Next.js Link instead of Chakra UI Link
 type TransactionFormProps = {
     type: string;
-    fields: { name: string; placeholder: string; type?: string; validate?: (value: string) => boolean | string; onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void }[];
+    fields: {
+        name: string;
+        placeholder: string;
+        label?: string; // New property for custom label
+        type?: string;
+        validate?: (value: string) => boolean | string;
+        onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+    }[];
     onAdd: (transaction: { type: string; details: Record<string, any> }) => void;
     onCancel: () => void;
     onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -50,6 +57,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             if (onAmountChange) {
                 onAmountChange(value === "" ? 0 : parseFloat(value.replace(/,/g, '')));
             }
+        } else if ((field === "imageURI" || field === "animationURI") && type === "DROPOSAL MINT") {
+            // For IPFS fields, store with protocol but allow user to input just the CID
+            let processedValue = value.trim();
+
+            // If the value contains a protocol, extract just the resource part
+            if (processedValue.includes("://")) {
+                const parts = processedValue.split("://");
+                processedValue = parts[parts.length - 1];
+            }
+
+            // Store the value with ipfs:// prefix in formData
+            setFormData((prev) => ({ ...prev, [field]: `ipfs://${processedValue}` }));
         } else {
             setFormData((prev) => ({ ...prev, [field]: value }));
         }
@@ -71,7 +90,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 details.animationURI = "";
             }
             details.editionSize = "18446744073709551615"; // Open Edition by default
-            details.royalty = "5000"; // Hardcoded royalty value (50%)
+            details.royalty = "2000"; // Hardcoded royalty value (20%)
         }
 
         console.log("Final transaction details being submitted:", details);
@@ -87,12 +106,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         });
     };
 
+    // Helper function to extract CID from ipfs:// URI for display in input
+    const getDisplayValue = (field: string, value?: string): string => {
+        if (!value) return "";
+
+        if ((field === "imageURI" || field === "animationURI") && value.startsWith("ipfs://")) {
+            return value.substring(7); // Remove "ipfs://" prefix
+        }
+
+        return value;
+    };
+
     return (
         <VStack gap={4} align="stretch">
             {fields.map((field) => (
                 <Field
                     key={field.name}
-                    label={field.placeholder}
+                    label={field.label || field.placeholder}
                     invalid={!!errors[field.name]}
                     errorText={errors[field.name]}
                 >
@@ -112,16 +142,73 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                                 field.onChange && field.onChange(e);
                             }}
                         />
+                    ) : (field.name === "imageURI" || field.name === "animationURI") && type === "DROPOSAL MINT" ? (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: '100%',
+                            borderWidth: '1px',
+                            borderRadius: '0.375rem',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{
+                                backgroundColor: 'var(--chakra-colors-gray-100)',
+                                color: 'var(--chakra-colors-gray-600)',
+                                padding: '0 0.75rem',
+                                height: '2.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                borderRight: '1px solid var(--chakra-colors-gray-200)',
+                                fontSize: '0.875rem',
+                                fontWeight: 500
+                            }}>
+                                ipfs://
+                            </div>
+                            <input
+                                style={{
+                                    border: 'none',
+                                    outline: 'none',
+                                    padding: '0 0.75rem',
+                                    flex: 1,
+                                    height: '2.5rem',
+                                    backgroundColor: 'transparent'
+                                }}
+                                placeholder={field.placeholder}
+                                value={getDisplayValue(field.name, formData[field.name])}
+                                onChange={(e) => {
+                                    handleChange(field.name, e.target.value);
+                                    field.onChange && field.onChange(e);
+                                }}
+                            />
+                        </div>
                     ) : (
-                        <Input
-                            ref={field.name === "amount" ? amountInputRef : undefined}
-                            placeholder={field.placeholder}
-                            value={formData[field.name] || ""}
-                            onChange={(e) => {
-                                handleChange(field.name, e.target.value);
-                                field.onChange && field.onChange(e);
-                            }}
-                        />
+                        <>
+                            <Input
+                                ref={field.name === "amount" ? amountInputRef : undefined}
+                                placeholder={field.placeholder}
+                                value={formData[field.name] || ""}
+                                onChange={(e) => {
+                                    handleChange(field.name, e.target.value);
+                                    field.onChange && field.onChange(e);
+                                }}
+                            />
+                            {field.name === "payoutAddress" && type === "DROPOSAL MINT" && (
+                                <Flex mt={1} ml={3} justifyContent="flex-end">
+                                    <Link
+                                        href="https://app.splits.org/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            color: '#3182ce',
+                                            textDecoration: 'none'
+                                        }}
+                                    >
+                                        Create a Split with Gnars Dao here
+                                    </Link>
+                                </Flex>
+                            )}
+                        </>
                     )}
                 </Field>
             ))}
