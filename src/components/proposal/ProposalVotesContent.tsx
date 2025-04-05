@@ -2,6 +2,8 @@ import { Avatar } from '@/components/ui/avatar';
 import { Box, Card, Code, HStack, Stack, Text, VStack } from '@chakra-ui/react';
 import { FormattedAddress } from '../utils/names';
 import { useState } from 'react';
+import { text } from 'stream/consumers';
+import Markdown from './markdown';
 
 export type VoteSupport = 'FOR' | 'AGAINST' | 'ABSTAIN';
 
@@ -146,7 +148,7 @@ export default function ProposalVotesContent({
                     p={3}
                     borderRadius='md'
                   >
-                    <Text>{vote.reason}</Text>
+                    <Markdown text={vote.reason} />
                   </Box>
                 )}
               </VStack>
