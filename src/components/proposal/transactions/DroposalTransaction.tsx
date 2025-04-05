@@ -44,7 +44,6 @@ export default function DroposalTransaction({
         abi: droposalABI,
         data: calldata,
       });
-      console.log("args", args);
       const [
         name,
         symbol,
@@ -80,7 +79,6 @@ export default function DroposalTransaction({
         presaleMerkleRoot: saleConfig.presaleMerkleRoot,
       };
 
-      console.log("Extracted salesConfig:", salesConfig);
 
       return {
         name,

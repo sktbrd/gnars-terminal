@@ -47,9 +47,6 @@ function TransactionItem({
   const { descriptionHash, blockNumber } = useProposal(); // Get from context
   const normalizedCalldata = normalizeCalldata(calldata);
 
-  console.debug(`Transaction ${index + 1}:`);
-  console.debug(`Target Address: ${target}`);
-  console.debug(`Normalized Calldata: ${normalizedCalldata}`);
 
   if (target === SENDIT_CONTRACT_ADDRESS) {
     const senditTransaction = isValidCalldata(normalizedCalldata)

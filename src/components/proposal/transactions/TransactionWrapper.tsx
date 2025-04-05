@@ -1,5 +1,5 @@
 import { Box, Heading, VStack, HStack, Image } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 
 interface TransactionWrapperProps {
     index: number;
@@ -9,13 +9,14 @@ interface TransactionWrapperProps {
     logoAlt?: string;
 }
 
-const TransactionWrapper: React.FC<TransactionWrapperProps> = ({
+// Apply memoization to prevent unnecessary re-renders
+const TransactionWrapper = memo(({
     index,
     title,
     children,
     logoSrc,
     logoAlt,
-}) => {
+}: TransactionWrapperProps) => {
     return (
         <Box
             borderWidth='1px'
@@ -38,6 +39,9 @@ const TransactionWrapper: React.FC<TransactionWrapperProps> = ({
             </VStack>
         </Box>
     );
-};
+});
+
+// Add display name for better debugging
+TransactionWrapper.displayName = 'TransactionWrapper';
 
 export default TransactionWrapper;

@@ -96,16 +96,6 @@ const CollectModal = ({
     const totalMintPrice = mintPricePerUnit * numMints;
     const totalZoraFee = zoraProtocolFee * numMints;
     const totalPrice = totalMintPrice + totalZoraFee;
-
-    console.log("[CollectModal] Price info:", {
-        mintPricePerUnit,
-        totalMintPrice,
-        totalZoraFee,
-        totalPrice,
-        contractData: contractSalesConfig.data,
-        propData: salesConfig
-    });
-
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     // Fetch transaction data from the API

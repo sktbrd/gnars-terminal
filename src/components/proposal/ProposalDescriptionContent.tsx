@@ -1,13 +1,19 @@
 import { Box } from '@chakra-ui/react';
 import Markdown from '@/components/proposal/markdown';
+import { memo, useMemo } from 'react';
 
 interface ProposalDescriptionContentProps {
   proposal: any;
 }
 
-export default function ProposalDescriptionContent({
+const ProposalDescriptionContent = memo(({
   proposal,
-}: ProposalDescriptionContentProps) {
+}: ProposalDescriptionContentProps) => {
+  // Memoize the markdown content to prevent unnecessary re-renders
+  const markdownContent = useMemo(() => {
+    return <Markdown text={proposal.description} />;
+  }, [proposal.description]);
+
   return (
     <Box
       display={'flex'}
@@ -19,7 +25,11 @@ export default function ProposalDescriptionContent({
       }}
       px={2}
     >
-      <Markdown text={proposal.description} />
+      {markdownContent}
     </Box>
   );
-}
+});
+
+ProposalDescriptionContent.displayName = 'ProposalDescriptionContent';
+
+export default ProposalDescriptionContent;
