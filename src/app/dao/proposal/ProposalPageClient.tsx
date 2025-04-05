@@ -88,19 +88,26 @@ const ProposalDetails = memo(({
 ProposalDetails.displayName = 'ProposalDetails';
 
 // Optimize the useTabNavigation hook to prevent unnecessary re-renders
-const useTabNavigation = (initialTab = 'description') => {
+const useTabNavigation = (initialTab = 'description', hasVotes = true) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tabMap = useMemo(() => ['description', 'votes', 'transactions', 'propdates'], []);
+
+  // Create dynamic tabMap based on whether votes exist
+  const tabMap = useMemo(() => {
+    const tabs = ['description'];
+    if (hasVotes) tabs.push('votes');
+    tabs.push('transactions', 'propdates');
+    return tabs;
+  }, [hasVotes]);
 
   // Extract query parameter only once
   const tabFromQuery = useMemo(() => searchParams?.get('t') || initialTab, [searchParams, initialTab]);
 
   // Calculate initial tab index only once
-  const initialTabIndex = useMemo(() =>
-    tabMap.indexOf(tabFromQuery) >= 0 ? tabMap.indexOf(tabFromQuery) : 0,
-    [tabFromQuery, tabMap]
-  );
+  const initialTabIndex = useMemo(() => {
+    const index = tabMap.indexOf(tabFromQuery);
+    return index >= 0 ? index : 0;
+  }, [tabFromQuery, tabMap]);
 
   const [activeTab, setActiveTab] = useState(initialTabIndex);
 
@@ -361,6 +368,9 @@ const ProposalTabs = memo(
     const [generatedTabs, setGeneratedTabs] = useState<{ [key: string]: boolean }>({});
     const currentTabName = tabMap[activeTab];
 
+    // Check if proposal has votes
+    const hasVotes = useMemo(() => proposal.votes && proposal.votes.length > 0, [proposal]);
+
     // Create early access to tab content to improve perceived performance
     useEffect(() => {
       // Mark current tab as generated
@@ -461,10 +471,12 @@ const ProposalTabs = memo(
               <LuScroll />
               <Text fontSize={'xs'}>Description</Text>
             </Tabs.Trigger>
-            <Tabs.Trigger value='votes' display='flex' alignItems='center' data-value="votes">
-              <LuVote />
-              <Text fontSize={'xs'}>Votes</Text>
-            </Tabs.Trigger>
+            {tabMap.includes('votes') && (
+              <Tabs.Trigger value='votes' display='flex' alignItems='center' data-value="votes">
+                <LuVote />
+                <Text fontSize={'xs'}>Votes</Text>
+              </Tabs.Trigger>
+            )}
             <Tabs.Trigger value='transactions' display='flex' alignItems='center' data-value="transactions">
               <FaEthereum />
               <Text fontSize={'xs'}>Transactions</Text>
@@ -487,16 +499,18 @@ const ProposalTabs = memo(
             {descriptionContent}
           </Tabs.Content>
 
-          <Tabs.Content
-            value='votes'
-            pt={2}
-            _open={{
-              animationName: 'fade-in',
-              animationDuration: '300ms',
-            }}
-          >
-            {votesContent}
-          </Tabs.Content>
+          {tabMap.includes('votes') && (
+            <Tabs.Content
+              value='votes'
+              pt={2}
+              _open={{
+                animationName: 'fade-in',
+                animationDuration: '300ms',
+              }}
+            >
+              {votesContent}
+            </Tabs.Content>
+          )}
 
           <Tabs.Content
             value='transactions'
@@ -551,7 +565,13 @@ export default function ProposalPageClient({
     defaultPropdates || []
   );
 
-  const { activeTab, tabMap, handleTabChange } = useTabNavigation();
+  // Check if proposal has votes
+  const hasVotes = useMemo(() =>
+    proposal.votes && proposal.votes.length > 0,
+    [proposal]
+  );
+
+  const { activeTab, tabMap, handleTabChange } = useTabNavigation('description', hasVotes);
 
   // SDK initialization logic
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);

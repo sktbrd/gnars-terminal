@@ -23,62 +23,87 @@ export default function ProposalVotesContent({
 }: ProposalVotesContentProps) {
   const [activeFilter, setActiveFilter] = useState<VoteSupport | 'ALL'>('ALL');
 
+  // Check if there are no votes at all
+  const hasNoVotes = proposal.votes.length === 0;
+
+  // Check if there are votes for each support type
+  const hasForVotes = proposal.votes.some(vote => vote.support === 'FOR');
+  const hasAgainstVotes = proposal.votes.some(vote => vote.support === 'AGAINST');
+  const hasAbstainVotes = proposal.votes.some(vote => vote.support === 'ABSTAIN');
+
+  // Determine if all votes are of the same type
+  const allSameVoteType =
+    (hasForVotes && !hasAgainstVotes && !hasAbstainVotes) ||
+    (!hasForVotes && hasAgainstVotes && !hasAbstainVotes) ||
+    (!hasForVotes && !hasAgainstVotes && hasAbstainVotes);
+
+  // Don't show filters if there are no votes or all votes are the same type
+  const shouldShowFilters = !hasNoVotes && !allSameVoteType;
+
   const filteredVotes = proposal.votes.filter(
     (vote) => activeFilter === 'ALL' || vote.support === activeFilter
   );
 
   return (
     <Stack gap={4} px={2} w='full'>
-      <HStack gap={2} wrap='wrap' justify='center' mt={4}>
-        <Code
-          as='button'
-          variant='surface'
-          size='lg'
-          colorPalette='yellow'
-          cursor='pointer'
-          onClick={() => setActiveFilter('ALL')}
-          opacity={activeFilter === 'ALL' ? 1 : 0.6}
-          _hover={{ opacity: 1 }}
-        >
-          ALL
-        </Code>
-        <Code
-          as='button'
-          variant='surface'
-          size='lg'
-          colorPalette='green'
-          cursor='pointer'
-          onClick={() => setActiveFilter('FOR')}
-          opacity={activeFilter === 'FOR' ? 1 : 0.6}
-          _hover={{ opacity: 1 }}
-        >
-          FOR
-        </Code>
-        <Code
-          as='button'
-          variant='surface'
-          size='lg'
-          colorPalette='red'
-          cursor='pointer'
-          onClick={() => setActiveFilter('AGAINST')}
-          opacity={activeFilter === 'AGAINST' ? 1 : 0.6}
-          _hover={{ opacity: 1 }}
-        >
-          AGAINST
-        </Code>
-        <Code
-          as='button'
-          variant='surface'
-          size='lg'
-          colorPalette='gray'
-          cursor='pointer'
-          onClick={() => setActiveFilter('ABSTAIN')}
-          opacity={activeFilter === 'ABSTAIN' ? 1 : 0.6}
-          _hover={{ opacity: 1 }}
-        >
-          ABSTAIN
-        </Code>
-      </HStack>
+      {shouldShowFilters && (
+        <HStack gap={2} wrap='wrap' justify='center' mt={4}>
+          <Code
+            as='button'
+            variant='surface'
+            size='lg'
+            colorPalette='yellow'
+            cursor='pointer'
+            onClick={() => setActiveFilter('ALL')}
+            opacity={activeFilter === 'ALL' ? 1 : 0.6}
+            _hover={{ opacity: 1 }}
+          >
+            ALL
+          </Code>
+          {hasForVotes && (
+            <Code
+              as='button'
+              variant='surface'
+              size='lg'
+              colorPalette='green'
+              cursor='pointer'
+              onClick={() => setActiveFilter('FOR')}
+              opacity={activeFilter === 'FOR' ? 1 : 0.6}
+              _hover={{ opacity: 1 }}
+            >
+              FOR
+            </Code>
+          )}
+          {hasAgainstVotes && (
+            <Code
+              as='button'
+              variant='surface'
+              size='lg'
+              colorPalette='red'
+              cursor='pointer'
+              onClick={() => setActiveFilter('AGAINST')}
+              opacity={activeFilter === 'AGAINST' ? 1 : 0.6}
+              _hover={{ opacity: 1 }}
+            >
+              AGAINST
+            </Code>
+          )}
+          {hasAbstainVotes && (
+            <Code
+              as='button'
+              variant='surface'
+              size='lg'
+              colorPalette='gray'
+              cursor='pointer'
+              onClick={() => setActiveFilter('ABSTAIN')}
+              opacity={activeFilter === 'ABSTAIN' ? 1 : 0.6}
+              _hover={{ opacity: 1 }}
+            >
+              ABSTAIN
+            </Code>
+          )}
+        </HStack>
+      )}
       <Stack gap={2}>
         {filteredVotes.map((vote, index) => (
           <Card.Root key={index} size='md' borderRadius='lg' variant='outline'>
