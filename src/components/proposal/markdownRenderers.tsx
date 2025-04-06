@@ -43,10 +43,11 @@ const MarkdownRenderers = {
       title={title}
       style={{
         maxWidth: '100%',
-        maxHeight: '345px',
-        borderRadius: '10px',
+        objectFit: 'cover', // Ensure the image fits nicely within the fixed height
+        borderRadius: '5px',
         display: 'block',
         margin: '0 auto',
+        width: '100%',
       }}
     />
   ),
