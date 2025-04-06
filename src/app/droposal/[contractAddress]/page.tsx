@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Address, formatEther } from 'viem';
-import { useReadContract, useSimulateContract } from 'wagmi';
+import { Address, formatEther, parseEther } from 'viem';
+import {
+  useReadContract,
+  useSimulateContract,
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from 'wagmi';
 import {
   Box,
   Container,
@@ -17,6 +23,7 @@ import {
 import Image from 'next/image';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 import { safeParseJson } from '@/utils/zora';
+import FormattedAddress from '@/components/utils/names';
 interface TokenMetadata {
   name: string;
   description: string;
@@ -76,6 +83,11 @@ export default function DroposalPage() {
   const [metadata, setMetadata] = useState<TokenMetadata | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
+  const [totalSupply, setTotalSupply] = useState<bigint | null>(null);
+  const [minters, setMinters] = useState<
+    { address: string; tokenId: bigint }[]
+  >([]);
+  const [loadingMinters, setLoadingMinters] = useState(false);
 
   // Ensure contractAddress is properly formatted
   const formattedContractAddress = Array.isArray(contractAddress)
@@ -133,13 +145,6 @@ export default function DroposalPage() {
       }
     : undefined;
 
-  const { data: name } = useReadContract({
-    address: formattedContractAddress,
-    abi: zoraMintAbi,
-    functionName: 'name',
-    args: [],
-  });
-
   // Get tokenURI for tokenId 1
   const { data: tokenUri } = useReadContract({
     address: formattedContractAddress,
@@ -147,6 +152,165 @@ export default function DroposalPage() {
     functionName: 'tokenURI',
     args: [1n], // Using tokenId 1
   });
+
+  // Get total supply
+  const { data: totalSupplyData } = useReadContract({
+    address: formattedContractAddress,
+    abi: zoraMintAbi,
+    functionName: 'totalSupply',
+    args: [],
+  });
+
+  // Effect to set total supply when data is available
+  useEffect(() => {
+    if (totalSupplyData) {
+      setTotalSupply(totalSupplyData as bigint);
+    }
+  }, [totalSupplyData]);
+
+  // Function to get token owner
+  const getTokenOwner = async (tokenId: bigint) => {
+    try {
+      console.log(`Fetching owner for token #${tokenId}`);
+      const response = await fetch(
+        `/api/zora?contractAddress=${formattedContractAddress}&tokenId=${tokenId.toString()}`
+      );
+
+      const data = await response.json();
+
+      // Check for special case of internal error contract
+      if (data.isInternalErrorContract) {
+        console.log(
+          'Contract returns internal error for standard calls, skipping further requests'
+        );
+        // Return special value to indicate we shouldn't try more requests
+        return 'INTERNAL_ERROR_CONTRACT';
+      }
+
+      // Check if the token exists
+      if (!response.ok || !data.exists) {
+        console.log(`Token #${tokenId} does not exist or has no owner`);
+        return null;
+      }
+
+      console.log(`Owner for token #${tokenId}:`, data.owner);
+      return data.owner;
+    } catch (err) {
+      console.error(`Error fetching owner for token ${tokenId}:`, err);
+      return null;
+    }
+  };
+
+  // Fetch all minters recursively with improved error handling
+  useEffect(() => {
+    const fetchMinters = async () => {
+      if (!totalSupply && totalSupply !== 0n) {
+        console.log('Total supply not available yet');
+        return;
+      }
+
+      setLoadingMinters(true);
+
+      try {
+        const mintersArray: { address: string; tokenId: bigint }[] = [];
+        const addressSet = new Set<string>(); // To track unique addresses
+
+        // Try token #1 first to detect issues early
+        const firstTokenOwner = await getTokenOwner(1n);
+
+        // If contract returns internal errors, don't try to fetch more tokens
+        if (firstTokenOwner === 'INTERNAL_ERROR_CONTRACT') {
+          console.log('Skipping minter fetching for internal error contract');
+          setLoadingMinters(false);
+          return;
+        }
+
+        // If totalSupply is 0 or we couldn't get it, try a few token IDs anyway
+        const maxTokensToFetch =
+          !totalSupply || totalSupply === 0n
+            ? 5n
+            : totalSupply > 20n
+              ? 20n
+              : totalSupply;
+
+        // Start from the latest tokens which are more likely to exist
+        const startTokenId =
+          totalSupply && totalSupply > maxTokensToFetch
+            ? totalSupply - maxTokensToFetch + 1n
+            : 1n;
+
+        console.log(
+          `Fetching owners for tokens ${startTokenId} to ${totalSupply || 'unknown'}`
+        );
+
+        // Process tokens in smaller batches (2 at a time)
+        for (
+          let i = startTokenId;
+          i <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
+          i += 2n
+        ) {
+          const batchPromises = [];
+
+          for (
+            let j = 0n;
+            j < 2n &&
+            i + j <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
+            j++
+          ) {
+            const tokenId = i + j;
+            batchPromises.push(
+              getTokenOwner(tokenId).then((owner) => ({ owner, tokenId }))
+            );
+          }
+
+          // Wait between batches to avoid rate limiting
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const results = await Promise.allSettled(batchPromises);
+
+          let shouldBreak = false;
+
+          results.forEach((result) => {
+            if (result.status === 'fulfilled') {
+              if (result.value.owner === 'INTERNAL_ERROR_CONTRACT') {
+                shouldBreak = true;
+                return;
+              }
+
+              if (result.value.owner) {
+                const { owner, tokenId } = result.value;
+                if (!addressSet.has(owner)) {
+                  addressSet.add(owner);
+                  mintersArray.push({ address: owner, tokenId });
+                }
+              }
+            }
+          });
+
+          if (shouldBreak) {
+            break;
+          }
+
+          // If we have at least some results, we can show them
+          if (mintersArray.length > 0) {
+            setMinters([...mintersArray]);
+          }
+        }
+
+        if (mintersArray.length === 0) {
+          console.log(
+            'No token owners found. Contract might be newly deployed or not have any mints yet.'
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching minters:', err);
+      } finally {
+        setLoadingMinters(false);
+      }
+    };
+
+    fetchMinters();
+  }, [totalSupply, formattedContractAddress]);
 
   // Fetch metadata when URI is available
   useEffect(() => {
@@ -204,6 +368,113 @@ export default function DroposalPage() {
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setComment(e.target.value);
   };
+
+  const { address } = useAccount();
+  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(
+    null
+  );
+
+  // Set up contract writing
+  const {
+    writeContract,
+    isPending: isWritePending,
+    error: writeError,
+    data: hash,
+  } = useWriteContract();
+
+  // Track transaction status
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    error: confirmError,
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  // Combined loading state
+  const isLoading = isWritePending || isConfirming || isPending;
+
+  // Calculate the total price including protocol fee
+  const calculateTotalPrice = () => {
+    if (!salesConfig || !zoraFeeData.data) return null;
+
+    // Get price per token from salesConfig
+    const pricePerTokenInWei = salesConfig.publicSalePrice
+      ? parseEther(salesConfig.publicSalePrice.toString())
+      : 0n;
+
+    // Calculate mint price (price per token * quantity)
+    const mintPrice = pricePerTokenInWei * BigInt(quantity);
+
+    // Get Zora protocol fee
+    const zoraProtocolFee = zoraFeeData.data[1] as bigint;
+
+    // Calculate total (mint price + protocol fee)
+    const totalValue = mintPrice + zoraProtocolFee;
+
+    return {
+      pricePerTokenInWei,
+      mintPrice,
+      zoraProtocolFee,
+      totalValue,
+      totalInEth: Number(totalValue) / 1e18, // For display
+    };
+  };
+
+  // Handle mint action
+  const handleMint = async () => {
+    if (!formattedContractAddress || !address) {
+      console.warn('Cannot mint: missing contract address or user address');
+      return;
+    }
+
+    if (!salesConfig) {
+      console.warn('Cannot mint: salesConfig not available');
+      return;
+    }
+
+    if (!zoraFeeData.data) {
+      console.warn('Cannot mint: Zora fee data not loaded yet');
+      return;
+    }
+
+    const priceInfo = calculateTotalPrice();
+    if (!priceInfo) {
+      console.warn('Cannot mint: price information not available');
+      return;
+    }
+
+    console.log('Starting mint process:', {
+      contractAddress: formattedContractAddress,
+      quantity,
+      comment,
+      totalValue: priceInfo.totalValue.toString(),
+      totalInEth: priceInfo.totalInEth,
+    });
+
+    setIsPending(true);
+    try {
+      writeContract({
+        address: formattedContractAddress,
+        abi: zoraMintAbi,
+        functionName: 'purchaseWithComment',
+        args: [BigInt(quantity), comment],
+        value: priceInfo.totalValue,
+      });
+    } catch (err) {
+      console.error('Exception during mint:', err);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // Log when hash is received
+  useEffect(() => {
+    if (hash) {
+      console.log('Transaction hash received:', hash);
+      setTransactionHash(hash);
+    }
+  }, [hash]);
 
   // Handle loading states
   if (loading) {
@@ -351,34 +622,96 @@ export default function DroposalPage() {
 
             {/* Mint Button */}
             <Box>
-              <Button colorScheme='blue' size='lg' width='100%'>
-                Collect for{' '}
-                {salesConfig?.publicSalePrice
-                  ? `${(salesConfig.publicSalePrice * quantity).toFixed(3)} ETH`
-                  : ''}
+              <Button
+                colorScheme='blue'
+                size='lg'
+                width='100%'
+                onClick={handleMint}
+                disabled={!address || isLoading || !salesConfig}
+              >
+                {isConfirmed
+                  ? 'Collected!'
+                  : `Collect for ${
+                      salesConfig?.publicSalePrice
+                        ? `${(salesConfig.publicSalePrice * quantity).toFixed(3)} ETH${zoraFeeData.data ? ' + fees' : ''}`
+                        : ''
+                    }`}
               </Button>
+
+              {/* {writeError && (
+                <Text color='red.500' fontSize='sm' mt={2}>
+                  Error: {writeError.message}
+                </Text>
+              )} */}
+
+              {confirmError && (
+                <Text color='red.500' fontSize='sm' mt={2}>
+                  Transaction failed: {confirmError.message}
+                </Text>
+              )}
+
+              {isConfirmed && (
+                <Text color='green.500' fontSize='sm' mt={2}>
+                  Successfully minted!
+                  {transactionHash && (
+                    <a
+                      href={`https://basescan.org/tx/${transactionHash}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      style={{ marginLeft: '4px', textDecoration: 'underline' }}
+                    >
+                      View on BaseScan
+                    </a>
+                  )}
+                </Text>
+              )}
             </Box>
 
-            {/* Offers Section */}
+            {/* Supporters Section */}
             <Box>
-              <Heading size='md' mb={2}>
-                Offers
+              <Heading size='md' mb={4}>
+                Supporters
               </Heading>
-              <Text>No active offers for this token.</Text>
+              {loadingMinters ? (
+                <Flex justify='center' my={4}>
+                  <Spinner size='sm' mr={2} />
+                  <Text>Loading supporters...</Text>
+                </Flex>
+              ) : minters.length > 0 ? (
+                <VStack align='stretch' gap={2}>
+                  {minters.map((minter, index) => (
+                    <Flex
+                      key={index}
+                      justify='space-between'
+                      p={2}
+                      bg='gray.50'
+                      borderRadius='md'
+                    >
+                      <FormattedAddress address={minter.address} />
+                      <Text fontSize='sm' color='gray.500'>
+                        Token #{minter.tokenId.toString()}
+                      </Text>
+                    </Flex>
+                  ))}
+                </VStack>
+              ) : (
+                <Text>No supporters found</Text>
+              )}
             </Box>
 
             <hr />
 
             {/* Details Section */}
             <Box>
-              <Heading size='md' mb={4}>
+              {/* <Heading size='md' mb={4}>
                 Details
-              </Heading>
+              </Heading> */}
               <Text>
                 <strong>Contract Address:</strong> {contractAddress}
               </Text>
               <Text>
-                <strong>Token ID:</strong>
+                <strong>Total Supply:</strong>{' '}
+                {totalSupply ? totalSupply.toString() : 'Loading...'}
               </Text>
             </Box>
           </VStack>
