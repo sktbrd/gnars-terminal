@@ -515,14 +515,14 @@ export default function DroposalPage() {
     <Container maxW='container.xl' py={10}>
       <Flex gap={10} flexDirection={{ base: 'column', md: 'row' }}>
         {/* Left Section: Media (Video or Image) */}
-        <Box flex='1'>
+        <Box flex='1' minW={{ base: '100%', md: '60%' }}>
           {metadata?.animation_url ? (
             // Render video if animation_url exists
             <Box
               borderRadius='lg'
               overflow='hidden'
               position='relative'
-              height='500px'
+              height={{ base: '300px', md: 'auto' }}
               mb={6}
             >
               <video
@@ -593,11 +593,6 @@ export default function DroposalPage() {
                 >
                   +
                 </Button>
-                <Text ml={4} fontSize='sm' color='gray.500'>
-                  {salesConfig?.maxSalePurchasePerAddress
-                    ? `Max ${salesConfig.maxSalePurchasePerAddress} per wallet`
-                    : ''}
-                </Text>
               </Flex>
             </Box>
 
@@ -684,7 +679,7 @@ export default function DroposalPage() {
                       key={index}
                       justify='space-between'
                       p={2}
-                      bg='gray.50'
+                      bg='transparent'
                       borderRadius='md'
                     >
                       <FormattedAddress address={minter.address} />
