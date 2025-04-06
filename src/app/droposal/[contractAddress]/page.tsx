@@ -36,6 +36,13 @@ interface TokenMetadata {
   attributes?: Array<{ trait_type: string; value: string }>;
 }
 
+// Add interface for aggregated holders
+interface AggregatedHolder {
+  address: string;
+  tokenCount: number;
+  tokenIds: bigint[];
+}
+
 const processBase64TokenUri = (tokenUri: string): TokenMetadata => {
   const base64Data = tokenUri.split(',')[1];
   const base64Decoded = atob(base64Data);
@@ -84,10 +91,21 @@ export default function DroposalPage() {
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
   const [totalSupply, setTotalSupply] = useState<bigint | null>(null);
-  const [minters, setMinters] = useState<
+
+  // Update minters state to store raw token data
+  const [rawMinters, setRawMinters] = useState<
     { address: string; tokenId: bigint }[]
   >([]);
+
+  // Add new state for aggregated holders
+  const [aggregatedHolders, setAggregatedHolders] = useState<
+    AggregatedHolder[]
+  >([]);
+  const [visibleHolders, setVisibleHolders] = useState<AggregatedHolder[]>([]);
   const [loadingMinters, setLoadingMinters] = useState(false);
+  const [hasMoreHolders, setHasMoreHolders] = useState(true);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
   // Ensure contractAddress is properly formatted
   const formattedContractAddress = Array.isArray(contractAddress)
@@ -201,6 +219,54 @@ export default function DroposalPage() {
     }
   };
 
+  // New function to aggregate and rank holders
+  const aggregateAndRankHolders = (
+    minters: { address: string; tokenId: bigint }[]
+  ): AggregatedHolder[] => {
+    // Create a map to aggregate holders
+    const holdersMap = new Map<string, { count: number; tokens: bigint[] }>();
+
+    // Count tokens per address
+    minters.forEach(({ address, tokenId }) => {
+      if (holdersMap.has(address)) {
+        const data = holdersMap.get(address)!;
+        data.count += 1;
+        data.tokens.push(tokenId);
+      } else {
+        holdersMap.set(address, { count: 1, tokens: [tokenId] });
+      }
+    });
+
+    // Convert map to array and sort by token count (descending)
+    const sorted = Array.from(holdersMap.entries())
+      .map(([address, data]) => ({
+        address,
+        tokenCount: data.count,
+        tokenIds: data.tokens,
+      }))
+      .sort((a, b) => b.tokenCount - a.tokenCount);
+
+    return sorted;
+  };
+
+  // Function to load more holders
+  const loadMoreHolders = () => {
+    const nextPage = page + 1;
+    const start = (nextPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const nextBatch = aggregatedHolders.slice(start, end);
+
+    if (nextBatch.length > 0) {
+      setVisibleHolders((prev) => [...prev, ...nextBatch]);
+      setPage(nextPage);
+    }
+
+    // Check if we've loaded all holders
+    if (end >= aggregatedHolders.length) {
+      setHasMoreHolders(false);
+    }
+  };
+
   // Fetch all minters recursively with improved error handling
   useEffect(() => {
     const fetchMinters = async () => {
@@ -229,8 +295,8 @@ export default function DroposalPage() {
         const maxTokensToFetch =
           !totalSupply || totalSupply === 0n
             ? 5n
-            : totalSupply > 20n
-              ? 20n
+            : totalSupply > 50n
+              ? 50n
               : totalSupply;
 
         // Start from the latest tokens which are more likely to exist
@@ -243,17 +309,17 @@ export default function DroposalPage() {
           `Fetching owners for tokens ${startTokenId} to ${totalSupply || 'unknown'}`
         );
 
-        // Process tokens in smaller batches (2 at a time)
+        // Process tokens in smaller batches (5 at a time)
         for (
           let i = startTokenId;
           i <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
-          i += 2n
+          i += 5n
         ) {
           const batchPromises = [];
 
           for (
             let j = 0n;
-            j < 2n &&
+            j < 5n &&
             i + j <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
             j++
           ) {
@@ -264,7 +330,7 @@ export default function DroposalPage() {
           }
 
           // Wait between batches to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           const results = await Promise.allSettled(batchPromises);
 
@@ -279,10 +345,7 @@ export default function DroposalPage() {
 
               if (result.value.owner) {
                 const { owner, tokenId } = result.value;
-                if (!addressSet.has(owner)) {
-                  addressSet.add(owner);
-                  mintersArray.push({ address: owner, tokenId });
-                }
+                mintersArray.push({ address: owner, tokenId });
               }
             }
           });
@@ -291,9 +354,20 @@ export default function DroposalPage() {
             break;
           }
 
-          // If we have at least some results, we can show them
+          // Process and update results every batch to show progress
           if (mintersArray.length > 0) {
-            setMinters([...mintersArray]);
+            setRawMinters([...mintersArray]);
+
+            // Aggregate and update visible holders
+            const aggregated = aggregateAndRankHolders(mintersArray);
+            setAggregatedHolders(aggregated);
+
+            // Set initial visible holders for the first page
+            const initialVisible = aggregated.slice(0, ITEMS_PER_PAGE);
+            setVisibleHolders(initialVisible);
+
+            // Check if we have more holders beyond initial page
+            setHasMoreHolders(aggregated.length > ITEMS_PER_PAGE);
           }
         }
 
@@ -662,35 +736,66 @@ export default function DroposalPage() {
               )}
             </Box>
 
-            {/* Supporters Section */}
+            {/* Supporters Section - Updated to show aggregated holders */}
             <Box>
               <Heading size='md' mb={4}>
                 Supporters
               </Heading>
-              {loadingMinters ? (
+              {loadingMinters && visibleHolders.length === 0 ? (
                 <Flex justify='center' my={4}>
                   <Spinner size='sm' mr={2} />
                   <Text>Loading supporters...</Text>
                 </Flex>
-              ) : minters.length > 0 ? (
+              ) : visibleHolders.length > 0 ? (
                 <VStack align='stretch' gap={2}>
-                  {minters.map((minter, index) => (
+                  {visibleHolders.map((holder, index) => (
                     <Flex
                       key={index}
                       justify='space-between'
                       p={2}
-                      bg='transparent'
                       borderRadius='md'
                     >
-                      <FormattedAddress address={minter.address} />
+                      <Flex align='center'>
+                        <FormattedAddress address={holder.address} />
+                        <Text
+                          fontSize='sm'
+                          color='blue.500'
+                          ml={2}
+                          fontWeight='bold'
+                        >
+                          {holder.tokenCount > 1
+                            ? `(${holder.tokenCount} tokens)`
+                            : ''}
+                        </Text>
+                      </Flex>
                       <Text fontSize='sm' color='gray.500'>
-                        Token #{minter.tokenId.toString()}
+                        Latest: #{holder.tokenIds[0].toString()}
                       </Text>
                     </Flex>
                   ))}
+
+                  {/* Load More Button */}
+                  {hasMoreHolders && (
+                    <Button
+                      onClick={loadMoreHolders}
+                      mt={2}
+                      size='sm'
+                      variant='outline'
+                    >
+                      Load More Supporters
+                    </Button>
+                  )}
                 </VStack>
               ) : (
                 <Text>No supporters found</Text>
+              )}
+
+              {/* Loading indicator when fetching more data */}
+              {loadingMinters && visibleHolders.length > 0 && (
+                <Flex justify='center' mt={2}>
+                  <Spinner size='sm' mr={2} />
+                  <Text fontSize='sm'>Fetching more tokens...</Text>
+                </Flex>
               )}
             </Box>
 

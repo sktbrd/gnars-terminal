@@ -58,7 +58,6 @@ async function App() {
             rounded={'md'}
             gap={4}
             _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-            _light={{ borderColor: 'blue', borderWidth: 1 }}
           >
             <MapCard />
           </Box>
