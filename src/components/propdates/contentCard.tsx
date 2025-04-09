@@ -2,25 +2,33 @@
 
 import { Proposal } from '@/app/services/proposal';
 import { PropDateInterface } from '@/utils/database/interfaces';
-import { Box, Card, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react';
+import { isAddressEqualTo } from '@/utils/ethereum';
+import {
+  Avatar,
+  Box,
+  Card,
+  HStack,
+  Link,
+  Spinner,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
+import { useAvatar } from '@paperclip-labs/whisk-sdk/identity';
 import { default as NextLink } from 'next/link';
-import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Address, isAddressEqual } from 'viem';
-import EnsAvatar from '../ethereum/ens';
+import { Address } from 'viem';
+import { useAccount } from 'wagmi';
 import Markdown from '../proposal/markdown';
 import { FormattedAddress } from '../utils/names';
 import PropdatesEditor from './editor';
 import PropdatesLike from './like';
-import { useAccount } from 'wagmi';
-import { isAddressEqualTo } from '@/utils/ethereum';
-
 interface PropdatesContentCardProps {
   _propdates: PropDateInterface[];
   proposals: Proposal[];
   isMobile?: boolean;
 }
-
 export default function PropdatesContentCardList({
   _propdates,
   proposals,
@@ -42,6 +50,22 @@ export default function PropdatesContentCardList({
         );
       })}
     </Stack>
+  );
+}
+
+function ProfileAvatar({ address }: { address: Address }) {
+  const { data: avatar, isLoading } = useAvatar({ address });
+
+  return (
+    <Avatar.Root>
+      {isLoading ? (
+        <Spinner size='md' />
+      ) : (
+        <>
+          <Avatar.Image src={avatar || '/images/frames/icon.png'} />
+        </>
+      )}
+    </Avatar.Root>
   );
 }
 
@@ -77,7 +101,7 @@ export function PropdatesContentCardContent({
           <VStack gap={2} align='stretch' w='full'>
             <HStack justify={'space-between'} w='full'>
               <HStack>
-                <EnsAvatar address={propdate.author.e_address as Address} />
+                <ProfileAvatar address={propdate.author.e_address as Address} />
                 <FormattedAddress
                   address={propdate.author.e_address as Address}
                 />

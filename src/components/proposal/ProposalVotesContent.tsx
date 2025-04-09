@@ -7,8 +7,6 @@ import {
   Text,
   VStack,
   Spinner,
-  Image,
-  Avatar as ChakraAvatar,
   Avatar,
 } from '@chakra-ui/react';
 import { FormattedAddress } from '../utils/names';
@@ -43,7 +41,6 @@ function VoterAvatar({ address, size }: { address: Address; size: number }) {
       ) : (
         <>
           <Avatar.Image src={avatar || '/images/frames/icon.png'} />
-          <Avatar.Fallback>{address}</Avatar.Fallback>
         </>
       )}
     </Avatar.Root>
