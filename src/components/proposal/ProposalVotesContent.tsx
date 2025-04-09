@@ -1,9 +1,21 @@
-import { Avatar } from '@/components/ui/avatar';
-import { Box, Card, Code, HStack, Stack, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Card,
+  Code,
+  HStack,
+  Stack,
+  Text,
+  VStack,
+  Spinner,
+  Image,
+  Avatar as ChakraAvatar,
+  Avatar,
+} from '@chakra-ui/react';
 import { FormattedAddress } from '../utils/names';
 import { useState } from 'react';
-import { text } from 'stream/consumers';
 import Markdown from './markdown';
+import { useAvatar } from '@paperclip-labs/whisk-sdk/identity';
+import { Address } from 'viem';
 
 export type VoteSupport = 'FOR' | 'AGAINST' | 'ABSTAIN';
 
@@ -20,6 +32,24 @@ interface ProposalVotesContentProps {
   };
 }
 
+// Voter Avatar component with image fallback
+function VoterAvatar({ address, size }: { address: Address; size: number }) {
+  const { data: avatar, isLoading } = useAvatar({ address });
+
+  return (
+    <Avatar.Root>
+      {isLoading ? (
+        <Spinner size='md' />
+      ) : (
+        <>
+          <Avatar.Image src={avatar || '/images/frames/icon.png'} />
+          <Avatar.Fallback>{address}</Avatar.Fallback>
+        </>
+      )}
+    </Avatar.Root>
+  );
+}
+
 export default function ProposalVotesContent({
   proposal,
 }: ProposalVotesContentProps) {
@@ -29,9 +59,13 @@ export default function ProposalVotesContent({
   const hasNoVotes = proposal.votes.length === 0;
 
   // Check if there are votes for each support type
-  const hasForVotes = proposal.votes.some(vote => vote.support === 'FOR');
-  const hasAgainstVotes = proposal.votes.some(vote => vote.support === 'AGAINST');
-  const hasAbstainVotes = proposal.votes.some(vote => vote.support === 'ABSTAIN');
+  const hasForVotes = proposal.votes.some((vote) => vote.support === 'FOR');
+  const hasAgainstVotes = proposal.votes.some(
+    (vote) => vote.support === 'AGAINST'
+  );
+  const hasAbstainVotes = proposal.votes.some(
+    (vote) => vote.support === 'ABSTAIN'
+  );
 
   // Determine if all votes are of the same type
   const allSameVoteType =
@@ -112,11 +146,7 @@ export default function ProposalVotesContent({
             <Card.Body>
               <VStack gap={3} align='stretch'>
                 <HStack gap={4}>
-                  <Avatar
-                    size='md'
-                    name={vote.voter}
-                    src={`https://api.dicebear.com/5.x/identicon/svg?seed=${vote.voter}`} // Example avatar
-                  />
+                  <VoterAvatar address={vote.voter as Address} size={40} />
                   <HStack wrap={{ base: 'wrap', md: 'nowrap' }} gap={1}>
                     <FormattedAddress address={vote.voter} />
                     <Text>voted</Text>
