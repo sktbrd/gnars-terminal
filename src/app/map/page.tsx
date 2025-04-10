@@ -1,3 +1,4 @@
+import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 import { Metadata } from 'next';
 
 // Determine the base URL dynamically based on the environment
@@ -65,22 +66,25 @@ export async function generateMetadata(): Promise<Metadata> {
 
 function MapPage() {
   return (
-    <iframe
-      src='https://gnars.center/map'
-      width='100%'
-      height='100vh'
-      style={{
-        border: 'none',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        margin: 0,
-        padding: 0,
-        overflow: 'hidden',
-      }}
-    ></iframe>
+    <>
+      <InitFrameSDK />
+      <iframe
+        src='https://gnars.center/map'
+        width='100%'
+        height='100vh'
+        style={{
+          border: 'none',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          margin: 0,
+          padding: 0,
+          overflow: 'hidden',
+        }}
+      ></iframe>
+    </>
   );
 }
 export default MapPage;
