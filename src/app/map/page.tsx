@@ -1,18 +1,24 @@
 import { Metadata } from 'next';
 
+// Determine the base URL dynamically based on the environment
+const appUrl =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000'
+    : 'https://gnars.com';
+
 // Generate metadata for Farcaster frames
 export async function generateMetadata(): Promise<Metadata> {
-  const imageUrl = 'https://i.ibb.co/vvd8ZH5D/Image-Resizer-Clipboard-2.png';
-  const homeUrl = 'https://gnars.com/map';
+  const imageUrl = `https://i.ibb.co/vvd8ZH5D/Image-Resizer-Clipboard-2.png`; // Ensure this matches the origin
+  const homeUrl = `https://gnars.center/map`; // Ensure this matches the origin
 
   const frame = {
     version: 'next',
     imageUrl,
     button: {
-      title: 'Open Map',
+      title: 'Open Nounstacles Map',
       action: {
         type: 'launch_frame',
-        name: 'Gnars World Map',
+        name: 'Nounstacles Map', // Ensure this name is unique
         url: homeUrl,
       },
     },
@@ -20,12 +26,37 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: 'Nounstacles Map',
-    description: 'Explore Noggles Rail Map',
+    description:
+      'Explore Noggles Rail Map - See the world of Gnars and navigate through exciting locations!',
+    metadataBase: new URL(appUrl), // Dynamically set the base URL
+
+    // Enhanced OpenGraph metadata
     openGraph: {
-      title: 'Gnars World Map',
-      description: 'Explore the Gnars world map',
+      title: 'Nounstacles Map - Gnars World',
+      description:
+        'Explore Noggles Rail Map - See the world of Gnars and navigate through exciting locations!',
+      type: 'website',
+      url: homeUrl,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 675,
+          alt: 'Gnars World Map Preview',
+        },
+      ],
+      siteName: 'Gnars',
+    },
+
+    // Twitter metadata
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Nounstacles Map - Gnars World',
+      description: 'Explore Noggles Rail Map - The interactive world of Gnars',
       images: [imageUrl],
     },
+
+    // Farcaster frame metadata
     other: {
       'fc:frame': JSON.stringify(frame),
     },
