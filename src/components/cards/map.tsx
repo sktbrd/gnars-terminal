@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box } from '@chakra-ui/react';
 
 function MapCard() {
   return (
@@ -13,9 +13,14 @@ function MapCard() {
       overflow={'hidden'}
       h={'100%'}
     >
-      <iframe src="https://gnars.center/map" width="100%" height="100%" style={{ border: 'none' }}></iframe>
+      <iframe
+        src='https://gnars.center/map'
+        width='100%'
+        height='100%'
+        style={{ border: 'none' }}
+      ></iframe>
     </Box>
-  )
+  );
 }
 
 export default MapCard;
