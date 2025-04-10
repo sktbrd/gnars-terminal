@@ -9,7 +9,7 @@ const appUrl =
 // Generate metadata for Farcaster frames
 export async function generateMetadata(): Promise<Metadata> {
   const imageUrl = `https://i.ibb.co/vvd8ZH5D/Image-Resizer-Clipboard-2.png`; // Ensure this matches the origin
-  const homeUrl = `https://gnars.center/map`; // Ensure this matches the origin
+  const homeUrl = `https://gnars.com/map`; // Ensure this matches the origin
 
   const frame = {
     version: 'next',
