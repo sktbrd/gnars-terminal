@@ -1,19 +1,19 @@
 import { Metadata } from 'next';
 
-// Get base URL from environment variable or use a default
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gnars.com';
-
 // Generate metadata for Farcaster frames
 export async function generateMetadata(): Promise<Metadata> {
+  const imageUrl = 'https://i.ibb.co/4Zd90fbG/Image-Resizer-Clipboard-1.png'; // Hardcoded thumbnail image
+  const homeUrl = 'https://gnars.com/map'; // Direct URL to the map
+
   const frame = {
     version: 'next',
-    imageUrl: `${appUrl}/api/map-screenshot`, // This would need a corresponding API route
+    imageUrl,
     button: {
       title: 'Open Map',
       action: {
         type: 'launch_frame',
         name: 'Gnars World Map',
-        url: `${appUrl}/map/`,
+        url: homeUrl,
       },
     },
   };
@@ -24,12 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: 'Gnars World Map',
       description: 'Explore the Gnars world map',
-      images: [`${appUrl}/api/map-screenshot`],
+      images: [imageUrl],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
-      'fc:frame:image': `${appUrl}/api/map-screenshot`,
-      'fc:frame:button:1': 'Open Map',
     },
   };
 }
