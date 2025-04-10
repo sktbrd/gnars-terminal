@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 
 // Generate metadata for Farcaster frames
 export async function generateMetadata(): Promise<Metadata> {
-  const imageUrl = 'https://i.ibb.co/4Zd90fbG/Image-Resizer-Clipboard-1.png'; // Hardcoded thumbnail image
-  const homeUrl = 'https://gnars.com/map'; // Direct URL to the map
+  const imageUrl = 'https://i.ibb.co/vvd8ZH5D/Image-Resizer-Clipboard-2.png';
+  const homeUrl = 'https://gnars.com/map';
 
   const frame = {
     version: 'next',
@@ -19,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 
   return {
-    title: 'Gnars World Map',
-    description: 'Explore the Gnars world map',
+    title: 'Nounstacles Map',
+    description: 'Explore Noggles Rail Map',
     openGraph: {
       title: 'Gnars World Map',
       description: 'Explore the Gnars world map',
