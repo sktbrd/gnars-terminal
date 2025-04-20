@@ -11,6 +11,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/ipfs/:path*',
+        destination: 'https://gateway.pinata.cloud/ipfs/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

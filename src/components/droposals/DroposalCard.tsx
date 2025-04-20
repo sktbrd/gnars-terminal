@@ -39,7 +39,7 @@ const DroposalContent = memo(() => {
     if (!uri) return '';
     const trimmedUri = uri.trim();
     if (/^ipfs:\/\//.test(trimmedUri)) {
-      return `https://gateway.pinata.cloud/ipfs/${trimmedUri.slice(7)}`;
+      return `/ipfs/${trimmedUri.slice(7)}`; // Use the proxy path
     }
     return uri;
   };
