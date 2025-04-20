@@ -1,6 +1,6 @@
 import AuctionCard from '@/components/cards/auction';
 import GovernorCard from '@/components/cards/governor';
-import MapCard from '@/components/cards/map';
+// import MapCard from '@/components/cards/map';
 import DroposalCard from '@/components/droposals/DroposalCard';
 import { Status } from '@/components/proposal/status';
 import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
@@ -50,17 +50,7 @@ async function App() {
         w={'full'}
       >
         <GridItem>
-          <Box
-            shadow={'sm'}
-            w={'full'}
-            height='full'
-            padding={4}
-            rounded={'md'}
-            gap={4}
-            _dark={{ borderColor: 'yellow', borderWidth: 1 }}
-          >
-            <MapCard />
-          </Box>
+          <DroposalCard />
         </GridItem>
         <GridItem>
           <AuctionCard defaultAuction={activeAuction} />

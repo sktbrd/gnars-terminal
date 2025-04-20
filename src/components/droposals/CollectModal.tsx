@@ -124,15 +124,17 @@ const CollectModal = ({
 
   // Fetch transaction data from the API
   const fetchGovernorTransactions = useCallback(async () => {
-    if (!isOpen || !descriptionHash) return;
-
     setLoading(true);
     setError(null);
+    // create a variable that will take proposal.descriptionHash if it exists and descriptionHash if it doesn't
+    const descriptionHashToUse = proposal.descriptionHash
+      ? proposal.descriptionHash
+      : descriptionHash;
     try {
       const topic0 =
         '0x7b1bcf1ccf901a11589afff5504d59fd0a53780eed2a952adade0348985139e0';
       const response = await fetch(
-        `/api/etherscan?contractAddress=${governorAddress}&blockNumber=${blockNumber}&topic0=${topic0}${descriptionHash ? `&descriptionHash=${descriptionHash}` : ''}`
+        `/api/etherscan?contractAddress=${governorAddress}&blockNumber=${blockNumber}&topic0=${topic0}${descriptionHashToUse ? `&descriptionHash=${descriptionHashToUse}` : ''}`
       );
 
       if (!response.ok) {
@@ -181,17 +183,18 @@ const CollectModal = ({
           setTokenCreated(receipt.logs[0].address);
         }
       } catch (error) {
-        console.error('Error fetching transaction receipt:', error);
         setError('Failed to fetch transaction receipt');
       }
     },
     [setTokenCreated, setTransactionReceipt]
   );
 
-  // Effect to fetch data when modal opens
+  // Effect to fetch data only when modal is open and descriptionHash is available
   useEffect(() => {
-    fetchGovernorTransactions();
-  }, [fetchGovernorTransactions]);
+    if ((isOpen && descriptionHash) || proposal.descriptionHash) {
+      fetchGovernorTransactions();
+    }
+  }, [isOpen, descriptionHash, fetchGovernorTransactions]);
 
   return (
     <DialogRoot open={isOpen}>
@@ -219,7 +222,7 @@ const CollectModal = ({
                     href={`/droposal/${tokenCreated}`}
                     target='_blank'
                     rel='noopener noreferrer'
-                    style={{ color: 'blue', textDecoration: 'underline' }}
+                    style={{ color: 'grey', textDecoration: 'underline' }}
                   >
                     {tokenCreated}
                   </a>
@@ -371,7 +374,11 @@ const CollectModal = ({
             <Button colorScheme='blue' mr={3} onClick={onClose}>
               Close
             </Button>
-            <MintButton quantity={numMints} comment={comment} />
+            <MintButton
+              quantity={numMints}
+              comment={comment}
+              salesConfig={salesConfig}
+            />
           </Flex>
         </DialogFooter>
       </DialogContent>
