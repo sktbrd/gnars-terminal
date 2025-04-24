@@ -32,6 +32,11 @@ export default function NotificationButton() {
 
   useEffect(() => {
     const loadContext: () => Promise<void> = async () => {
+      if (!sdk) {
+        setErrorMessage('Please open this website inside a Farcaster app that supports Frames v2.');
+        return;
+      }
+
       const ctx = await sdk.context;
       setContext(ctx);
 
@@ -170,9 +175,10 @@ export default function NotificationButton() {
               <Button
                 w="full"
                 size={"lg"}
-                colorScheme={added ? "red" : "yellow"}
+                colorPalette={added ? "red" : "yellow"}
+                variant="surface"
                 onClick={added ? handleDisableNotifications : handleAddFrame}
-                disabled={addingFrame || removingFrame}
+                disabled={addingFrame || removingFrame || errorMessage !== null}
                 loading={addingFrame || removingFrame}
               >
                 {added ? "Disable Notifications" : "Add Frame on Farcaster"}
