@@ -1,34 +1,15 @@
+export { metadata } from './metadata';
 import Navbar from '@/components/layout/navbar';
 import { Providers } from '@/components/layout/providers';
 import { Toaster } from '@/components/ui/toaster';
 import { Box, Container } from '@chakra-ui/react';
 import '@rainbow-me/rainbowkit/styles.css';
 import { Analytics } from '@vercel/analytics/react';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { type ReactNode } from 'react';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
-
-const appUrl = process.env.NEXT_PUBLIC_URL;
-
-export const metadata: Metadata = {
-  title: 'Gnars Dao',
-  description: 'Gnarly Ecosystem',
-  metadataBase: new URL('https://www.gnars.com'),
-  icons: ['favicon.ico'],
-  openGraph: {
-    images: [
-      {
-        url: '/images/shredquarters.png',
-        width: 800,
-        height: 600,
-        alt: 'Gnars Pro',
-      },
-    ],
-  },
-};
 
 export const viewport = {
   themeColor: '#FFD700',
