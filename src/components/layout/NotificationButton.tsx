@@ -136,6 +136,41 @@ export default function NotificationButton() {
     }
   }, [context?.user?.fid]);
 
+  const handleDisableNotifications = useCallback(async () => {
+    if (!context?.user?.fid) return;
+
+    try {
+      setErrorMessage(null);
+      setNotificationResult(null);
+
+      const response = await fetch('/api/farcaster/frame', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fid: context.user.fid,
+        }),
+      });
+
+      if (response.ok) {
+        setAdded(false);
+        setNotificationDetails(null);
+        setNotificationResult('Notifications disabled successfully!');
+      } else {
+        const error = await response.json();
+        setErrorMessage(`Error: ${error.error || 'Failed to disable notifications'}`);
+      }
+    } catch (error) {
+      console.error('Error disabling notifications:', error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Failed to disable notifications. Please try again.'
+      );
+    }
+  }, [context?.user?.fid]);
+
   return (
     <>
       <Tooltip content="Get DAO Notifications">
@@ -214,6 +249,17 @@ export default function NotificationButton() {
                 <Text fontSize="sm" color="yellow.500">
                   {JSON.stringify(notificationDetails, null, 2)}
                 </Text>
+              )}
+
+              {added && (
+                <Button
+                  w="full"
+                  colorScheme="red"
+                  onClick={handleDisableNotifications}
+                  disabled={!added}
+                >
+                  Disable Notifications
+                </Button>
               )}
             </VStack>
           </DrawerFooter>

@@ -40,3 +40,34 @@ export async function POST(request: NextRequest) {
 
   return Response.json({ success: true });
 }
+
+const deleteRequestSchema = z.object({
+  fid: z.number(),
+});
+
+export async function DELETE(request: NextRequest) {
+  const requestJson = await request.json();
+  const requestBody = deleteRequestSchema.safeParse(requestJson);
+
+  if (requestBody.success === false) {
+    return Response.json(
+      { success: false, errors: requestBody.error.errors },
+      { status: 400 }
+    );
+  }
+
+  const { error: dbError } = await supabase
+    .from('notifications')
+    .delete()
+    .eq('fid', requestBody.data.fid);
+
+  if (dbError) {
+    console.error('Error deleting notification details:', dbError);
+    return Response.json(
+      { success: false, error: 'Failed to delete notification details' },
+      { status: 500 }
+    );
+  }
+
+  return Response.json({ success: true });
+}
