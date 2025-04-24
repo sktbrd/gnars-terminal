@@ -17,7 +17,7 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
-import sdk, { FrameNotificationDetails } from '@farcaster/frame-sdk';
+import sdk from '@farcaster/frame-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { LuBell } from 'react-icons/lu';
 import { Tooltip } from '../ui/tooltip';
@@ -28,9 +28,6 @@ export default function NotificationButton() {
   const [addingFrame, setAddingFrame] = useState(false);
   const [removingFrame, setRemovingFrame] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [sendingNotification, setSendingNotification] = useState(false);
-  const [notificationDetails, setNotificationDetails] = useState<FrameNotificationDetails | null>(null);
-  const [notificationResult, setNotificationResult] = useState<string | null>(null);
   const [context, setContext] = useState<any>(null);
 
   useEffect(() => {
@@ -40,9 +37,6 @@ export default function NotificationButton() {
 
       if (ctx?.client) {
         setAdded(ctx.client.added);
-        if (ctx.client.notificationDetails) {
-          setNotificationDetails(ctx.client.notificationDetails);
-        }
       }
 
       if (ctx?.user?.fid) {
@@ -52,7 +46,6 @@ export default function NotificationButton() {
             const data = await response.json();
             if (data.success && data.data) {
               setAdded(true);
-              setNotificationDetails(data.data.notificationDetails);
             }
           }
         } catch (error) {
@@ -67,31 +60,25 @@ export default function NotificationButton() {
     try {
       setAddingFrame(true);
       setErrorMessage(null);
-      setNotificationResult(null);
 
       const result = await sdk.actions.addFrame();
       setAdded(true);
 
-      if (result.notificationDetails) {
-        setNotificationDetails(result.notificationDetails);
+      // Store frame details in Supabase
+      const response = await fetch('/api/farcaster/frame', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fid: context?.user?.fid,
+          targetUrl: window.location.href,
+        }),
+      });
 
-        // Store notification details in Supabase
-        const response = await fetch('/api/farcaster/frame', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fid: context?.user?.fid,
-            notificationDetails: result.notificationDetails,
-            targetUrl: window.location.href,
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to store notification details');
-        }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to store frame details');
       }
 
       console.log('Frame added successfully', result);
@@ -107,58 +94,12 @@ export default function NotificationButton() {
     }
   }, [context?.user?.fid]);
 
-  const handleSendNotification = useCallback(async () => {
-    if (!context?.user?.fid) return;
-
-    try {
-      setSendingNotification(true);
-      setNotificationResult(null);
-      setErrorMessage(null);
-
-      const response = await fetch('/api/farcaster/notification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          targetUrl: window.location.href,
-          title: 'Test Notification',
-          body: 'This is a test notification from Gnars DAO',
-          fid: context.user.fid, // Send to specific FID for test
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setNotificationResult('Notification sent successfully!');
-        if (data.summary) {
-          setNotificationResult(`Notification sent successfully! (${data.summary.successful} delivered, ${data.summary.rateLimited} rate limited)`);
-        }
-      } else if (response.status === 429) {
-        setErrorMessage('Rate limited. Please try again later.');
-      } else {
-        setErrorMessage(`Error: ${data.error || 'Failed to send notification'}`);
-      }
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Failed to send notification. Please try again.'
-      );
-    } finally {
-      setSendingNotification(false);
-    }
-  }, [context?.user?.fid]);
-
   const handleDisableNotifications = useCallback(async () => {
     if (!context?.user?.fid) return;
 
     try {
       setRemovingFrame(true);
       setErrorMessage(null);
-      setNotificationResult(null);
 
       const response = await fetch('/api/farcaster/frame', {
         method: 'DELETE',
@@ -172,8 +113,6 @@ export default function NotificationButton() {
 
       if (response.ok) {
         setAdded(false);
-        setNotificationDetails(null);
-        setNotificationResult('Notifications disabled successfully!');
       } else {
         const error = await response.json();
         setErrorMessage(`Error: ${error.error || 'Failed to disable notifications'}`);
@@ -228,12 +167,6 @@ export default function NotificationButton() {
                 </Text>
               )}
 
-              {notificationResult && (
-                <Text color="green.500" fontSize="sm">
-                  {notificationResult}
-                </Text>
-              )}
-
               <Button
                 w="full"
                 size={"lg"}
@@ -244,29 +177,6 @@ export default function NotificationButton() {
               >
                 {added ? "Disable Notifications" : "Add Frame on Farcaster"}
               </Button>
-
-              {added && notificationDetails && (
-                <Button
-                  w="full"
-                  colorScheme="blue"
-                  onClick={handleSendNotification}
-                  disabled={sendingNotification || !notificationDetails || !context?.user?.fid}
-                  loading={sendingNotification}
-                >
-                  Send Test Notification
-                </Button>
-              )}
-
-              {added && (
-                <Text fontSize="sm" color="green.500">
-                  You'll now receive notifications about Gnars DAO activities
-                </Text>
-              )}
-              {notificationDetails && (
-                <Text fontSize="sm" color="yellow.500">
-                  {JSON.stringify(notificationDetails, null, 2)}
-                </Text>
-              )}
             </VStack>
           </DrawerFooter>
         </DrawerContent>
