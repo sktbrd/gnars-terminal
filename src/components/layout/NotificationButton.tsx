@@ -31,7 +31,7 @@ export default function NotificationButton() {
   const [context, setContext] = useState<any>(null);
 
   useEffect(() => {
-    const loadContext = async () => {
+    const loadContext: () => Promise<void> = async () => {
       const ctx = await sdk.context;
       setContext(ctx);
 
