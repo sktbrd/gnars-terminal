@@ -71,3 +71,38 @@ export async function DELETE(request: NextRequest) {
 
   return Response.json({ success: true });
 }
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const fid = searchParams.get("fid");
+
+  if (!fid) {
+    return Response.json(
+      { success: false, error: "Missing fid parameter" },
+      { status: 400 }
+    );
+  }
+
+  const { data, error: dbError } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("fid", fid)
+    .single();
+
+  if (dbError) {
+    console.error("Error fetching notification details:", dbError);
+    return Response.json(
+      { success: false, error: "Failed to fetch notification details" },
+      { status: 500 }
+    );
+  }
+
+  if (!data) {
+    return Response.json(
+      { success: false, error: "No notifications found for the given fid" },
+      { status: 404 }
+    );
+  }
+
+  return Response.json({ success: true, data });
+}

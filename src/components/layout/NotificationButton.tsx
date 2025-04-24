@@ -26,6 +26,7 @@ export default function NotificationButton() {
   const { open, onOpen, onClose } = useDisclosure();
   const [added, setAdded] = useState(false);
   const [addingFrame, setAddingFrame] = useState(false);
+  const [removingFrame, setRemovingFrame] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sendingNotification, setSendingNotification] = useState(false);
   const [notificationDetails, setNotificationDetails] = useState<FrameNotificationDetails | null>(null);
@@ -41,6 +42,21 @@ export default function NotificationButton() {
         setAdded(ctx.client.added);
         if (ctx.client.notificationDetails) {
           setNotificationDetails(ctx.client.notificationDetails);
+        }
+      }
+
+      if (ctx?.user?.fid) {
+        try {
+          const response = await fetch(`/api/farcaster/frame?fid=${ctx.user.fid}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+              setAdded(true);
+              setNotificationDetails(data.data.notificationDetails);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking notification status:', error);
         }
       }
     };
@@ -140,6 +156,7 @@ export default function NotificationButton() {
     if (!context?.user?.fid) return;
 
     try {
+      setRemovingFrame(true);
       setErrorMessage(null);
       setNotificationResult(null);
 
@@ -168,6 +185,8 @@ export default function NotificationButton() {
           ? error.message
           : 'Failed to disable notifications. Please try again.'
       );
+    } finally {
+      setRemovingFrame(false);
     }
   }, [context?.user?.fid]);
 
@@ -218,14 +237,12 @@ export default function NotificationButton() {
               <Button
                 w="full"
                 size={"lg"}
-                colorScheme="yellow"
-                onClick={handleAddFrame}
-                disabled={added || addingFrame}
-                loading={addingFrame}
+                colorScheme={added ? "red" : "yellow"}
+                onClick={added ? handleDisableNotifications : handleAddFrame}
+                disabled={addingFrame || removingFrame}
+                loading={addingFrame || removingFrame}
               >
-                {added
-                  ? "✓ Added to Farcaster"
-                  : "Add Frame on Farcaster"}
+                {added ? "Disable Notifications" : "Add Frame on Farcaster"}
               </Button>
 
               {added && notificationDetails && (
@@ -249,17 +266,6 @@ export default function NotificationButton() {
                 <Text fontSize="sm" color="yellow.500">
                   {JSON.stringify(notificationDetails, null, 2)}
                 </Text>
-              )}
-
-              {added && (
-                <Button
-                  w="full"
-                  colorScheme="red"
-                  onClick={handleDisableNotifications}
-                  disabled={!added}
-                >
-                  Disable Notifications
-                </Button>
               )}
             </VStack>
           </DrawerFooter>
