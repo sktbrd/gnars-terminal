@@ -3,6 +3,8 @@ import { base } from 'viem/chains';
 import { NextRequest, NextResponse } from 'next/server';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 
+export const dynamic = 'force-dynamic';
+
 // Create a public client for Base chain
 const publicClient = createPublicClient({
   chain: base,
