@@ -42,16 +42,9 @@ export default function NotificationButton() {
 
       const ctx = await sdk.context;
       setContext(ctx);
-
-      // Check if client supports notifications by looking for notificationDetails object
-      const notificationsSupported = !!ctx?.client?.notificationDetails;
       
       if (ctx?.client) {
         setFrameAdded(ctx.client.added);
-        
-        if (!notificationsSupported) {
-          setErrorMessage('Your Farcaster client does not support notifications.');
-        }
       }
 
       if (ctx?.user?.fid) {
