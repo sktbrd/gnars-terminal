@@ -69,7 +69,7 @@ export default function NotificationButton() {
       }
     };
     loadContext();
-  }, []);
+  }, [sdk]);
 
   const handleAddFrame = useCallback(async () => {
     try {
