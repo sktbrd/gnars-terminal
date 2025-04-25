@@ -17,10 +17,11 @@ import {
   useDisclosure,
   VStack
 } from '@chakra-ui/react';
-import sdk from '@farcaster/frame-sdk';
+import sdk, { Context } from '@farcaster/frame-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { LuBell } from 'react-icons/lu';
 import { Tooltip } from '../ui/tooltip';
+
 
 export default function NotificationButton() {
   const { open, onOpen, onClose } = useDisclosure();
@@ -30,7 +31,7 @@ export default function NotificationButton() {
   const [enablingNotifications, setEnablingNotifications] = useState(false);
   const [disablingNotifications, setDisablingNotifications] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [context, setContext] = useState<any>(null);
+  const [context, setContext] = useState<Context.FrameContext | null>(null);
 
   useEffect(() => {
     const loadContext: () => Promise<void> = async () => {
@@ -42,8 +43,15 @@ export default function NotificationButton() {
       const ctx = await sdk.context;
       setContext(ctx);
 
+      // Check if client supports notifications by looking for notificationDetails object
+      const notificationsSupported = !!ctx?.client?.notificationDetails;
+      
       if (ctx?.client) {
         setFrameAdded(ctx.client.added);
+        
+        if (!notificationsSupported) {
+          setErrorMessage('Your Farcaster client does not support notifications.');
+        }
       }
 
       if (ctx?.user?.fid) {
@@ -63,6 +71,7 @@ export default function NotificationButton() {
           }
         } catch (error) {
           console.error('Error checking notification status:', error);
+          setErrorMessage('Failed to check notification status. Please try again later.');
         }
       }
     };
@@ -96,8 +105,15 @@ export default function NotificationButton() {
     try {
       setEnablingNotifications(true);
       setErrorMessage(null);
+      
+      // Get notification details from the SDK context, not from actions
+      const notificationDetails = context?.client?.notificationDetails;
+      
+      if (!notificationDetails?.token || !notificationDetails?.url) {
+        throw new Error('Failed to get notification details from Farcaster');
+      }
 
-      // Store frame details in Supabase
+      // Store frame details in Supabase with the notification details
       const response = await fetch('/api/farcaster/frame', {
         method: 'POST',
         headers: {
@@ -105,6 +121,7 @@ export default function NotificationButton() {
         },
         body: JSON.stringify({
           fid: context?.user?.fid,
+          notificationDetails: notificationDetails,
           targetUrl: window.location.href,
         }),
       });
@@ -115,7 +132,7 @@ export default function NotificationButton() {
       }
 
       setNotificationsEnabled(true);
-      console.log('Notifications enabled successfully');
+      console.log('Notifications enabled successfully', notificationDetails);
     } catch (error) {
       console.error('Error enabling notifications:', error);
       setErrorMessage(
