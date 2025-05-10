@@ -1,14 +1,15 @@
-import PropdatesContentCardList from '@/components/propdates/contentCard';
-import { fetchAllPropDates } from '@/services/supabase/propdates';
-import { Container, Heading, Text, VStack, Box } from '@chakra-ui/react';
-import { fetchProposals } from '../services/proposal';
-import { DAO_ADDRESSES } from '@/utils/constants';
 import PropdatesClientComponent from '@/components/propdates/PropdatesClientComponent';
+import { fetchAllPropDates } from '@/services/supabase/propdates';
+import { DAO_ADDRESSES } from '@/utils/constants';
+import { Container } from '@chakra-ui/react';
+import { fetchProposals } from '../services/proposal';
 
 export const metadata = {
   title: 'Propdates',
   description: 'Updates for proposals',
 };
+
+export const revalidate = 60;
 
 export default async function PropdatesPage() {
   const [propdates, proposals] = await Promise.all([
