@@ -88,7 +88,60 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const contractAddress = searchParams.get('contractAddress');
     const tokenId = searchParams.get('tokenId');
-    
+    const startTokenId = searchParams.get('startTokenId');
+    const endTokenId = searchParams.get('endTokenId');
+
+    // Batch mode: if startTokenId and endTokenId are provided, return owners for a range
+    if (contractAddress && startTokenId && endTokenId) {
+      const formattedAddress = contractAddress.startsWith('0x')
+        ? contractAddress as `0x${string}`
+        : `0x${contractAddress}` as `0x${string}`;
+      let start: bigint, end: bigint;
+      try {
+        start = BigInt(startTokenId);
+        end = BigInt(endTokenId);
+      } catch (err) {
+        return NextResponse.json(
+          { error: `Invalid startTokenId or endTokenId` },
+          { status: 400 }
+        );
+      }
+      // Check for internal error contract pattern
+      if (await isInternalErrorContract(formattedAddress)) {
+        return NextResponse.json({
+          error: 'Contract returns internal error for standard ERC721 calls',
+          isInternalErrorContract: true,
+          exists: false
+        }, { status: 200 });
+      }
+      // Try to get total supply (to validate token existence)
+      const totalSupplyResult = await safeContractCall<bigint>({
+        address: formattedAddress,
+        abi: zoraMintAbi,
+        functionName: 'totalSupply',
+        args: []
+      });
+      let totalSupply = totalSupplyResult.success && totalSupplyResult.data ? totalSupplyResult.data : undefined;
+      // Clamp end to totalSupply
+      if (totalSupply && end > totalSupply) end = totalSupply;
+      // Fetch owners in batch (sequentially to avoid rate limits)
+      const results: { tokenId: string, owner: string|null, exists: boolean }[] = [];
+      for (let token = start; token <= end; token++) {
+        const ownerResult = await safeContractCall<string>({
+          address: formattedAddress,
+          abi: zoraMintAbi,
+          functionName: 'ownerOf',
+          args: [token]
+        });
+        if (ownerResult.success && ownerResult.data) {
+          results.push({ tokenId: token.toString(), owner: ownerResult.data, exists: true });
+        } else {
+          results.push({ tokenId: token.toString(), owner: null, exists: false });
+        }
+      }
+      return NextResponse.json({ owners: results });
+    }
+
     console.log('API Request Parameters:', { contractAddress, tokenId });
 
     if (!contractAddress || !tokenId) {

@@ -82,6 +82,9 @@ const validateMetadata = (metadata: any): TokenMetadata => {
   return metadata;
 };
 
+const INITIAL_BATCH_SIZE = 20; // Only fetch 20 owners initially
+const ITEMS_PER_PAGE = 8; // Keep as before
+
 export default function DroposalPage() {
   const params = useParams();
   const contractAddress = params?.contractAddress;
@@ -104,8 +107,8 @@ export default function DroposalPage() {
   const [visibleHolders, setVisibleHolders] = useState<AggregatedHolder[]>([]);
   const [loadingMinters, setLoadingMinters] = useState(false);
   const [hasMoreHolders, setHasMoreHolders] = useState(true);
-  const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
+  const [nextTokenIdToFetch, setNextTokenIdToFetch] = useState<bigint>(1n);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Ensure contractAddress is properly formatted
   const formattedContractAddress = Array.isArray(contractAddress)
@@ -249,142 +252,113 @@ export default function DroposalPage() {
     return sorted;
   };
 
-  // Function to load more holders
-  const loadMoreHolders = () => {
-    const nextPage = page + 1;
-    const start = (nextPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    const nextBatch = aggregatedHolders.slice(start, end);
-
-    if (nextBatch.length > 0) {
-      setVisibleHolders((prev) => [...prev, ...nextBatch]);
-      setPage(nextPage);
-    }
-
-    // Check if we've loaded all holders
-    if (end >= aggregatedHolders.length) {
-      setHasMoreHolders(false);
+  // Function to fetch a batch of token owners using the new batch API
+  const fetchTokenOwnersBatch = async (
+    startTokenId: bigint,
+    endTokenId: bigint
+  ) => {
+    try {
+      const response = await fetch(
+        `/api/zora?contractAddress=${formattedContractAddress}&startTokenId=${startTokenId.toString()}&endTokenId=${endTokenId.toString()}`
+      );
+      const data = await response.json();
+      if (data.isInternalErrorContract) {
+        return [];
+      }
+      if (!response.ok || !data.owners) {
+        return [];
+      }
+      // Map to { address, tokenId }
+      return data.owners
+        .filter((o: any) => o.exists && o.owner)
+        .map((o: any) => ({ address: o.owner, tokenId: BigInt(o.tokenId) }));
+    } catch (err) {
+      console.error('Error fetching owners batch:', err);
+      return [];
     }
   };
 
-  // Fetch all minters recursively with improved error handling
+  // Fetch initial batch of minters when totalSupply is available
   useEffect(() => {
-    const fetchMinters = async () => {
-      if (!totalSupply && totalSupply !== 0n) {
-        console.log('Total supply not available yet');
-        return;
-      }
+    if (!totalSupply && totalSupply !== 0n) return;
 
-      setLoadingMinters(true);
+    let cancelled = false;
+    setLoadingMinters(true);
 
+    (async () => {
       try {
-        const mintersArray: { address: string; tokenId: bigint }[] = [];
-        const addressSet = new Set<string>(); // To track unique addresses
-
-        // Try token #1 first to detect issues early
-        const firstTokenOwner = await getTokenOwner(1n);
-
-        // If contract returns internal errors, don't try to fetch more tokens
-        if (firstTokenOwner === 'INTERNAL_ERROR_CONTRACT') {
-          console.log('Skipping minter fetching for internal error contract');
-          setLoadingMinters(false);
-          return;
-        }
-
-        // If totalSupply is 0 or we couldn't get it, try a few token IDs anyway
-        const maxTokensToFetch =
-          !totalSupply || totalSupply === 0n
-            ? 5n
-            : totalSupply > 50n
-              ? 50n
-              : totalSupply;
-
-        // Start from the latest tokens which are more likely to exist
-        const startTokenId =
-          totalSupply && totalSupply > maxTokensToFetch
-            ? totalSupply - maxTokensToFetch + 1n
+        // Only fetch up to totalSupply or INITIAL_BATCH_SIZE
+        const maxTokenId =
+          totalSupply && totalSupply > 0n
+            ? totalSupply < BigInt(INITIAL_BATCH_SIZE)
+              ? totalSupply
+              : BigInt(INITIAL_BATCH_SIZE)
             : 1n;
+        const owners = await fetchTokenOwnersBatch(1n, maxTokenId);
 
-        console.log(
-          `Fetching owners for tokens ${startTokenId} to ${totalSupply || 'unknown'}`
-        );
-
-        // Process tokens in smaller batches (5 at a time)
-        for (
-          let i = startTokenId;
-          i <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
-          i += 5n
-        ) {
-          const batchPromises = [];
-
-          for (
-            let j = 0n;
-            j < 5n &&
-            i + j <= (totalSupply || startTokenId + maxTokensToFetch - 1n);
-            j++
-          ) {
-            const tokenId = i + j;
-            batchPromises.push(
-              getTokenOwner(tokenId).then((owner) => ({ owner, tokenId }))
-            );
-          }
-
-          // Wait between batches to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const results = await Promise.allSettled(batchPromises);
-
-          let shouldBreak = false;
-
-          results.forEach((result) => {
-            if (result.status === 'fulfilled') {
-              if (result.value.owner === 'INTERNAL_ERROR_CONTRACT') {
-                shouldBreak = true;
-                return;
-              }
-
-              if (result.value.owner) {
-                const { owner, tokenId } = result.value;
-                mintersArray.push({ address: owner, tokenId });
-              }
-            }
-          });
-
-          if (shouldBreak) {
-            break;
-          }
-
-          // Process and update results every batch to show progress
-          if (mintersArray.length > 0) {
-            setRawMinters([...mintersArray]);
-
-            // Aggregate and update visible holders
-            const aggregated = aggregateAndRankHolders(mintersArray);
-            setAggregatedHolders(aggregated);
-
-            // Set initial visible holders for the first page
-            const initialVisible = aggregated.slice(0, ITEMS_PER_PAGE);
-            setVisibleHolders(initialVisible);
-
-            // Check if we have more holders beyond initial page
-            setHasMoreHolders(aggregated.length > ITEMS_PER_PAGE);
-          }
-        }
-
-        if (mintersArray.length === 0) {
-          console.log(
-            'No token owners found. Contract might be newly deployed or not have any mints yet.'
+        if (!cancelled) {
+          setRawMinters(owners); // owners is now { address, tokenId }[]
+          const aggregated = aggregateAndRankHolders(owners);
+          setAggregatedHolders(aggregated);
+          setVisibleHolders(aggregated.slice(0, ITEMS_PER_PAGE));
+          setHasMoreHolders(
+            (totalSupply && maxTokenId < totalSupply) ||
+              aggregated.length > ITEMS_PER_PAGE
           );
+          setNextTokenIdToFetch(maxTokenId + 1n);
         }
       } catch (err) {
-        console.error('Error fetching minters:', err);
+        if (!cancelled) setError('Failed to fetch supporters');
       } finally {
-        setLoadingMinters(false);
+        if (!cancelled) setLoadingMinters(false);
       }
-    };
+    })();
 
-    fetchMinters();
+    return () => {
+      cancelled = true;
+    };
   }, [totalSupply, formattedContractAddress]);
+
+  // Load more holders (fetch next batch)
+  const loadMoreHolders = async () => {
+    if (!totalSupply || loadingMore) return;
+    setLoadingMore(true);
+
+    try {
+      // Fetch next batch, but not past totalSupply
+      const endTokenId =
+        nextTokenIdToFetch + BigInt(INITIAL_BATCH_SIZE) - 1n > totalSupply
+          ? totalSupply
+          : nextTokenIdToFetch + BigInt(INITIAL_BATCH_SIZE) - 1n;
+      const owners = await fetchTokenOwnersBatch(
+        nextTokenIdToFetch,
+        endTokenId
+      );
+
+      // Merge with previous minters
+      const newRawMinters = [...rawMinters, ...owners]; // both are { address, tokenId }[]
+      setRawMinters(newRawMinters);
+
+      // Aggregate and update holders
+      const aggregated = aggregateAndRankHolders(newRawMinters);
+      setAggregatedHolders(aggregated);
+
+      // Add next page of holders to visible
+      setVisibleHolders(
+        aggregated.slice(0, visibleHolders.length + ITEMS_PER_PAGE)
+      );
+
+      // Update next token id to fetch
+      setNextTokenIdToFetch(endTokenId + 1n);
+
+      // Check if more holders exist
+      setHasMoreHolders(endTokenId < totalSupply);
+    } catch (err) {
+      setError('Failed to load more supporters');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   // Fetch metadata when URI is available
   useEffect(() => {
@@ -781,6 +755,9 @@ export default function DroposalPage() {
                       mt={2}
                       size='sm'
                       variant='outline'
+                      // Use the loading prop as a style object for Chakra v1 (_loading)
+                      _loading={loadingMore ? {} : undefined}
+                      // isLoading={loadingMore} // Uncomment if your Chakra version supports isLoading
                     >
                       Load More Supporters
                     </Button>
@@ -791,7 +768,7 @@ export default function DroposalPage() {
               )}
 
               {/* Loading indicator when fetching more data */}
-              {loadingMinters && visibleHolders.length > 0 && (
+              {loadingMore && visibleHolders.length > 0 && (
                 <Flex justify='center' mt={2}>
                   <Spinner size='sm' mr={2} />
                   <Text fontSize='sm'>Fetching more tokens...</Text>
