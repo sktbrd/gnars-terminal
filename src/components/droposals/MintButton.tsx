@@ -5,7 +5,6 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useReadContract,
-  useSimulateContract,
 } from 'wagmi';
 import { Address, parseEther } from 'viem';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
@@ -33,10 +32,6 @@ const MintButton = ({
   const { tokenCreated } = useProposal();
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
-  const [showSimulationResults, setShowSimulationResults] = useState(false);
-  const [simulationValue, setSimulationValue] = useState<bigint | undefined>(
-    undefined
-  );
 
   const contractSalesConfig = useReadContract({
     address: tokenCreated as Address,
@@ -72,28 +67,6 @@ const MintButton = ({
     functionName: 'zoraFeeForAmount',
     args: [BigInt(quantity)],
   });
-
-  const simulateMint = useSimulateContract({
-    address: tokenCreated as Address,
-    abi: zoraMintAbi,
-    functionName: 'purchaseWithComment',
-    args: [BigInt(quantity), comment],
-    value: simulationValue,
-  });
-
-  const isSimulating = simulateMint.isLoading;
-  const isSimulated = simulateMint.isSuccess;
-  const simulationError = simulateMint.error;
-  const simulationData = simulateMint.data;
-  const isSimulatedError = simulationError && !isSimulated;
-
-  useEffect(() => {
-    if (isSimulated) {
-      console.log('[MintButton] Simulation successful:', simulationData);
-    } else if (isSimulatedError) {
-      console.error('[MintButton] Simulation error:', simulationError);
-    }
-  }, [isSimulated, isSimulatedError, simulationData, simulationError]);
 
   useEffect(() => {
     if (zoraFeeData.data) {
@@ -196,43 +169,6 @@ const MintButton = ({
     }
   };
 
-  const handleSimulate = async () => {
-    if (!tokenCreated || !address) {
-      console.warn(
-        '[MintButton] Cannot simulate: missing tokenCreated or user address'
-      );
-      return;
-    }
-
-    if (!effectiveSalesConfig) {
-      console.warn(
-        '[MintButton] Cannot simulate: salesConfig data not loaded yet'
-      );
-      return;
-    }
-
-    if (!zoraFeeData.data) {
-      console.warn(
-        '[MintButton] Cannot simulate: Zora fee data not loaded yet'
-      );
-      return;
-    }
-
-    const zoraProtocolFee = zoraFeeData.data[1] as bigint;
-    const mintPrice = BigInt(parseEther(totalPrice.toString()));
-    const totalValue = zoraProtocolFee + mintPrice;
-
-    setSimulationValue(totalValue);
-
-    simulateMint.refetch();
-
-    setShowSimulationResults(true);
-  };
-
-  const handleCloseSimulation = () => {
-    setShowSimulationResults(false);
-  };
-
   useEffect(() => {
     if (hash) {
       console.log('[MintButton] Transaction hash received:', hash);
@@ -247,60 +183,21 @@ const MintButton = ({
 
   return (
     <div className='flex flex-col gap-4'>
-      <div className='flex gap-2'>
-        <Button
-          onClick={handleSimulate}
-          disabled={!tokenCreated || isSimulating || isLoading}
-          variant='outline'
-        >
-          {isSimulating ? 'Simulating...' : 'Simulate Mint'}
-        </Button>
-        <Button
-          onClick={handleMint}
-          disabled={!tokenCreated || isLoading || !effectiveSalesConfig}
-          aria-label='Mint NFT'
-        >
-          {isLoading
-            ? isConfirming
-              ? 'Confirming...'
-              : 'Minting...'
-            : isConfirmed
-              ? 'Minted!'
-              : 'Mint'}
-          {quantity > 1 ? ` (${quantity})` : ''}
-        </Button>
-      </div>
-
-      {showSimulationResults && (
-        <div className='border rounded-md p-4 mt-2 bg-slate-50 dark:bg-slate-900'>
-          <div className='flex justify-between items-center mb-2'>
-            <h3 className='font-medium'>Simulation Results</h3>
-            <Button variant='ghost' size='sm' onClick={handleCloseSimulation}>
-              Close
-            </Button>
-          </div>
-
-          {isSimulating && <p className='text-sm'>Running simulation...</p>}
-
-          {isSimulated && (
-            <div className='text-sm text-green-600 dark:text-green-400'>
-              <p>✅ Simulation successful!</p>
-              <p className='mt-1'>
-                The transaction is likely to succeed when executed.
-              </p>
-            </div>
-          )}
-
-          {isSimulatedError && (
-            <div className='text-sm text-red-600 dark:text-red-400'>
-              <p>❌ Simulation failed:</p>
-              <pre className='mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto'>
-                {simulationError?.message || 'Unknown error occurred'}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
+      <Button
+        onClick={handleMint}
+        disabled={!tokenCreated || isLoading || !effectiveSalesConfig}
+        aria-label='Mint NFT'
+        className='w-full'
+      >
+        {isLoading
+          ? isConfirming
+            ? 'Confirming...'
+            : 'Minting...'
+          : isConfirmed
+            ? 'Minted!'
+            : 'Mint'}
+        {quantity > 1 ? ` (${quantity})` : ''}
+      </Button>
     </div>
   );
 };
