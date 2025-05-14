@@ -10,7 +10,6 @@ import {
   DialogCloseTrigger,
 } from '@/components/ui/dialog';
 import {
-  Box,
   Flex,
   Text,
   VStack,
@@ -18,6 +17,7 @@ import {
   Textarea,
   Collapsible,
   Icon,
+  Box,
 } from '@chakra-ui/react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import 'reactflow/dist/style.css';
@@ -88,6 +88,11 @@ const CollectModal = ({
     useState<TransactionReceipt | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Add new state for mint errors
+  const [mintError, setMintError] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   // Fixed Zora protocol fee
   const zoraProtocolFee = 0.000777; // Zora protocol fee in ETH per token
@@ -215,21 +220,91 @@ const CollectModal = ({
                 height={100}
                 style={{ borderRadius: '8px', width: '100%', height: 'auto' }}
               />
-              <Text mt={4}>
-                Token Created:{' '}
-                {tokenCreated ? (
-                  <a
-                    href={`/droposal/${tokenCreated}`}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    style={{ color: 'grey', textDecoration: 'underline' }}
+
+              {/* Transaction details collapsible section */}
+              <Box mt={4} w={'full'}>
+                <Collapsible.Root
+                  open={isDetailsOpen}
+                  onOpenChange={(details) => setIsDetailsOpen(details.open)}
+                >
+                  <Collapsible.Trigger
+                    as={Flex}
+                    p={3}
+                    borderRadius='md'
+                    bg='bg'
+                    cursor='pointer'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    borderWidth='1px'
+                    borderColor='gray.200'
+                    width='100%'
                   >
-                    {tokenCreated}
-                  </a>
-                ) : (
-                  'Waiting for data...'
-                )}
-              </Text>
+                    <Text fontWeight='bold'>Details</Text>
+                    {isDetailsOpen ? (
+                      <IoIosArrowUp size={16} />
+                    ) : (
+                      <IoIosArrowDown size={16} />
+                    )}
+                  </Collapsible.Trigger>
+
+                  <Collapsible.Content>
+                    <Box
+                      p={4}
+                      bg='bg'
+                      borderWidth='1px'
+                      borderTop='0'
+                      borderBottomRadius='md'
+                    >
+                      {loading && <Text>Loading transaction data...</Text>}
+                      {error && <Text color='red.500'>Error: {error}</Text>}
+                      {matchedTransaction && (
+                        <Box p={3} borderRadius='md'>
+                          <Text fontWeight='bold'>Matched Transaction</Text>
+                          <Text>
+                            Hash:{' '}
+                            <a
+                              href={`https://basescan.org/tx/${matchedTransaction.hash}`}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                            >
+                              {matchedTransaction.hash}
+                            </a>
+                          </Text>
+                          <Text>Block: {matchedTransaction.blockNumber}</Text>
+                          <Text mt={2}>
+                            <Text as='span' fontWeight='bold'>
+                              Token Created:
+                            </Text>{' '}
+                            {tokenCreated ? (
+                              <a
+                                href={`/droposal/${tokenCreated}`}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                style={{
+                                  color: 'grey',
+                                  textDecoration: 'underline',
+                                }}
+                              >
+                                {tokenCreated}
+                              </a>
+                            ) : (
+                              'Waiting for data...'
+                            )}
+                          </Text>
+                          {/* keep commented for debugging 
+                                            
+                                            {matchedTransactionReceipt && (
+                                                <>
+                                                    <Text>Gas Used: {matchedTransactionReceipt.gasUsed.toString()}</Text>
+                                                    <Text>Log Events: {matchedTransactionReceipt.logs.length}</Text>
+                                                </>
+                                            )} */}
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapsible.Content>
+                </Collapsible.Root>
+              </Box>
 
               {/* Number of mints input */}
               <Flex mt={4} width='100%' align='center'>
@@ -242,45 +317,6 @@ const CollectModal = ({
                   style={{ marginLeft: '10px', width: '60px' }}
                 />
               </Flex>
-
-              {/* Price breakdown - estimated UI only */}
-              <Box
-                mt={3}
-                p={3}
-                borderRadius='md'
-                bg='blackAlpha.100'
-                width='100%'
-              >
-                <Flex justify='space-between'>
-                  <Text>Mint Price:</Text>
-                  <Text>{totalMintPrice.toFixed(4)} ETH</Text>
-                </Flex>
-                <Flex justify='space-between'>
-                  <Text>Zora Protocol Fee:</Text>
-                  <Text>{totalZoraFee.toFixed(4)} ETH</Text>
-                </Flex>
-                <Flex
-                  justify='space-between'
-                  mt={2}
-                  pt={2}
-                  borderTop='1px solid'
-                  borderColor='gray.300'
-                  fontWeight='bold'
-                >
-                  <Text>Total:</Text>
-                  <Text>{totalPrice.toFixed(4)} ETH</Text>
-                </Flex>
-                {contractSalesConfig.isLoading && (
-                  <Text fontSize='xs' mt={2} color='gray.500'>
-                    Loading price data from contract...
-                  </Text>
-                )}
-                {contractSalesConfig.error && (
-                  <Text fontSize='xs' mt={2} color='red.400'>
-                    Contract price data unavailable. Using estimated price.
-                  </Text>
-                )}
-              </Box>
 
               {/* New comment input */}
               <Box mt={4} width='100%'>
@@ -304,81 +340,82 @@ const CollectModal = ({
                             )} */}
             </VStack>
           </Flex>
-          {/* Transaction details collapsible section */}
-          <Box mt={4}>
-            <Collapsible.Root
-              open={isDetailsOpen}
-              onOpenChange={(details) => setIsDetailsOpen(details.open)}
-            >
-              <Collapsible.Trigger
-                as={Flex}
-                p={3}
-                borderRadius='md'
-                bg='bg'
-                cursor='pointer'
-                justifyContent='space-between'
-                alignItems='center'
-                borderWidth='1px'
-                borderColor='gray.200'
-                width='100%'
-              >
-                <Text fontWeight='bold'>Details</Text>
-                {isDetailsOpen ? (
-                  <IoIosArrowUp size={16} />
-                ) : (
-                  <IoIosArrowDown size={16} />
-                )}
-              </Collapsible.Trigger>
-
-              <Collapsible.Content>
-                <Box
-                  p={4}
-                  bg='bg'
-                  borderWidth='1px'
-                  borderTop='0'
-                  borderBottomRadius='md'
-                >
-                  {loading && <Text>Loading transaction data...</Text>}
-                  {error && <Text color='red.500'>Error: {error}</Text>}
-                  {matchedTransaction && (
-                    <Box p={3} borderRadius='md'>
-                      <Text fontWeight='bold'>Matched Transaction</Text>
-                      <Text>
-                        Hash:{' '}
-                        <a
-                          href={`https://basescan.org/tx/${matchedTransaction.hash}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          {matchedTransaction.hash}
-                        </a>
-                      </Text>
-                      <Text>Block: {matchedTransaction.blockNumber}</Text>
-                      {/* keep commented for debugging 
-                                            
-                                            {matchedTransactionReceipt && (
-                                                <>
-                                                    <Text>Gas Used: {matchedTransactionReceipt.gasUsed.toString()}</Text>
-                                                    <Text>Log Events: {matchedTransactionReceipt.logs.length}</Text>
-                                                </>
-                                            )} */}
-                    </Box>
-                  )}
-                </Box>
-              </Collapsible.Content>
-            </Collapsible.Root>
-          </Box>
         </DialogBody>
         <DialogFooter>
-          <Flex justify='flex-end' mt={4} gap={2}>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <MintButton
-              quantity={numMints}
-              comment={comment}
-              salesConfig={salesConfig}
-            />
+          <Flex direction='column' width='100%'>
+            {/* Price breakdown - estimated UI only */}
+            <Box p={3} rounded={"xl"} bg='blackAlpha.100' width='100%'>
+              <Flex justify='space-between'>
+                <Text>Mint Price:</Text>
+                <Text>{totalMintPrice.toFixed(4)} ETH</Text>
+              </Flex>
+              <Flex justify='space-between'>
+                <Text>Zora Protocol Fee:</Text>
+                <Text>{totalZoraFee.toFixed(4)} ETH</Text>
+              </Flex>
+              <Flex
+                justify='space-between'
+                mt={2}
+                pt={2}
+                borderTop='1px solid'
+                borderColor='gray.300'
+                fontWeight='bold'
+              >
+                <Text>Total:</Text>
+                <Text>{totalPrice.toFixed(4)} ETH</Text>
+              </Flex>
+              {contractSalesConfig.isLoading && (
+                <Text fontSize='xs' mt={2} color='gray.500'>
+                  Loading price data from contract...
+                </Text>
+              )}
+              {contractSalesConfig.error && (
+                <Text fontSize='xs' mt={2} color='red.400'>
+                  Contract price data unavailable. Using estimated price.
+                </Text>
+              )}
+            </Box>
+
+            {mintError && (
+              <Box
+                rounded={'xl'}
+                bg={'bg.error'}
+                p={4}
+                borderColor={'fg.error'}
+                borderWidth='1px'
+                mt={4}
+                className='border border-red-300 bg-red-50 p-4 rounded-md dark:bg-red-900/20 dark:border-red-800 w-full'
+              >
+                <Text
+                  fontWeight='semibold'
+                  className='text-red-800 dark:text-red-400'
+                >
+                  {mintError.title}
+                </Text>
+                <Text
+                  fontSize='sm'
+                  className='mt-1 text-red-700 dark:text-red-300'
+                >
+                  {mintError.message}
+                </Text>
+              </Box>
+            )}
+            <Flex mt={4} w="100%">
+              <Button 
+                variant={'outline'} 
+                onClick={onClose} 
+                flex={1} 
+                mr={2}
+              >
+                Close
+              </Button>
+                <MintButton
+                  quantity={numMints}
+                  comment={comment}
+                  salesConfig={salesConfig}
+                  onError={setMintError}
+                />
+            </Flex>
           </Flex>
         </DialogFooter>
       </DialogContent>

@@ -22,16 +22,22 @@ type MintButtonProps = {
     presaleEnd: number;
     presaleMerkleRoot: string;
   };
+  onError?: (error: { title: string; message: string } | null) => void;
 };
 
 const MintButton = ({
   quantity = 1,
   comment = '',
   salesConfig: propSalesConfig,
+  onError,
 }: MintButtonProps) => {
   const { tokenCreated } = useProposal();
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
+  // Add error state to track and display errors
+  const [error, setError] = useState<{ title: string; message: string } | null>(
+    null
+  );
 
   const contractSalesConfig = useReadContract({
     address: tokenCreated as Address,
@@ -94,8 +100,101 @@ const MintButton = ({
 
   const isLoading = isWritePending || isConfirming || isPending;
 
+  // Add an error processing function to handle different error types
+  const processError = (err: unknown) => {
+    console.error('[MintButton] Error:', err);
+
+    // Clear any previous errors
+    setError(null);
+
+    if (!err) return;
+
+    let errorObj: { title: string; message: string } | null = null;
+
+    if (typeof err === 'string') {
+      errorObj = {
+        title: 'Mint Failed',
+        message: err,
+      };
+    } else if (err instanceof Error) {
+      const errorMessage = err.message;
+
+      // Handle specific Zora contract errors
+      if (errorMessage.includes('Purchase_WrongPrice')) {
+        const correctPriceMatch = errorMessage.match(/correctPrice: (\d+)/);
+        const correctPrice = correctPriceMatch
+          ? BigInt(correctPriceMatch[1])
+          : null;
+
+        errorObj = {
+          title: 'Price Error',
+          message: correctPrice
+            ? `The price has changed. Please try again.`
+            : 'The price provided is incorrect. Please try again.',
+        };
+
+        console.error('[MintButton] Price mismatch detected:', {
+          providedPrice: parseEther(totalPrice.toString()),
+          correctPrice,
+        });
+      } else if (errorMessage.includes('Sale_Inactive')) {
+        errorObj = {
+          title: 'Sale Not Active',
+          message: 'The sale is not currently active. Please check back later.',
+        };
+      } else if (errorMessage.includes('Purchase_TooManyForAddress')) {
+        errorObj = {
+          title: 'Purchase Limit Reached',
+          message:
+            'You have reached the maximum purchase limit for this address.',
+        };
+      } else if (errorMessage.includes('insufficient funds')) {
+        errorObj = {
+          title: 'Insufficient Funds',
+          message: 'You do not have enough ETH to complete this purchase.',
+        };
+      } else if (errorMessage.includes('user rejected transaction')) {
+        errorObj = {
+          title: 'Transaction Cancelled',
+          message: 'You cancelled the transaction.',
+        };
+      } else {
+        // Default error handling
+        errorObj = {
+          title: 'Mint Failed',
+          message:
+            err.message.slice(0, 100) + (err.message.length > 100 ? '...' : ''),
+        };
+      }
+    } else {
+      // Handle non-Error objects
+      errorObj = {
+        title: 'Mint Failed',
+        message: 'An unknown error occurred. Please try again.',
+      };
+    }
+
+    // Set local error state
+    setError(errorObj);
+
+    // Also pass the error to the parent component if callback exists
+    if (onError) {
+      onError(errorObj);
+    }
+  };
+
   const handleMint = async () => {
+    // Clear any previous errors
+    setError(null);
+    if (onError) onError(null);
+
     if (!tokenCreated || !address) {
+      const errorObj = {
+        title: 'Cannot Mint',
+        message: 'Missing token contract or wallet connection.',
+      };
+      setError(errorObj);
+      if (onError) onError(errorObj);
       console.warn(
         '[MintButton] Cannot mint: missing tokenCreated or user address',
         {
@@ -107,16 +206,28 @@ const MintButton = ({
     }
 
     if (!effectiveSalesConfig) {
+      setError({
+        title: 'Cannot Mint',
+        message: 'Sales configuration not loaded yet. Please try again.',
+      });
       console.warn('[MintButton] Cannot mint: salesConfig data not loaded yet');
       return;
     }
 
     if (!zoraFeeData.data) {
+      setError({
+        title: 'Cannot Mint',
+        message: 'Fee data not loaded yet. Please try again.',
+      });
       console.warn('[MintButton] Cannot mint: Zora fee data not loaded yet');
       return;
     }
 
     if (pricePerToken <= 0) {
+      setError({
+        title: 'Invalid Price',
+        message: 'The token price is invalid.',
+      });
       console.error('[MintButton] Invalid price per token:', pricePerToken);
       return;
     }
@@ -139,28 +250,7 @@ const MintButton = ({
         '[MintButton] writeContract call completed, waiting for transaction...'
       );
     } catch (err) {
-      console.error('[MintButton] Exception during mint:', err);
-
-      if (err instanceof Error) {
-        console.error('[MintButton] Error details:', {
-          name: err.name,
-          message: err.message,
-          stack: err.stack,
-          cause: err.cause,
-        });
-
-        if (err.message.includes('Purchase_WrongPrice')) {
-          const correctPriceMatch = err.message.match(/correctPrice: (\d+)/);
-          const correctPrice = correctPriceMatch
-            ? BigInt(correctPriceMatch[1])
-            : null;
-
-          console.error('[MintButton] Price mismatch detected:', {
-            providedPrice: parseEther(totalPrice.toString()),
-            correctPrice,
-          });
-        }
-      }
+      processError(err);
     } finally {
       setIsPending(false);
       console.log(
@@ -170,35 +260,51 @@ const MintButton = ({
   };
 
   useEffect(() => {
+    if (writeError) {
+      processError(writeError);
+    }
+  }, [writeError]);
+
+  useEffect(() => {
+    if (confirmError) {
+      processError(confirmError);
+    }
+  }, [confirmError]);
+
+  useEffect(() => {
     if (hash) {
+      // Clear any previous errors when we get a transaction hash
+      setError(null);
+      if (onError) onError(null);
       console.log('[MintButton] Transaction hash received:', hash);
     }
-  }, [hash]);
+  }, [hash, onError]);
 
   useEffect(() => {
     if (isConfirmed) {
+      // Clear any previous errors when transaction is confirmed
+      setError(null);
+      if (onError) onError(null);
       console.log('[MintButton] Transaction confirmed successfully!');
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, onError]);
 
   return (
-    <div className='flex flex-col gap-4'>
-      <Button
-        onClick={handleMint}
-        disabled={!tokenCreated || isLoading || !effectiveSalesConfig}
-        aria-label='Mint NFT'
-        className='w-full'
-      >
-        {isLoading
-          ? isConfirming
-            ? 'Confirming...'
-            : 'Minting...'
-          : isConfirmed
-            ? 'Minted!'
-            : 'Mint'}
-        {quantity > 1 ? ` (${quantity})` : ''}
-      </Button>
-    </div>
+    <Button
+      onClick={handleMint}
+      disabled={!tokenCreated || isLoading || !effectiveSalesConfig}
+      aria-label='Mint NFT'
+      flex={1}
+    >
+      {isLoading
+        ? isConfirming
+          ? 'Confirming...'
+          : 'Minting...'
+        : isConfirmed
+          ? 'Minted!'
+          : 'Mint'}
+      {quantity > 1 ? ` (${quantity})` : ''}
+    </Button>
   );
 };
 
