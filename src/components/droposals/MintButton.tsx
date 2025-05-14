@@ -23,6 +23,7 @@ type MintButtonProps = {
     presaleMerkleRoot: string;
   };
   onError?: (error: { title: string; message: string } | null) => void;
+  disabled?: boolean;
 };
 
 const MintButton = ({
@@ -30,6 +31,7 @@ const MintButton = ({
   comment = '',
   salesConfig: propSalesConfig,
   onError,
+  disabled,
 }: MintButtonProps) => {
   const { tokenCreated } = useProposal();
   const { address } = useAccount();
@@ -292,7 +294,7 @@ const MintButton = ({
   return (
     <Button
       onClick={handleMint}
-      disabled={!tokenCreated || isLoading || !effectiveSalesConfig}
+      disabled={!tokenCreated || isLoading || !effectiveSalesConfig || disabled}
       aria-label='Mint NFT'
       flex={1}
     >

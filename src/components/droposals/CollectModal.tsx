@@ -30,6 +30,7 @@ import {
   formatEther,
 } from 'viem';
 import { base } from 'viem/chains';
+import { useBalance, useAccount } from 'wagmi';
 import MintButton from './MintButton';
 import Image from 'next/image';
 import { useProposal } from '@/contexts/ProposalContext';
@@ -93,6 +94,14 @@ const CollectModal = ({
     title: string;
     message: string;
   } | null>(null);
+  
+  // Get the user's wallet address
+  const { address } = useAccount();
+  
+  // Get the user's ETH balance
+  const { data: balanceData, isLoading: balanceLoading } = useBalance({
+    address,
+  });
 
   // Fixed Zora protocol fee
   const zoraProtocolFee = 0.000777; // Zora protocol fee in ETH per token
@@ -200,6 +209,21 @@ const CollectModal = ({
       fetchGovernorTransactions();
     }
   }, [isOpen, descriptionHash, fetchGovernorTransactions]);
+
+  // Check for insufficient balance and set mintError
+  useEffect(() => {
+    if (!balanceLoading && balanceData) {
+      if (Number(balanceData.formatted) < totalPrice) {
+        setMintError({
+          title: 'Insufficient Balance',
+          message: `You need at least ${totalPrice.toFixed(4)} ETH to complete this transaction, but your balance is ${Number(balanceData.formatted).toFixed(4)} ETH.`
+        });
+      } else if (mintError?.title === 'Insufficient Balance') {
+        // Clear the error if balance is now sufficient
+        setMintError(null);
+      }
+    }
+  }, [balanceData, balanceLoading, totalPrice, mintError?.title]);
 
   return (
     <DialogRoot open={isOpen}>
@@ -364,6 +388,17 @@ const CollectModal = ({
                 <Text>Total:</Text>
                 <Text>{totalPrice.toFixed(4)} ETH</Text>
               </Flex>
+              {/* Display user balance */}
+              <Flex justify='space-between' mt={2}>
+                <Text>Your Balance:</Text>
+                <Text>
+                  {balanceLoading 
+                    ? "Loading..." 
+                    : balanceData 
+                      ? `${Number(balanceData?.formatted).toFixed(4)} ETH` 
+                      : "0.0000 ETH"}
+                </Text>
+              </Flex>
               {contractSalesConfig.isLoading && (
                 <Text fontSize='xs' mt={2} color='gray.500'>
                   Loading price data from contract...
@@ -414,6 +449,7 @@ const CollectModal = ({
                   comment={comment}
                   salesConfig={salesConfig}
                   onError={setMintError}
+                  disabled={balanceLoading || (balanceData ? Number(balanceData?.formatted) < totalPrice : true) || !!mintError}
                 />
             </Flex>
           </Flex>
