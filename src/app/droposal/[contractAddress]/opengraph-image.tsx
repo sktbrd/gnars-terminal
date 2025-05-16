@@ -10,6 +10,27 @@ async function getZoraMintAbi() {
   return (await import('@/utils/abis/zoraNftAbi')).default;
 }
 
+// Helper to add timeout to fetch
+async function fetchWithTimeout(
+  resource: string,
+  options: any = {},
+  timeout = 3000
+) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+    return response;
+  } catch (e) {
+    clearTimeout(id);
+    throw e;
+  }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { contractAddress: string } }
@@ -43,8 +64,12 @@ export async function GET(
         const uri = tokenUri.startsWith('ipfs://')
           ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
           : tokenUri;
-        const res = await fetch(uri);
-        if (res.ok) metadata = await res.json();
+        try {
+          const res = await fetchWithTimeout(uri, {}, 3000);
+          if (res.ok) metadata = await res.json();
+        } catch (e) {
+          // Timeout or fetch error, fallback to default image
+        }
       }
     }
     if (metadata.image) {

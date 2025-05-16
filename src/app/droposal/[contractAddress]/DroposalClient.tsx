@@ -396,6 +396,13 @@ export default function DroposalPage({
     fetchMetadata();
   }, [tokenUri, initialMetadata]);
 
+  // Ensure loading is set to false if initialMetadata is present and no fetch is needed
+  useEffect(() => {
+    if (initialMetadata) {
+      setLoading(false);
+    }
+  }, [initialMetadata]);
+
   // Handle quantity change
   const handleIncreaseQuantity = () => {
     if (
@@ -551,12 +558,14 @@ export default function DroposalPage({
     );
   }
 
-  // Get image URL with IPFS handling
+  // Get image URL with IPFS handling and fallback
   const getImageUrl = (imageUri?: string) => {
-    if (!imageUri) return '/images/logo.png';
+    const FALLBACK_IMAGE = '/images/gnars.webp';
+    if (!imageUri || typeof imageUri !== 'string') return FALLBACK_IMAGE;
     if (imageUri.startsWith('ipfs://')) {
       return `https://ipfs.skatehive.app/ipfs/${imageUri.slice(7)}`;
     }
+    if (!imageUri.startsWith('http')) return FALLBACK_IMAGE;
     return imageUri;
   };
 

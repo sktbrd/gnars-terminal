@@ -1,8 +1,9 @@
 import dynamic from 'next/dynamic';
 import { Metadata } from 'next';
-
+import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 // Move shared metadata fetch logic to a utility function
 async function fetchDroposalMetadata(contractAddress: string) {
+  const FALLBACK_IMAGE = '/images/gnars.webp';
   try {
     const { createPublicClient, http } = await import('viem');
     const { base } = await import('viem/chains');
@@ -41,19 +42,24 @@ async function fetchDroposalMetadata(contractAddress: string) {
     let animation_url = metadata.animation_url;
     if (animation_url && animation_url.startsWith('ipfs://'))
       animation_url = `https://ipfs.skatehive.app/ipfs/${animation_url.slice(7)}`;
+    // Fallback if image is missing or empty
+    if (!image || typeof image !== 'string' || !image.startsWith('http')) {
+      image = FALLBACK_IMAGE;
+    }
     return {
       name: metadata.name || '',
       description: metadata.description || '',
-      image: image || '',
+      image: image,
       animation_url: animation_url || '',
       properties: metadata.properties || {},
       attributes: metadata.attributes || [],
     };
   } catch (e) {
+    console.error('Error fetching droposal metadata:', e);
     return {
       name: '',
       description: '',
-      image: '',
+      image: '/images/gnars.webp',
       animation_url: '',
       properties: {},
       attributes: [],
@@ -112,5 +118,11 @@ export default async function Page({
 }) {
   // Fetch metadata server-side and pass as prop
   const meta = await fetchDroposalMetadata(params.contractAddress);
-  return <DroposalClient initialMetadata={meta} />;
+
+  return (
+    <>
+      <InitFrameSDK />
+      <DroposalClient initialMetadata={meta} />;
+    </>
+  );
 }
