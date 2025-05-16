@@ -65,7 +65,7 @@ const processDirectJsonUri = (tokenUri: string): TokenMetadata => {
 
 const fetchUriMetadata = async (uri: string): Promise<TokenMetadata> => {
   const formattedUri = uri.startsWith('ipfs://')
-    ? `https://ipfs.io/ipfs/${uri.slice(7)}`
+    ? `https://ipfs.skatehive.app/ipfs/${uri.slice(7)}`
     : uri;
 
   const response = await fetch(formattedUri);
@@ -554,7 +554,7 @@ export default function DroposalPage() {
   const getImageUrl = (imageUri?: string) => {
     if (!imageUri) return '/images/logo.png';
     if (imageUri.startsWith('ipfs://')) {
-      return `https://ipfs.io/ipfs/${imageUri.slice(7)}`;
+      return `https://ipfs.skatehive.app/ipfs/${imageUri.slice(7)}`;
     }
     return imageUri;
   };
