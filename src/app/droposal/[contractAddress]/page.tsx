@@ -29,7 +29,7 @@ async function fetchDroposalMetadata(contractAddress: string) {
         metadata = JSON.parse(jsonString);
       } else {
         const uri = tokenUri.startsWith('ipfs://')
-          ? `https://ipfs.io/ipfs/${tokenUri.slice(7)}`
+          ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
           : tokenUri;
         const res = await fetch(uri);
         if (res.ok) metadata = await res.json();
@@ -38,10 +38,10 @@ async function fetchDroposalMetadata(contractAddress: string) {
     // Normalize image and animation_url
     let image = metadata.image;
     if (image && image.startsWith('ipfs://'))
-      image = `https://ipfs.io/ipfs/${image.slice(7)}`;
+      image = `https://ipfs.skatehive.app/ipfs/${image.slice(7)}`;
     let animation_url = metadata.animation_url;
     if (animation_url && animation_url.startsWith('ipfs://'))
-      animation_url = `https://ipfs.io/ipfs/${animation_url.slice(7)}`;
+      animation_url = `https://ipfs.skatehive.app/ipfs/${animation_url.slice(7)}`;
     // Fallback if image is missing or empty
     if (!image || typeof image !== 'string' || !image.startsWith('http')) {
       image = FALLBACK_IMAGE;
