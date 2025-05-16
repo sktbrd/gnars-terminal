@@ -6,7 +6,7 @@ import { Status } from '@/components/proposal/status';
 import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 import { fetchAuction } from '@/services/auction';
 import { APP_URL, DAO_ADDRESSES } from '@/utils/constants';
-import { Box, Grid, GridItem, VStack } from '@chakra-ui/react';
+import { Grid, GridItem, VStack } from '@chakra-ui/react';
 import { headers } from 'next/headers';
 
 export const revalidate = 60;
