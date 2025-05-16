@@ -122,7 +122,7 @@ export default async function Page({
   return (
     <>
       <InitFrameSDK />
-      <DroposalClient initialMetadata={meta} />;
+      <DroposalClient initialMetadata={meta} />
     </>
   );
 }
