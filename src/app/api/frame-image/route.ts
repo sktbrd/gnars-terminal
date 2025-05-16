@@ -7,8 +7,18 @@ export async function GET(req: NextRequest) {
     return new Response('Missing url param', { status: 400 });
   }
 
+  // Extract User-Agent and Referer from the incoming request
+  const userAgent = req.headers.get('user-agent') || '';
+  const referer = req.headers.get('referer') || '';
+
   try {
-    const res = await fetch(imageUrl);
+    const res = await fetch(imageUrl, {
+      headers: {
+        'User-Agent': userAgent,
+        ...(referer ? { 'Referer': referer } : {}),
+        // Optionally, you can add more headers if needed
+      },
+    });
     if (!res.ok) {
       return new Response('Failed to fetch image', { status: 502 });
     }
