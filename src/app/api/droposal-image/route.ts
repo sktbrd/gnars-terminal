@@ -37,20 +37,32 @@ async function fetchDroposalMetadata(contractAddress: string) {
         if (res.ok) metadata = await res.json();
       }
     }
+    // Normalize image and animation_url as in page.tsx
     let image = metadata.image;
     if (image && image.startsWith('ipfs://'))
       image = `https://ipfs.skatehive.app/ipfs/${image.slice(7)}`;
+    let animation_url = metadata.animation_url;
+    if (animation_url && animation_url.startsWith('ipfs://'))
+      animation_url = `https://ipfs.skatehive.app/ipfs/${animation_url.slice(7)}`;
     if (!image || typeof image !== 'string' || !image.startsWith('http')) {
       image = FALLBACK_IMAGE;
     }
     return {
       name: metadata.name || '',
-      image,
+      description: metadata.description || '',
+      image: image,
+      animation_url: animation_url || '',
+      properties: metadata.properties || {},
+      attributes: metadata.attributes || [],
     };
   } catch (e) {
     return {
       name: '',
+      description: '',
       image: FALLBACK_IMAGE,
+      animation_url: '',
+      properties: {},
+      attributes: [],
     };
   }
 }
