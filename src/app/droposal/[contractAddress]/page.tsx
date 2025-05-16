@@ -78,12 +78,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { contractAddress } = params;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gnars.com';
-  // Use the actual token image for the frame
+  // Use the actual token image for the frame, but proxy through gnars.com/api/frame-image
+  // so Farcaster and others never hit IPFS directly
   const meta = await fetchDroposalMetadata(contractAddress);
   console.log('Meta:', meta);
+  let proxiedImage = '';
+  if (meta.image) {
+    // Only proxy if it's a remote URL (not a data: URI)
+    if (meta.image.startsWith('http')) {
+      proxiedImage = `${appUrl}/api/frame-image?url=${encodeURIComponent(meta.image)}`;
+    } else {
+      proxiedImage = meta.image;
+    }
+  }
   const frame = {
     version: 'next',
-    imageUrl: meta.image,
+    imageUrl: proxiedImage,
     button: {
       title: 'Mint Droposal',
       action: {
@@ -101,7 +111,7 @@ export async function generateMetadata({
       meta.description ||
       `Collect and view details for contract ${contractAddress}`,
     openGraph: {
-      images: meta.image ? [meta.image] : [],
+      images: proxiedImage ? [proxiedImage] : meta.image ? [meta.image] : [],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
