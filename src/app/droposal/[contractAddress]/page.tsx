@@ -82,18 +82,14 @@ export async function generateMetadata({
   // so Farcaster and others never hit IPFS directly
   const meta = await fetchDroposalMetadata(contractAddress);
   console.log('Meta:', meta);
-  let proxiedImage = '';
+  let frameImageUrl = '';
   if (meta.image) {
-    // Only proxy if it's a remote URL (not a data: URI)
-    if (meta.image.startsWith('http')) {
-      proxiedImage = `${appUrl}/api/frame-image?url=${encodeURIComponent(meta.image)}`;
-    } else {
-      proxiedImage = meta.image;
-    }
+    // Use the OG image generator with title overlay
+    frameImageUrl = `${appUrl}/api/droposal-image?contractAddress=${contractAddress}`;
   }
   const frame = {
     version: 'next',
-    imageUrl: proxiedImage,
+    imageUrl: frameImageUrl,
     button: {
       title: 'Mint Droposal',
       action: {
@@ -111,7 +107,7 @@ export async function generateMetadata({
       meta.description ||
       `Collect and view details for contract ${contractAddress}`,
     openGraph: {
-      images: proxiedImage ? [proxiedImage] : meta.image ? [meta.image] : [],
+      images: frameImageUrl ? [frameImageUrl] : meta.image ? [meta.image] : [],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
