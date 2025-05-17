@@ -37,6 +37,8 @@ async function fetchDroposalMetadata(contractAddress: string) {
         if (res.ok) metadata = await res.json();
       }
     }
+    // Debug output
+    console.log('[droposal-image] contract:', contractAddress, 'tokenUri:', tokenUri, 'metadata:', metadata);
     // Normalize image and animation_url as in page.tsx
     let image = metadata.image;
     if (image && image.startsWith('ipfs://'))
@@ -56,6 +58,7 @@ async function fetchDroposalMetadata(contractAddress: string) {
       attributes: metadata.attributes || [],
     };
   } catch (e) {
+    console.error('[droposal-image] ERROR', e);
     return {
       name: '',
       description: '',
