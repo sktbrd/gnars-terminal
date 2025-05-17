@@ -5,7 +5,8 @@ import { NextRequest } from 'next/server';
 export const runtime = 'edge';
 
 async function fetchDroposalMetadata(contractAddress: string) {
-  const FALLBACK_IMAGE = 'https://gnars.com/images/gnars.webp';
+  // Use a PNG fallback image (Edge runtime does not support webp)
+  const FALLBACK_IMAGE = 'https://gnars.com/images/shredquarters.png';
   try {
     const { createPublicClient, http } = await import('viem');
     const { base } = await import('viem/chains');
@@ -77,6 +78,10 @@ export async function GET(req: NextRequest) {
     return new Response('Missing contractAddress', { status: 400 });
   }
   const meta = await fetchDroposalMetadata(contractAddress);
+  // If meta.name is missing, show a clear fallback message
+  const overlayText = meta.name && meta.name.trim().length > 0
+    ? meta.name
+    : `No metadata found for\n${contractAddress}`;
   return new ImageResponse(
     React.createElement(
       'div',
@@ -100,17 +105,18 @@ export async function GET(req: NextRequest) {
             position: 'absolute',
             bottom: 0,
             width: '100%',
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(0,0,0,0.7)',
             color: 'white',
-            fontSize: 56,
+            fontSize: 48,
             fontWeight: 700,
             textAlign: 'center',
             padding: '40px 40px',
             letterSpacing: '-1px',
             textShadow: '0 4px 24px #000',
+            whiteSpace: 'pre-line',
           },
         },
-        meta.name || contractAddress
+        overlayText
       )
     ),
     {
