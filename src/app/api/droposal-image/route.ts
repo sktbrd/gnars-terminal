@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
       attributes: [],
     };
   }
-  // If meta.name is missing, show a clear fallback message
+  // For testing: always use a local PNG for the background image
   const overlayText = meta.name && meta.name.trim().length > 0
     ? meta.name
     : `No metadata found for\n${contractAddress}`;
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          backgroundImage: `url(${meta.image})`,
+          backgroundImage: `url(https://gnars.com/images/shredquarters.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         },
