@@ -158,15 +158,22 @@ export async function GET(req: NextRequest) {
             position: 'absolute',
             bottom: 0,
             width: '100%',
-            background: 'rgba(0,0,0,0.7)',
+            // Stronger overlay for better readability
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)',
             color: 'white',
-            fontSize: 48,
-            fontWeight: 700,
+            fontSize: 60, // larger font
+            fontWeight: 900, // bolder
             textAlign: 'center',
-            padding: '40px 40px',
-            letterSpacing: '-1px',
-            textShadow: '0 4px 24px #000',
+            padding: '56px 56px 48px 56px', // more padding
+            letterSpacing: '-1.5px',
+            textShadow: '0 6px 32px #000, 0 2px 8px #000', // stronger shadow
             whiteSpace: 'pre-line',
+            borderBottomLeftRadius: 32,
+            borderBottomRightRadius: 32,
+            lineHeight: 1.15,
+            boxSizing: 'border-box',
+            // Optional: add a subtle border for separation
+            borderTop: '2px solid rgba(255,255,255,0.08)'
           },
         },
         overlayText
