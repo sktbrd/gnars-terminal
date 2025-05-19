@@ -2,8 +2,6 @@ import * as React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
-
 async function fetchDroposalMetadata(contractAddress: string) {
   // Use a PNG fallback image (Edge runtime does not support webp)
   const FALLBACK_IMAGE = 'https://gnars.com/images/shredquarters.png';
@@ -77,14 +75,27 @@ export async function GET(req: NextRequest) {
   if (!contractAddress) {
     return new Response('Missing contractAddress', { status: 400 });
   }
-  const meta = await fetchDroposalMetadata(contractAddress);
-
-  // Return debug info as JSON instead of generating an image
+  let meta, error;
+  try {
+    meta = await fetchDroposalMetadata(contractAddress);
+  } catch (e) {
+    error = e instanceof Error ? e.message : String(e);
+    meta = {
+      name: '',
+      description: '',
+      image: 'https://gnars.com/images/shredquarters.png',
+      animation_url: '',
+      properties: {},
+      attributes: [],
+    };
+  }
+  // Return debug info as JSON, including error if present
   return new Response(
     JSON.stringify({
       contractAddress,
       meta,
-      note: "This is debug output from the Edge function. If meta looks correct, the image rendering code is the next thing to check."
+      error,
+      note: "This is debug output from the Node.js/serverless function. If meta looks correct, restore the image rendering code."
     }),
     { status: 200, headers: { 'Content-Type': 'application/json' } }
   );
