@@ -89,14 +89,50 @@ export async function GET(req: NextRequest) {
       attributes: [],
     };
   }
-  // Return debug info as JSON, including error if present
-  return new Response(
-    JSON.stringify({
-      contractAddress,
-      meta,
-      error,
-      note: "This is debug output from the Node.js/serverless function. If meta looks correct, restore the image rendering code."
-    }),
-    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  // If meta.name is missing, show a clear fallback message
+  const overlayText = meta.name && meta.name.trim().length > 0
+    ? meta.name
+    : `No metadata found for\n${contractAddress}`;
+  return new ImageResponse(
+    React.createElement(
+      'div',
+      {
+        style: {
+          width: 1200,
+          height: 630,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          backgroundImage: `url(${meta.image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        },
+      },
+      React.createElement(
+        'div',
+        {
+          style: {
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            background: 'rgba(0,0,0,0.7)',
+            color: 'white',
+            fontSize: 48,
+            fontWeight: 700,
+            textAlign: 'center',
+            padding: '40px 40px',
+            letterSpacing: '-1px',
+            textShadow: '0 4px 24px #000',
+            whiteSpace: 'pre-line',
+          },
+        },
+        overlayText
+      )
+    ),
+    {
+      width: 1200,
+      height: 630,
+    }
   );
 }
