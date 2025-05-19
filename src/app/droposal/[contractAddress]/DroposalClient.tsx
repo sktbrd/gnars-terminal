@@ -130,7 +130,6 @@ export default function DroposalPage({
     args: [],
   });
   const [isPending, setIsPending] = useState(false);
-  const [showSimulationResults, setShowSimulationResults] = useState(false);
   const [simulationValue, setSimulationValue] = useState<bigint | undefined>(
     undefined
   );
@@ -151,12 +150,6 @@ export default function DroposalPage({
     args: [BigInt(quantity), comment],
     value: simulationValue,
   });
-
-  const isSimulating = simulateMint.isLoading;
-  const isSimulated = simulateMint.isSuccess;
-  const simulationError = simulateMint.error;
-  const simulationData = simulateMint.data;
-  const isSimulatedError = simulationError && !isSimulated;
 
   // Parse sales configuration
   const salesConfig = salesConfigData

@@ -78,50 +78,14 @@ export async function GET(req: NextRequest) {
     return new Response('Missing contractAddress', { status: 400 });
   }
   const meta = await fetchDroposalMetadata(contractAddress);
-  // If meta.name is missing, show a clear fallback message
-  const overlayText = meta.name && meta.name.trim().length > 0
-    ? meta.name
-    : `No metadata found for\n${contractAddress}`;
-  return new ImageResponse(
-    React.createElement(
-      'div',
-      {
-        style: {
-          width: 1200,
-          height: 630,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          backgroundImage: `url(${meta.image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        },
-      },
-      React.createElement(
-        'div',
-        {
-          style: {
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
-            background: 'rgba(0,0,0,0.7)',
-            color: 'white',
-            fontSize: 48,
-            fontWeight: 700,
-            textAlign: 'center',
-            padding: '40px 40px',
-            letterSpacing: '-1px',
-            textShadow: '0 4px 24px #000',
-            whiteSpace: 'pre-line',
-          },
-        },
-        overlayText
-      )
-    ),
-    {
-      width: 1200,
-      height: 630,
-    }
+
+  // Return debug info as JSON instead of generating an image
+  return new Response(
+    JSON.stringify({
+      contractAddress,
+      meta,
+      note: "This is debug output from the Edge function. If meta looks correct, the image rendering code is the next thing to check."
+    }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
   );
 }
