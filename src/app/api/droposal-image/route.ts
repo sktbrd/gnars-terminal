@@ -71,8 +71,8 @@ async function fetchDroposalMetadata(contractAddress: string) {
 }
 
 async function getOrCacheImage(imageUrl: string, cacheKey: string): Promise<string> {
-  // Only allow PNG/JPEG
-  if (!imageUrl || (!imageUrl.endsWith('.png') && !imageUrl.endsWith('.jpg') && !imageUrl.endsWith('.jpeg'))) {
+  // Remove strict PNG/JPEG check, allow any image URL
+  if (!imageUrl || !imageUrl.startsWith('http')) {
     return 'https://gnars.com/images/shredquarters.png';
   }
   // 1. Check if image is already in Blob Storage
