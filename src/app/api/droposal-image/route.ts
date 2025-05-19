@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
             fontWeight: 900, // bolder
             textAlign: 'center',
             padding: '56px 56px 48px 56px', // more padding
-            letterSpacing: '-1.5px',
+            letterSpacing: '-1.5p x',
             textShadow: '0 6px 32px #000, 0 2px 8px #000', // stronger shadow
             whiteSpace: 'pre-line',
             borderBottomLeftRadius: 32,

@@ -360,6 +360,17 @@ export const zoraNftAbi = [
     {
         "stateMutability": "payable",
         "type": "receive"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+        ],
+        "name": "computeTotalReward",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
 ] as const;
 
@@ -665,6 +676,17 @@ export const zoraMintAbi = [
                 "name": "",
                 "type": "string"
             }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+        ],
+        "name": "computeTotalReward",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
         ],
         "stateMutability": "view",
         "type": "function"

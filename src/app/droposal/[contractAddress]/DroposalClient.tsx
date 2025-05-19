@@ -122,11 +122,11 @@ export default function DroposalPage({
     ? (contractAddress[0] as Address)
     : (contractAddress as Address);
 
-  // Read sales configuration
-  const { data: salesConfigData } = useReadContract({
+  // NOTE: Use 'saleDetails' for broader Zora drop compatibility
+  const { data: saleDetailsData } = useReadContract({
     address: formattedContractAddress,
-    abi: zoraMintAbi,
-    functionName: 'salesConfig',
+    abi: zoraMintAbi, // <-- correct ABI for reads
+    functionName: 'saleDetails',
     args: [],
   });
   const [isPending, setIsPending] = useState(false);
@@ -151,18 +151,20 @@ export default function DroposalPage({
     value: simulationValue,
   });
 
-  // Parse sales configuration
-  const salesConfig = salesConfigData
+  // Parse sale details
+  const salesConfig = saleDetailsData
     ? {
-        publicSalePrice: salesConfigData[0]
-          ? Number(formatEther(salesConfigData[0] as bigint))
+        publicSalePrice: saleDetailsData.publicSalePrice
+          ? Number(formatEther(saleDetailsData.publicSalePrice))
           : 0,
-        maxSalePurchasePerAddress: Number(salesConfigData[1]),
-        publicSaleStart: Number(salesConfigData[2]),
-        publicSaleEnd: Number(salesConfigData[3]),
-        presaleStart: Number(salesConfigData[4]),
-        presaleEnd: Number(salesConfigData[5]),
-        presaleMerkleRoot: salesConfigData[6] as string,
+        maxSalePurchasePerAddress: Number(
+          saleDetailsData.maxSalePurchasePerAddress
+        ),
+        publicSaleStart: Number(saleDetailsData.publicSaleStart),
+        publicSaleEnd: Number(saleDetailsData.publicSaleEnd),
+        presaleStart: Number(saleDetailsData.presaleStart),
+        presaleEnd: Number(saleDetailsData.presaleEnd),
+        presaleMerkleRoot: saleDetailsData.presaleMerkleRoot,
       }
     : undefined;
 
@@ -180,6 +182,15 @@ export default function DroposalPage({
     abi: zoraMintAbi,
     functionName: 'totalSupply',
     args: [],
+  });
+
+  // Read computeTotalReward(totalSupply) for ETH volume
+  const { data: totalRewardData } = useReadContract({
+    address: formattedContractAddress,
+    abi: zoraMintAbi,
+    functionName: 'computeTotalReward',
+    args: [totalSupply ?? 0n],
+    query: { enabled: totalSupply !== null },
   });
 
   // Effect to set total supply when data is available
@@ -525,6 +536,22 @@ export default function DroposalPage({
     }
   }, [hash]);
 
+  // --- Volume Calculation ---
+  // Only show if we have totalSupply, saleDetails, and zoraFeeData
+  let netVolume = null;
+  let pricePerMint = null;
+  if (
+    totalSupply !== null &&
+    saleDetailsData &&
+    zoraFeeData.data &&
+    saleDetailsData.publicSalePrice
+  ) {
+    pricePerMint = Number(formatEther(saleDetailsData.publicSalePrice));
+    const totalMintRevenue = Number(totalSupply) * pricePerMint;
+    const totalZoraFee = Number(formatEther(zoraFeeData.data[1] as bigint));
+    netVolume = (totalMintRevenue - totalZoraFee).toFixed(4);
+  }
+
   // Handle loading states
   if (loading) {
     return (
@@ -604,6 +631,29 @@ export default function DroposalPage({
               />
             </Box>
           ) : null}
+          {/* Cheerful ETH volume display */}
+          {netVolume !== null && (
+            <Box
+              mt={4}
+              mb={2}
+              p={4}
+              borderRadius={16}
+              bgGradient='linear(90deg, #ffe066 0%, #ffb347 100%)'
+              textAlign='center'
+              fontWeight={700}
+              fontSize={['lg', '2xl']}
+              color='#222'
+              boxShadow='0 4px 24px #ffb34744'
+            >
+              🎉 This droposal has generated{' '}
+              <span style={{ color: '#ff6600' }}>{netVolume} ETH</span> so far!
+              <br />
+              <span style={{ fontSize: 16, fontWeight: 400 }}>
+                ( {totalSupply?.toString()} mints × {pricePerMint ?? '?'} ETH
+                per mint, minus Zora fees)
+              </span>
+            </Box>
+          )}
         </Box>
 
         {/* Right Section: Details and Actions */}
