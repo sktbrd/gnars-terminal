@@ -638,15 +638,18 @@ export default function DroposalPage({
               mb={2}
               p={4}
               borderRadius={16}
-              bgGradient='linear(90deg, #ffe066 0%, #ffb347 100%)'
+              bg='primary'
+              color='secondary'
               textAlign='center'
               fontWeight={700}
               fontSize={['lg', '2xl']}
-              color='#222'
-              boxShadow='0 4px 24px #ffb34744'
+              boxShadow='md'
             >
               🎉 This droposal has generated{' '}
-              <span style={{ color: '#ff6600' }}>{netVolume} ETH</span> so far!
+              <span style={{ color: 'secondary', filter: 'brightness(1.1)' }}>
+                {netVolume} ETH
+              </span>{' '}
+              so far!
               <br />
               <span style={{ fontSize: 16, fontWeight: 400 }}>
                 ( {totalSupply?.toString()} mints × {pricePerMint ?? '?'} ETH
