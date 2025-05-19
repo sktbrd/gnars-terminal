@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
+import { put, list } from '@vercel/blob';
 
 async function fetchDroposalMetadata(contractAddress: string) {
   // Use a PNG fallback image (Edge runtime does not support webp)
@@ -69,6 +70,31 @@ async function fetchDroposalMetadata(contractAddress: string) {
   }
 }
 
+async function getOrCacheImage(imageUrl: string, cacheKey: string): Promise<string> {
+  // Only allow PNG/JPEG
+  if (!imageUrl || (!imageUrl.endsWith('.png') && !imageUrl.endsWith('.jpg') && !imageUrl.endsWith('.jpeg'))) {
+    return 'https://gnars.com/images/shredquarters.png';
+  }
+  // 1. Check if image is already in Blob Storage
+  const blobs = await list({ prefix: cacheKey });
+  if (blobs && blobs.blobs && blobs.blobs.length > 0) return blobs.blobs[0].url;
+
+  // 2. Download from remote (IPFS or other) with timeout
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000); // 2s timeout
+    const res = await fetch(imageUrl, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return 'https://gnars.com/images/shredquarters.png';
+    const arrayBuffer = await res.arrayBuffer();
+    // 3. Upload to Blob Storage
+    const { url } = await put(cacheKey, Buffer.from(arrayBuffer), { access: 'public' });
+    return url;
+  } catch {
+    return 'https://gnars.com/images/shredquarters.png';
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const contractAddress = searchParams.get('contractAddress');
@@ -89,8 +115,9 @@ export async function GET(req: NextRequest) {
       attributes: [],
     };
   }
-  // Use meta.image for the background, fallback to local PNG if not valid
-  let backgroundImage = meta.image && meta.image.startsWith('http') ? meta.image : 'https://gnars.com/images/shredquarters.png';
+  // Use meta.image for the background, fallback to local PNG if not valid, and cache to CDN
+  const cacheKey = `droposals/${contractAddress}.png`;
+  const backgroundImage = await getOrCacheImage(meta.image, cacheKey);
   const overlayText = meta.name && meta.name.trim().length > 0
     ? meta.name
     : `No metadata found for\n${contractAddress}`;
