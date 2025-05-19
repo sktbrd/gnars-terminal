@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
 import { put, list } from '@vercel/blob';
+import sharp from 'sharp';
 
 async function fetchDroposalMetadata(contractAddress: string) {
   // Use a PNG fallback image (Edge runtime does not support webp)
@@ -87,10 +88,23 @@ async function getOrCacheImage(imageUrl: string, cacheKey: string): Promise<stri
     clearTimeout(timeout);
     if (!res.ok) return 'https://gnars.com/images/shredquarters.png';
     const arrayBuffer = await res.arrayBuffer();
-    // 3. Upload to Blob Storage
-    const { url } = await put(cacheKey, Buffer.from(arrayBuffer), { access: 'public' });
+    let buffer = Buffer.from(arrayBuffer);
+    // 3. Resize/compress with sharp
+    try {
+      const sharp = (await import('sharp')).default;
+      buffer = await sharp(buffer)
+        .resize(1200, 630, { fit: 'cover' })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+    } catch (err) {
+      console.error('[droposal-image] sharp error:', err);
+      // fallback to original buffer
+    }
+    // 4. Upload to Blob Storage
+    const { url } = await put(cacheKey, buffer, { access: 'public' });
     return url;
-  } catch {
+  } catch (err) {
+    console.error('[droposal-image] fetch/cache error:', err);
     return 'https://gnars.com/images/shredquarters.png';
   }
 }
