@@ -89,7 +89,8 @@ export async function GET(req: NextRequest) {
       attributes: [],
     };
   }
-  // For testing: always use a local PNG for the background image
+  // Use meta.image for the background, fallback to local PNG if not valid
+  let backgroundImage = meta.image && meta.image.startsWith('http') ? meta.image : 'https://gnars.com/images/shredquarters.png';
   const overlayText = meta.name && meta.name.trim().length > 0
     ? meta.name
     : `No metadata found for\n${contractAddress}`;
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest) {
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          backgroundImage: `url(https://gnars.com/images/shredquarters.png)`,
+          backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         },
