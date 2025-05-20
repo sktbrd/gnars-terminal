@@ -1,5 +1,6 @@
 'use client';
 
+// --- Imports ---
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Address, formatEther, parseEther } from 'viem';
@@ -24,6 +25,8 @@ import Image from 'next/image';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 import { safeParseJson } from '@/utils/zora';
 import FormattedAddress from '@/components/utils/names';
+
+// --- Types ---
 interface TokenMetadata {
   name: string;
   description: string;
@@ -43,6 +46,7 @@ interface AggregatedHolder {
   tokenIds: bigint[];
 }
 
+// --- Utility Functions ---
 const processBase64TokenUri = (tokenUri: string): TokenMetadata => {
   const base64Data = tokenUri.split(',')[1];
   const base64Decoded = atob(base64Data);
@@ -85,29 +89,26 @@ const validateMetadata = (metadata: any): TokenMetadata => {
 const INITIAL_BATCH_SIZE = 20; // Only fetch 20 owners initially
 const ITEMS_PER_PAGE = 8; // Keep as before
 
+// --- Main Component ---
 export default function DroposalPage({
   initialMetadata,
 }: {
   initialMetadata: TokenMetadata;
 }) {
+  // --- State ---
   const params = useParams();
   const contractAddress = params?.contractAddress;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Use initialMetadata as the initial state
   const [metadata, setMetadata] = useState<TokenMetadata | null>(
     initialMetadata
   );
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
   const [totalSupply, setTotalSupply] = useState<bigint | null>(null);
-
-  // Update minters state to store raw token data
   const [rawMinters, setRawMinters] = useState<
     { address: string; tokenId: bigint }[]
   >([]);
-
-  // Add new state for aggregated holders
   const [aggregatedHolders, setAggregatedHolders] = useState<
     AggregatedHolder[]
   >([]);
@@ -116,6 +117,11 @@ export default function DroposalPage({
   const [hasMoreHolders, setHasMoreHolders] = useState(true);
   const [nextTokenIdToFetch, setNextTokenIdToFetch] = useState<bigint>(1n);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(
+    null
+  );
+  const { address } = useAccount();
 
   // Ensure contractAddress is properly formatted
   const formattedContractAddress = Array.isArray(contractAddress)
@@ -129,10 +135,6 @@ export default function DroposalPage({
     functionName: 'saleDetails',
     args: [],
   });
-  const [isPending, setIsPending] = useState(false);
-  const [simulationValue, setSimulationValue] = useState<bigint | undefined>(
-    undefined
-  );
 
   // Fix: Correct function name and add quantity parameter
   const zoraFeeData = useReadContract({
@@ -140,15 +142,6 @@ export default function DroposalPage({
     abi: zoraMintAbi,
     functionName: 'zoraFeeForAmount',
     args: [BigInt(quantity)],
-  });
-
-  // Fix: Use state for simulation parameters
-  const simulateMint = useSimulateContract({
-    address: contractAddress as Address,
-    abi: zoraMintAbi,
-    functionName: 'purchaseWithComment',
-    args: [BigInt(quantity), comment],
-    value: simulationValue,
   });
 
   // Parse sale details
@@ -184,54 +177,12 @@ export default function DroposalPage({
     args: [],
   });
 
-  // Read computeTotalReward(totalSupply) for ETH volume
-  const { data: totalRewardData } = useReadContract({
-    address: formattedContractAddress,
-    abi: zoraMintAbi,
-    functionName: 'computeTotalReward',
-    args: [totalSupply ?? 0n],
-    query: { enabled: totalSupply !== null },
-  });
-
   // Effect to set total supply when data is available
   useEffect(() => {
     if (totalSupplyData) {
       setTotalSupply(totalSupplyData as bigint);
     }
   }, [totalSupplyData]);
-
-  // Function to get token owner
-  const getTokenOwner = async (tokenId: bigint) => {
-    try {
-      console.log(`Fetching owner for token #${tokenId}`);
-      const response = await fetch(
-        `/api/zora?contractAddress=${formattedContractAddress}&tokenId=${tokenId.toString()}`
-      );
-
-      const data = await response.json();
-
-      // Check for special case of internal error contract
-      if (data.isInternalErrorContract) {
-        console.log(
-          'Contract returns internal error for standard calls, skipping further requests'
-        );
-        // Return special value to indicate we shouldn't try more requests
-        return 'INTERNAL_ERROR_CONTRACT';
-      }
-
-      // Check if the token exists
-      if (!response.ok || !data.exists) {
-        console.log(`Token #${tokenId} does not exist or has no owner`);
-        return null;
-      }
-
-      console.log(`Owner for token #${tokenId}:`, data.owner);
-      return data.owner;
-    } catch (err) {
-      console.error(`Error fetching owner for token ${tokenId}:`, err);
-      return null;
-    }
-  };
 
   // New function to aggregate and rank holders
   const aggregateAndRankHolders = (
@@ -268,6 +219,8 @@ export default function DroposalPage({
     startTokenId: bigint,
     endTokenId: bigint
   ) => {
+    // Add a delay to avoid spamming the RPC
+    await new Promise((resolve) => setTimeout(resolve, 400)); // 400ms delay between batch requests
     try {
       const response = await fetch(
         `/api/zora?contractAddress=${formattedContractAddress}&startTokenId=${startTokenId.toString()}&endTokenId=${endTokenId.toString()}`
@@ -429,18 +382,27 @@ export default function DroposalPage({
     setComment(e.target.value);
   };
 
-  const { address } = useAccount();
-  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(
-    null
-  );
-
-  // Set up contract writing
+  // Set up contract writing (single instance for both mint and withdraw)
   const {
     writeContract,
     isPending: isWritePending,
     error: writeError,
     data: hash,
   } = useWriteContract();
+  // Track which action is pending: 'mint' | 'withdraw' | null
+  const [pendingAction, setPendingAction] = useState<
+    null | 'mint' | 'withdraw'
+  >(null);
+
+  // --- Withdraw-specific state ---
+  const [withdrawHash, setWithdrawHash] = useState<`0x${string}` | null>(null);
+  const {
+    isLoading: isWithdrawConfirming,
+    isSuccess: isWithdrawConfirmed,
+    error: withdrawConfirmError,
+  } = useWaitForTransactionReceipt({
+    hash: withdrawHash ?? undefined,
+  });
 
   // Track transaction status
   const {
@@ -512,6 +474,7 @@ export default function DroposalPage({
       totalInEth: priceInfo.totalInEth,
     });
 
+    setPendingAction('mint');
     setIsPending(true);
     try {
       writeContract({
@@ -525,6 +488,7 @@ export default function DroposalPage({
       console.error('Exception during mint:', err);
     } finally {
       setIsPending(false);
+      setPendingAction(null);
     }
   };
 
@@ -535,6 +499,21 @@ export default function DroposalPage({
       setTransactionHash(hash);
     }
   }, [hash]);
+
+  // Set withdrawHash when withdraw tx hash is available
+  useEffect(() => {
+    if (pendingAction === 'withdraw' && hash) {
+      setWithdrawHash(hash);
+    }
+  }, [pendingAction, hash]);
+
+  // Read contract owner
+  const { data: contractOwner } = useReadContract({
+    address: formattedContractAddress,
+    abi: zoraMintAbi,
+    functionName: 'owner',
+    args: [],
+  });
 
   // --- Volume Calculation ---
   // Only show if we have totalSupply, saleDetails, and zoraFeeData
@@ -587,6 +566,30 @@ export default function DroposalPage({
     }
     if (!imageUri.startsWith('http')) return FALLBACK_IMAGE;
     return imageUri;
+  };
+
+  // Withdraw contract write (reuse writeContract)
+  const handleWithdraw = async () => {
+    setPendingAction('withdraw');
+    try {
+      if (!formattedContractAddress) {
+        console.error('No contract address for withdraw');
+        setPendingAction(null);
+        return;
+      }
+      console.log('Withdrawing funds from contract:', formattedContractAddress);
+      console.log('Pending action:', pendingAction);
+
+      writeContract({
+        address: formattedContractAddress,
+        abi: zoraMintAbi,
+        functionName: 'withdraw',
+        args: [],
+      });
+    } catch (err) {
+      console.error('Error in handleWithdraw:', err);
+      setPendingAction(null);
+    }
   };
 
   return (
@@ -657,6 +660,69 @@ export default function DroposalPage({
               </span>
             </Box>
           )}
+          {/* Withdraw Section (simple, for contract owner/manager) */}
+          {typeof contractOwner === 'string' &&
+            address &&
+            contractOwner.toLowerCase() === address.toLowerCase() && (
+              <Box
+                mt={8}
+                p={4}
+                borderRadius={8}
+                bg='primary'
+                color='secondary'
+                boxShadow='md'
+              >
+                <Heading size='md' mb={2} color='secondary'>
+                  Withdraw Funds
+                </Heading>
+                {/* <Text fontSize='sm' mb={2} color='secondary'>
+                  Send all contract funds (minus Zora fees) to the funds
+                  recipient.
+                </Text> */}
+                <Button
+                  colorScheme='orange'
+                  bg='secondary'
+                  color='primary'
+                  _hover={{ bg: 'secondary', opacity: 0.9 }}
+                  onClick={handleWithdraw}
+                  _loading={
+                    pendingAction === 'withdraw' || isWithdrawConfirming
+                      ? {}
+                      : undefined
+                  }
+                  disabled={
+                    pendingAction === 'withdraw' || isWithdrawConfirming
+                  }
+                >
+                  {isWithdrawConfirmed ? 'Withdrawn!' : 'Withdraw'}
+                </Button>
+                {writeError && pendingAction === 'withdraw' && (
+                  <Text color='red.400'>Error: {writeError.message}</Text>
+                )}
+                {withdrawConfirmError && (
+                  <Text color='red.400'>
+                    Transaction failed: {withdrawConfirmError.message}
+                  </Text>
+                )}
+                {isWithdrawConfirmed && withdrawHash && (
+                  <Text color='green.400' fontSize='sm' mt={2}>
+                    Successfully withdrawn!
+                    <a
+                      href={`https://basescan.org/tx/${withdrawHash}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      style={{
+                        marginLeft: '4px',
+                        textDecoration: 'underline',
+                        color: 'inherit',
+                      }}
+                    >
+                      View on BaseScan
+                    </a>
+                  </Text>
+                )}
+              </Box>
+            )}
         </Box>
 
         {/* Right Section: Details and Actions */}
