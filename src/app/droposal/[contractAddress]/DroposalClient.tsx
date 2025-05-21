@@ -1,7 +1,7 @@
 'use client';
 
 // --- Imports ---
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Address, formatEther, parseEther } from 'viem';
 import {
@@ -25,6 +25,7 @@ import Image from 'next/image';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 import { safeParseJson } from '@/utils/zora';
 import FormattedAddress from '@/components/utils/names';
+import React from 'react';
 
 // --- Types ---
 interface TokenMetadata {
@@ -89,6 +90,35 @@ const validateMetadata = (metadata: any): TokenMetadata => {
 const INITIAL_BATCH_SIZE = 20; // Only fetch 20 owners initially
 const ITEMS_PER_PAGE = 8; // Keep as before
 
+// --- Cheerful ETH Volume Display ---
+const CheerfulEthVolume = React.memo(function CheerfulEthVolume({ netVolume, totalSupply, pricePerMint }: { netVolume: string | null, totalSupply: bigint | null, pricePerMint: number | null }) {
+  if (netVolume === null) return null;
+  return (
+    <Box
+      mt={4}
+      mb={2}
+      p={4}
+      borderRadius={16}
+      bg='primary'
+      color='secondary'
+      textAlign='center'
+      fontWeight={700}
+      fontSize={['lg', '2xl']}
+      boxShadow='md'
+    >
+      🎉 This droposal has generated{' '}
+      <span style={{ color: 'secondary', filter: 'brightness(1.1)' }}>
+        {netVolume} ETH
+      </span>{' '}
+      so far!
+      <br />
+      <span style={{ fontSize: 16, fontWeight: 400 }}>
+        ( {totalSupply?.toString()} mints × {pricePerMint ?? '?'} ETH per mint, minus Zora fees)
+      </span>
+    </Box>
+  );
+});
+
 // --- Main Component ---
 export default function DroposalPage({
   initialMetadata,
@@ -144,6 +174,15 @@ export default function DroposalPage({
     args: [BigInt(quantity)],
   });
 
+  // --- ETH Volume Calculation: decoupled from mint quantity ---
+  // Always use quantity 1 for fee calculation
+  const zoraFeeDataForVolume = useReadContract({
+    address: contractAddress as Address,
+    abi: zoraMintAbi,
+    functionName: 'zoraFeeForAmount',
+    args: [1n],
+  });
+
   // Parse sale details
   const salesConfig = saleDetailsData
     ? {
@@ -177,12 +216,220 @@ export default function DroposalPage({
     args: [],
   });
 
-  // Effect to set total supply when data is available
+  // Read contract owner (move up with other hooks)
+  const { data: contractOwner } = useReadContract({
+    address: formattedContractAddress,
+    abi: zoraMintAbi,
+    functionName: 'owner',
+    args: [],
+  });
+
+  // --- Volume Calculation (decoupled from mint quantity) ---
+  // Memoize so it only updates when relevant data changes
+  const ethVolumeInfo = useMemo(() => {
+    if (
+      totalSupply !== null &&
+      saleDetailsData &&
+      zoraFeeDataForVolume.data &&
+      saleDetailsData.publicSalePrice
+    ) {
+      const pricePerMint = Number(formatEther(saleDetailsData.publicSalePrice));
+      const totalMintRevenue = Number(totalSupply) * pricePerMint;
+      // Zora fee for 1 mint, multiply by totalSupply
+      const zoraFeePerMint = Number(formatEther(zoraFeeDataForVolume.data[1] as bigint));
+      const totalZoraFee = zoraFeePerMint * Number(totalSupply);
+      const netVolume = (totalMintRevenue - totalZoraFee).toFixed(4);
+      return {
+        netVolume,
+        totalSupply,
+        pricePerMint,
+      };
+    }
+    return {
+      netVolume: null,
+      totalSupply: totalSupply ?? null,
+      pricePerMint: saleDetailsData?.publicSalePrice
+        ? Number(formatEther(saleDetailsData.publicSalePrice))
+        : null,
+    };
+  }, [totalSupply, saleDetailsData, zoraFeeDataForVolume.data]);
+
+  // All hooks must be called before any return!
+  // Move all useState, useEffect, useMemo, and helper functions above any return
+
+  // Get image URL with IPFS handling and fallback
+  const getImageUrl = (imageUri?: string) => {
+    const FALLBACK_IMAGE = '/images/gnars.webp';
+    if (!imageUri || typeof imageUri !== 'string') return FALLBACK_IMAGE;
+    if (imageUri.startsWith('ipfs://')) {
+      return `https://ipfs.skatehive.app/ipfs/${imageUri.slice(7)}`;
+    }
+    if (!imageUri.startsWith('http')) return FALLBACK_IMAGE;
+    return imageUri;
+  };
+
+  // Memoize media (video/image) so it doesn't re-render on unrelated state changes
+  const mediaElement = useMemo(() => {
+    if (metadata?.animation_url) {
+      return (
+        <Box
+          borderRadius='lg'
+          overflow='hidden'
+          position='relative'
+          height={{ base: '300px', md: 'auto' }}
+          mb={6}
+        >
+          <video
+            src={getImageUrl(metadata.animation_url)}
+            controls
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
+        </Box>
+      );
+    } else if (metadata?.image) {
+      return (
+        <Box
+          borderRadius='lg'
+          overflow='hidden'
+          position='relative'
+          height='500px'
+          mb={6}
+        >
+          <Image
+            src={getImageUrl(metadata.image)}
+            alt={metadata?.name || 'Token Image'}
+            fill
+            style={{ objectFit: 'contain' }}
+            priority
+          />
+        </Box>
+      );
+    }
+    return null;
+  }, [metadata?.animation_url, metadata?.image, metadata?.name]);
+
+  // Set up contract writing (single instance for both mint and withdraw)
+  const {
+    writeContract,
+    isPending: isWritePending,
+    error: writeError,
+    data: hash,
+  } = useWriteContract();
+  // Track which action is pending: 'mint' | 'withdraw' | null
+  const [pendingAction, setPendingAction] = useState<null | 'mint' | 'withdraw'>(null);
+  // --- Withdraw-specific state ---
+  const [withdrawHash, setWithdrawHash] = useState<`0x${string}` | null>(null);
+  const {
+    isLoading: isWithdrawConfirming,
+    isSuccess: isWithdrawConfirmed,
+    error: withdrawConfirmError,
+  } = useWaitForTransactionReceipt({ hash: withdrawHash ?? undefined });
+  // Track transaction status
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    error: confirmError,
+  } = useWaitForTransactionReceipt({ hash });
+  // Combined loading state
+  const isLoading = isWritePending || isConfirming || isPending;
+
+  // All useEffect hooks must come after all state/hooks are declared
+  useEffect(() => {
+    if (hash) {
+      console.log('Transaction hash received:', hash);
+      setTransactionHash(hash);
+    }
+  }, [hash]);
+
+  useEffect(() => {
+    if (pendingAction === 'withdraw' && hash) {
+      setWithdrawHash(hash);
+    }
+  }, [pendingAction, hash]);
+
   useEffect(() => {
     if (totalSupplyData) {
       setTotalSupply(totalSupplyData as bigint);
     }
   }, [totalSupplyData]);
+
+  useEffect(() => {
+    if (!tokenUri || initialMetadata) return;
+    const fetchMetadata = async () => {
+      try {
+        setLoading(true);
+        let parsedMetadata: TokenMetadata;
+        if (typeof tokenUri === 'string') {
+          if (tokenUri.startsWith('data:application/json;base64,')) {
+            parsedMetadata = processBase64TokenUri(tokenUri);
+          } else if (tokenUri.startsWith('data:application/json')) {
+            parsedMetadata = processDirectJsonUri(tokenUri);
+          } else {
+            parsedMetadata = await fetchUriMetadata(tokenUri);
+          }
+          setMetadata(validateMetadata(parsedMetadata));
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to fetch token metadata';
+        setError(errorMessage);
+        console.error('Error fetching metadata:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMetadata();
+  }, [tokenUri, initialMetadata]);
+
+  useEffect(() => {
+    if (initialMetadata) {
+      setLoading(false);
+    }
+  }, [initialMetadata]);
+
+  useEffect(() => {
+    if (!totalSupply && totalSupply !== 0n) return;
+
+    let cancelled = false;
+    setLoadingMinters(true);
+
+    (async () => {
+      try {
+        // Only fetch up to totalSupply or INITIAL_BATCH_SIZE
+        const maxTokenId =
+          totalSupply && totalSupply > 0n
+            ? totalSupply < BigInt(INITIAL_BATCH_SIZE)
+              ? totalSupply
+              : BigInt(INITIAL_BATCH_SIZE)
+            : 1n;
+        const owners = await fetchTokenOwnersBatch(1n, maxTokenId);
+
+        if (!cancelled) {
+          setRawMinters(owners); // owners is now { address, tokenId }[]
+          const aggregated = aggregateAndRankHolders(owners);
+          setAggregatedHolders(aggregated);
+          setVisibleHolders(aggregated.slice(0, ITEMS_PER_PAGE));
+          setHasMoreHolders(
+            (totalSupply && maxTokenId < totalSupply) ||
+              aggregated.length > ITEMS_PER_PAGE
+          );
+          setNextTokenIdToFetch(maxTokenId + 1n);
+        }
+      } catch (err) {
+        if (!cancelled) setError('Failed to fetch supporters');
+      } finally {
+        if (!cancelled) setLoadingMinters(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [totalSupply, formattedContractAddress]);
 
   // New function to aggregate and rank holders
   const aggregateAndRankHolders = (
@@ -242,47 +489,6 @@ export default function DroposalPage({
     }
   };
 
-  // Fetch initial batch of minters when totalSupply is available
-  useEffect(() => {
-    if (!totalSupply && totalSupply !== 0n) return;
-
-    let cancelled = false;
-    setLoadingMinters(true);
-
-    (async () => {
-      try {
-        // Only fetch up to totalSupply or INITIAL_BATCH_SIZE
-        const maxTokenId =
-          totalSupply && totalSupply > 0n
-            ? totalSupply < BigInt(INITIAL_BATCH_SIZE)
-              ? totalSupply
-              : BigInt(INITIAL_BATCH_SIZE)
-            : 1n;
-        const owners = await fetchTokenOwnersBatch(1n, maxTokenId);
-
-        if (!cancelled) {
-          setRawMinters(owners); // owners is now { address, tokenId }[]
-          const aggregated = aggregateAndRankHolders(owners);
-          setAggregatedHolders(aggregated);
-          setVisibleHolders(aggregated.slice(0, ITEMS_PER_PAGE));
-          setHasMoreHolders(
-            (totalSupply && maxTokenId < totalSupply) ||
-              aggregated.length > ITEMS_PER_PAGE
-          );
-          setNextTokenIdToFetch(maxTokenId + 1n);
-        }
-      } catch (err) {
-        if (!cancelled) setError('Failed to fetch supporters');
-      } finally {
-        if (!cancelled) setLoadingMinters(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [totalSupply, formattedContractAddress]);
-
   // Load more holders (fetch next batch)
   const loadMoreHolders = async () => {
     if (!totalSupply || loadingMore) return;
@@ -324,41 +530,31 @@ export default function DroposalPage({
     }
   };
 
-  // Remove duplicated fetch logic for metadata, only update if tokenUri changes and initialMetadata is not present
-  useEffect(() => {
-    if (!tokenUri || initialMetadata) return;
-    const fetchMetadata = async () => {
-      try {
-        setLoading(true);
-        let parsedMetadata: TokenMetadata;
-        if (typeof tokenUri === 'string') {
-          if (tokenUri.startsWith('data:application/json;base64,')) {
-            parsedMetadata = processBase64TokenUri(tokenUri);
-          } else if (tokenUri.startsWith('data:application/json')) {
-            parsedMetadata = processDirectJsonUri(tokenUri);
-          } else {
-            parsedMetadata = await fetchUriMetadata(tokenUri);
-          }
-          setMetadata(validateMetadata(parsedMetadata));
-        }
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to fetch token metadata';
-        setError(errorMessage);
-        console.error('Error fetching metadata:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMetadata();
-  }, [tokenUri, initialMetadata]);
+  // Handle loading states
+  if (loading) {
+    return (
+      <Container maxW='container.xl' py={10}>
+        <Flex justify='center' align='center' minH='50vh'>
+          <Spinner size='xl' />
+          <Text ml={4}>Loading token data...</Text>
+        </Flex>
+      </Container>
+    );
+  }
 
-  // Ensure loading is set to false if initialMetadata is present and no fetch is needed
-  useEffect(() => {
-    if (initialMetadata) {
-      setLoading(false);
-    }
-  }, [initialMetadata]);
+  // Handle errors
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={10}>
+        <Box bg='red.50' p={5} borderRadius='md'>
+          <Heading size='md' color='red.500'>
+            Error Loading Token
+          </Heading>
+          <Text mt={2}>{error}</Text>
+        </Box>
+      </Container>
+    );
+  }
 
   // Handle quantity change
   const handleIncreaseQuantity = () => {
@@ -381,40 +577,6 @@ export default function DroposalPage({
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setComment(e.target.value);
   };
-
-  // Set up contract writing (single instance for both mint and withdraw)
-  const {
-    writeContract,
-    isPending: isWritePending,
-    error: writeError,
-    data: hash,
-  } = useWriteContract();
-  // Track which action is pending: 'mint' | 'withdraw' | null
-  const [pendingAction, setPendingAction] = useState<
-    null | 'mint' | 'withdraw'
-  >(null);
-
-  // --- Withdraw-specific state ---
-  const [withdrawHash, setWithdrawHash] = useState<`0x${string}` | null>(null);
-  const {
-    isLoading: isWithdrawConfirming,
-    isSuccess: isWithdrawConfirmed,
-    error: withdrawConfirmError,
-  } = useWaitForTransactionReceipt({
-    hash: withdrawHash ?? undefined,
-  });
-
-  // Track transaction status
-  const {
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-    error: confirmError,
-  } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  // Combined loading state
-  const isLoading = isWritePending || isConfirming || isPending;
 
   // Calculate the total price including protocol fee
   const calculateTotalPrice = () => {
@@ -492,82 +654,6 @@ export default function DroposalPage({
     }
   };
 
-  // Log when hash is received
-  useEffect(() => {
-    if (hash) {
-      console.log('Transaction hash received:', hash);
-      setTransactionHash(hash);
-    }
-  }, [hash]);
-
-  // Set withdrawHash when withdraw tx hash is available
-  useEffect(() => {
-    if (pendingAction === 'withdraw' && hash) {
-      setWithdrawHash(hash);
-    }
-  }, [pendingAction, hash]);
-
-  // Read contract owner
-  const { data: contractOwner } = useReadContract({
-    address: formattedContractAddress,
-    abi: zoraMintAbi,
-    functionName: 'owner',
-    args: [],
-  });
-
-  // --- Volume Calculation ---
-  // Only show if we have totalSupply, saleDetails, and zoraFeeData
-  let netVolume = null;
-  let pricePerMint = null;
-  if (
-    totalSupply !== null &&
-    saleDetailsData &&
-    zoraFeeData.data &&
-    saleDetailsData.publicSalePrice
-  ) {
-    pricePerMint = Number(formatEther(saleDetailsData.publicSalePrice));
-    const totalMintRevenue = Number(totalSupply) * pricePerMint;
-    const totalZoraFee = Number(formatEther(zoraFeeData.data[1] as bigint));
-    netVolume = (totalMintRevenue - totalZoraFee).toFixed(4);
-  }
-
-  // Handle loading states
-  if (loading) {
-    return (
-      <Container maxW='container.xl' py={10}>
-        <Flex justify='center' align='center' minH='50vh'>
-          <Spinner size='xl' />
-          <Text ml={4}>Loading token data...</Text>
-        </Flex>
-      </Container>
-    );
-  }
-
-  // Handle errors
-  if (error) {
-    return (
-      <Container maxW='container.xl' py={10}>
-        <Box bg='red.50' p={5} borderRadius='md'>
-          <Heading size='md' color='red.500'>
-            Error Loading Token
-          </Heading>
-          <Text mt={2}>{error}</Text>
-        </Box>
-      </Container>
-    );
-  }
-
-  // Get image URL with IPFS handling and fallback
-  const getImageUrl = (imageUri?: string) => {
-    const FALLBACK_IMAGE = '/images/gnars.webp';
-    if (!imageUri || typeof imageUri !== 'string') return FALLBACK_IMAGE;
-    if (imageUri.startsWith('ipfs://')) {
-      return `https://ipfs.skatehive.app/ipfs/${imageUri.slice(7)}`;
-    }
-    if (!imageUri.startsWith('http')) return FALLBACK_IMAGE;
-    return imageUri;
-  };
-
   // Withdraw contract write (reuse writeContract)
   const handleWithdraw = async () => {
     setPendingAction('withdraw');
@@ -597,69 +683,9 @@ export default function DroposalPage({
       <Flex gap={10} flexDirection={{ base: 'column', md: 'row' }}>
         {/* Left Section: Media (Video or Image) */}
         <Box flex='1' minW={{ base: '100%', md: '60%' }}>
-          {metadata?.animation_url ? (
-            // Render video if animation_url exists
-            <Box
-              borderRadius='lg'
-              overflow='hidden'
-              position='relative'
-              height={{ base: '300px', md: 'auto' }}
-              mb={6}
-            >
-              <video
-                src={getImageUrl(metadata.animation_url)}
-                controls
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            </Box>
-          ) : metadata?.image ? (
-            // Fall back to image if no animation_url
-            <Box
-              borderRadius='lg'
-              overflow='hidden'
-              position='relative'
-              height='500px'
-              mb={6}
-            >
-              <Image
-                src={getImageUrl(metadata.image)}
-                alt={metadata?.name || 'Token Image'}
-                fill
-                style={{ objectFit: 'contain' }}
-                priority
-              />
-            </Box>
-          ) : null}
-          {/* Cheerful ETH volume display */}
-          {netVolume !== null && (
-            <Box
-              mt={4}
-              mb={2}
-              p={4}
-              borderRadius={16}
-              bg='primary'
-              color='secondary'
-              textAlign='center'
-              fontWeight={700}
-              fontSize={['lg', '2xl']}
-              boxShadow='md'
-            >
-              🎉 This droposal has generated{' '}
-              <span style={{ color: 'secondary', filter: 'brightness(1.1)' }}>
-                {netVolume} ETH
-              </span>{' '}
-              so far!
-              <br />
-              <span style={{ fontSize: 16, fontWeight: 400 }}>
-                ( {totalSupply?.toString()} mints × {pricePerMint ?? '?'} ETH
-                per mint, minus Zora fees)
-              </span>
-            </Box>
-          )}
+          {mediaElement}
+          {/* Cheerful ETH volume display (now decoupled from mint quantity) */}
+          <CheerfulEthVolume netVolume={ethVolumeInfo.netVolume} totalSupply={ethVolumeInfo.totalSupply} pricePerMint={ethVolumeInfo.pricePerMint} />
           {/* Withdraw Section (simple, for contract owner/manager) */}
           {typeof contractOwner === 'string' &&
             address &&
@@ -675,10 +701,6 @@ export default function DroposalPage({
                 <Heading size='md' mb={2} color='secondary'>
                   Withdraw Funds
                 </Heading>
-                {/* <Text fontSize='sm' mb={2} color='secondary'>
-                  Send all contract funds (minus Zora fees) to the funds
-                  recipient.
-                </Text> */}
                 <Button
                   colorScheme='orange'
                   bg='secondary'
@@ -803,12 +825,6 @@ export default function DroposalPage({
                     }`}
               </Button>
 
-              {/* {writeError && (
-                <Text color='red.500' fontSize='sm' mt={2}>
-                  Error: {writeError.message}
-                </Text>
-              )} */}
-
               {confirmError && (
                 <Text color='red.500' fontSize='sm' mt={2}>
                   Transaction failed: {confirmError.message}
@@ -877,9 +893,7 @@ export default function DroposalPage({
                       mt={2}
                       size='sm'
                       variant='outline'
-                      // Use the loading prop as a style object for Chakra v1 (_loading)
                       _loading={loadingMore ? {} : undefined}
-                      // isLoading={loadingMore} // Uncomment if your Chakra version supports isLoading
                     >
                       Load More Supporters
                     </Button>
@@ -902,9 +916,6 @@ export default function DroposalPage({
 
             {/* Details Section */}
             <Box>
-              {/* <Heading size='md' mb={4}>
-                Details
-              </Heading> */}
               <Text>
                 <strong>Contract Address:</strong> {contractAddress}
               </Text>
