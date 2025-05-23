@@ -1,27 +1,28 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'next/navigation';
-import { Address, formatEther } from 'viem';
-import { useReadContract, useAccount } from 'wagmi';
-import { Container, Flex, Box } from '@chakra-ui/react';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
+import { Box, Container, Flex } from '@chakra-ui/react';
+import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Address, formatEther } from 'viem';
+import { useAccount, useReadContract } from 'wagmi';
 
 // Import custom components
 import { MediaSection } from './MediaSection';
-import { WithdrawSection } from './WithdrawSection';
-import { SupportersSection } from './SupportersSection';
 import { MintSection } from './MintSection';
+import { SupportersSection } from './SupportersSection';
 import { TokenDetailsSection } from './TokenDetailsSection';
+import { WithdrawSection } from './WithdrawSection';
 
 // Import types and utilities
-import { TokenMetadata, SalesConfig, EthVolumeInfo } from './types';
+import { CheerfulEthVolume } from './CheerfulEthVolume';
 import {
+  fetchUriMetadata,
   processBase64TokenUri,
   processDirectJsonUri,
-  fetchUriMetadata,
   validateMetadata,
 } from './droposalUtils';
+import { TokenMetadata } from './types';
 
 interface DroposalPageProps {
   initialMetadata?: TokenMetadata;
@@ -202,12 +203,30 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
     <Container maxW='container.xl' py={4}>
       <Flex gap={6} flexDirection={{ base: 'column', md: 'row' }}>
         {/* Left Section: Media and Withdraw */}
-        <Box flex='1' display={"flex"} flexDirection='column' gap={6} minW={{ base: '100%', md: '60%' }}>
+        <Box
+          flex='1'
+          display={'flex'}
+          flexDirection='column'
+          gap={6}
+          minW={{ base: '100%', md: '60%' }}
+        >
           <MediaSection
             metadata={metadata}
             loading={loading}
             error={error}
             ethVolumeInfo={ethVolumeInfo}
+          />
+
+          <CheerfulEthVolume
+            netVolume={ethVolumeInfo.netVolume}
+            totalSupply={ethVolumeInfo.totalSupply}
+            pricePerMint={ethVolumeInfo.pricePerMint}
+          />
+
+          {/* Supporters section */}
+          <SupportersSection
+            contractAddress={formattedContractAddress}
+            totalSupply={totalSupply}
           />
 
           {/* Withdraw Section (only for contract owner) */}
@@ -220,7 +239,7 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
         </Box>
 
         {/* Right Section: Details and Actions */}
-        <Box flex='1' display={"flex"} flexDirection='column' gap={6}>
+        <Box flex='1' display={'flex'} flexDirection='column' gap={6}>
           {/* Token details (name, description) */}
           <TokenDetailsSection
             metadata={metadata}
@@ -234,12 +253,6 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
             contractAddress={formattedContractAddress}
             salesConfig={salesConfig}
             zoraFeeData={zoraFeeData}
-          />
-
-          {/* Supporters section */}
-          <SupportersSection
-            contractAddress={formattedContractAddress}
-            totalSupply={totalSupply}
           />
         </Box>
       </Flex>

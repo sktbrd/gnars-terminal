@@ -1,17 +1,22 @@
-import { useState, useEffect } from 'react';
+import { FormattedAddress } from '@/components/utils/names';
 import {
+  Avatar,
   Box,
-  Heading,
-  VStack,
   Flex,
-  Text,
+  Heading,
+  HStack,
+  SimpleGrid,
   Spinner,
+  Text,
+  VStack
 } from '@chakra-ui/react';
+import { FaUsers } from 'react-icons/fa';
+import { useAvatar } from '@paperclip-labs/whisk-sdk/identity';
+import { useEffect, useState } from 'react';
 import { Address } from 'viem';
-import FormattedAddress from '@/components/utils/names';
-import { AggregatedHolder } from './types';
-import { fetchTokenOwnersBatch, aggregateAndRankHolders } from './droposalUtils';
 import { Button } from '../ui/button';
+import { aggregateAndRankHolders, fetchTokenOwnersBatch } from './droposalUtils';
+import { AggregatedHolder } from './types';
 
 interface SupportersSectionProps {
   contractAddress: Address;
@@ -20,6 +25,21 @@ interface SupportersSectionProps {
 
 const INITIAL_BATCH_SIZE = 20; // Only fetch 20 owners initially
 const ITEMS_PER_PAGE = 8; // Display 8 per page
+
+// Supporter Avatar component with image fallback
+function SupporterAvatar({ address }: { address: Address }) {
+  const { data: avatar, isLoading } = useAvatar({ address });
+
+  return (
+    <Avatar.Root size="md">
+      {isLoading ? (
+        <Spinner size='sm' />
+      ) : (
+        <Avatar.Image src={avatar || '/images/frames/icon.png'} />
+      )}
+    </Avatar.Root>
+  );
+}
 
 export const SupportersSection: React.FC<SupportersSectionProps> = ({
   contractAddress,
@@ -124,56 +144,92 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
   };
 
   return (
-    <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }}>
-      <Heading size='md' mb={4}>
-        Supporters
-      </Heading>
+    <Box borderWidth={1} display="flex" flexDir="column" alignItems='stretch' gap={3} rounded="lg" p={6} _dark={{ borderColor: 'yellow' }}>
+      <HStack gap={2}>
+        <FaUsers size={24} color="#FFD700" />
+        <Heading size='xl'>
+          Community Supporters
+        </Heading>
+      </HStack>
       {loadingMinters && visibleHolders.length === 0 ? (
         <Flex justify='center' my={4}>
           <Spinner size='sm' mr={2} />
           <Text>Loading supporters...</Text>
         </Flex>
       ) : visibleHolders.length > 0 ? (
-        <VStack align='stretch' gap={2}>
-          {visibleHolders.map((holder, index) => (
-            <Flex
-              key={index}
-              justify='space-between'
-              p={2}
-              borderRadius='md'
+        <>
+          {/* Vertical grid of supporter cards */}
+          <Box pb={2}>
+            <SimpleGrid 
+              columns={{ base: 2, sm: 3, md: 4 }}
+              gap={3} 
+              w="100%"
             >
-              <Flex align='center'>
-                <FormattedAddress address={holder.address} />
-                <Text
-                  fontSize='sm'
-                  color='blue.500'
-                  ml={2}
-                  fontWeight='bold'
+              {visibleHolders.map((holder, index) => (
+                <Box 
+                  key={index} 
+                  bg="gray.50" 
+                  p={3} 
+                  borderRadius="lg" 
+                  textAlign="center"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  transition="all 0.2s"
+                  _hover={{ 
+                    transform: 'translateY(-2px)',
+                    boxShadow: "sm" 
+                  }}
+                  _dark={{ 
+                    bg: 'gray.800', 
+                    borderColor: 'yellow.600',
+                  }}
                 >
-                  {holder.tokenCount > 1
-                    ? `(${holder.tokenCount} tokens)`
-                    : ''}
-                </Text>
-              </Flex>
-              <Text fontSize='sm' color='gray.500'>
-                Latest: #{holder.tokenIds[0].toString()}
-              </Text>
-            </Flex>
-          ))}
-
+                  <VStack gap={2}>
+                    <Box position="relative">
+                      <SupporterAvatar address={holder.address as Address} />
+                      {holder.tokenCount > 1 && (
+                        <Flex 
+                          position="absolute" 
+                          bottom="-2px" 
+                          right="-2px"
+                          bg="blue.500"
+                          color="white"
+                          borderRadius="full"
+                          w="20px"
+                          h="20px"
+                          justifyContent="center"
+                          alignItems="center"
+                          fontSize="xs"
+                          fontWeight="bold"
+                        >
+                          {holder.tokenCount}
+                        </Flex>
+                      )}
+                    </Box>
+                    <FormattedAddress address={holder.address} />
+                    <Text fontSize="xs" color="gray.500">
+                      #{holder.tokenIds[0].toString()}
+                    </Text>
+                  </VStack>
+                </Box>
+              ))}
+            </SimpleGrid>
+          </Box>
+          
           {/* Load More Button */}
           {hasMoreHolders && (
             <Button
               onClick={loadMoreHolders}
-              mt={2}
+              mt={4}
               size='sm'
               variant='outline'
               loading={loadingMore}
+              w="full"
             >
-              Load More Supporters
+              Show More Supporters
             </Button>
           )}
-        </VStack>
+        </>
       ) : (
         <Text>No supporters found</Text>
       )}
@@ -182,7 +238,7 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
       {loadingMore && visibleHolders.length > 0 && (
         <Flex justify='center' mt={2}>
           <Spinner size='sm' mr={2} />
-          <Text fontSize='sm'>Fetching more tokens...</Text>
+          <Text fontSize='sm'>Fetching more supporters...</Text>
         </Flex>
       )}
 
