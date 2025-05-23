@@ -46,6 +46,8 @@ const CustomVideoPlayer = React.memo(({
     setIsModalOpen(false);
   };
 
+  const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
   return (
     <>
       <Box
@@ -62,9 +64,10 @@ const CustomVideoPlayer = React.memo(({
             src={src}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             controls
-            autoPlay
+            autoPlay={!isMobile}
             loop
             muted
+            poster={isMobile && thumbnail ? thumbnail : undefined}
           />
         ) : (
           <Image

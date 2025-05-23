@@ -219,7 +219,7 @@ const DroposalContent = memo(() => {
           )}
         </>
       ) : (
-        <Skeleton height='full' width='full' />
+        <Skeleton height={{ base: '220px', md: 'full' }} width='full' />
       )}
     </VStack>
   );
