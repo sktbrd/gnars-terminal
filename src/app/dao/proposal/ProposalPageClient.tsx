@@ -67,7 +67,7 @@ const ProposalDetails = memo(({
       display='flex'
       flexDirection='column'
       gap={2}
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+      _dark={{ borderColor: 'primary', borderWidth: 1 }}
     >
       <ProposalHeader
         proposalNumber={proposalNumber}
@@ -448,7 +448,7 @@ const ProposalTabs = memo(
         padding={4}
         pt={2}
         rounded={'md'}
-        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+        _dark={{ borderColor: 'primary', borderWidth: 1 }}
         className="tabs-container"
       >
         <Tabs.Root

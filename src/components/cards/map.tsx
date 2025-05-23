@@ -6,7 +6,7 @@ function MapCard() {
       shadow={'sm'}
       w={'full'}
       rounded={'md'}
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+      _dark={{ borderColor: 'primary', borderWidth: 1 }}
       display={'flex'}
       flexDirection={'column'}
       gap={2}

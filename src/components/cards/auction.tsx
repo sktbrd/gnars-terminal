@@ -33,13 +33,13 @@ export default function AuctionCard({
   if (!activeAuction) {
     return (
       <VStack
-        shadow={'sm'}
+        shadow={'none'}
         w={'full'}
         height='full'
         padding={4}
         rounded={'md'}
         gap={4}
-        _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+        _dark={{ borderColor: 'none', borderWidth: 0 }}
       >
         <Stack
           direction={{ base: 'column', md: 'row' }}
@@ -82,7 +82,7 @@ export default function AuctionCard({
       padding={4}
       rounded={'md'}
       gap={4}
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+      _dark={{ borderColor: 'primary', borderWidth: 1 }}
     >
       <Stack
         direction={{ base: 'column', md: 'row' }}

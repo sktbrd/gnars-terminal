@@ -182,7 +182,7 @@ const DroposalContent = memo(() => {
       padding={4}
       rounded='md'
       gap={4}
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+      _dark={{ borderColor: 'primary', borderWidth: 1 }}
       position='relative'
     >
       {extendedProposal.decodedCalldatas.length > 0 ? (
