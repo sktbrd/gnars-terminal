@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, HStack, Text } from '@chakra-ui/react';
+import { FaEthereum } from 'react-icons/fa';
 
 interface CheerfulEthVolumeProps {
   netVolume: string | null;
@@ -22,13 +23,16 @@ export const CheerfulEthVolume: React.FC<CheerfulEthVolumeProps> = React.memo(
         _dark={{ borderColor: 'yellow' }}
         textAlign='center'
       >
-        <Text fontWeight={700} fontSize={['lg', '2xl']}>
-          🎉 This droposal has generated{' '}
-          <Text as='span' color='yellow.400' display='inline'>
-            {netVolume} ETH
-          </Text>{' '}
-          so far!
-        </Text>
+        <HStack gap={2} justifyContent="center">
+          <FaEthereum size={24} color="#FFD700" />
+          <Text fontWeight={700} fontSize={['lg', '2xl']}>
+            This droposal has generated{' '}
+            <Text as='span' color='yellow.400' display='inline'>
+              {netVolume} ETH
+            </Text>{' '}
+            so far!
+          </Text>
+        </HStack>
         <Text fontSize='sm' fontWeight={400}>
           ( {totalSupply?.toString()} mints × {pricePerMint ?? '?'} ETH per mint, minus
           Zora fees)

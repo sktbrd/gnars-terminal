@@ -2,6 +2,8 @@ import { useState } from 'react';
 import {
   Box,
   Flex,
+  HStack,
+  Heading,
   Input,
   Text,
   VStack,
@@ -11,6 +13,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from 'wagmi';
+import { FaShoppingCart } from 'react-icons/fa';
 import { parseEther, Address } from 'viem';
 import zoraMintAbi from '@/utils/abis/zoraNftAbi';
 import { SalesConfig, PriceInfo } from './types';
@@ -150,6 +153,10 @@ export const MintSection: React.FC<MintSectionProps> = ({
 
   return (
     <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }}>
+      <HStack gap={2}>
+        <FaShoppingCart size={24} color="#FFD700" />
+        <Heading size="xl">Mint Droposal</Heading>
+      </HStack>
       {/* Quantity Selector */}
       <Box>
         <Text fontWeight='bold' mb={2}>

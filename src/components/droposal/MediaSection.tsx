@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
-import { Box, Spinner, Text, Flex } from '@chakra-ui/react';
+import { Box, Flex, Spinner, Text } from '@chakra-ui/react';
 import Image from 'next/image';
-import { TokenMetadata, EthVolumeInfo } from './types';
+import { useMemo } from 'react';
 import { getImageUrl } from './droposalUtils';
-import { CheerfulEthVolume } from './CheerfulEthVolume';
+import { EthVolumeInfo, TokenMetadata } from './types';
 
 interface MediaSectionProps {
   metadata: TokenMetadata | null;
@@ -32,7 +31,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
   if (error) {
     return (
       <Box bg='red.50' p={5} borderRadius='md'>
-        <Text fontSize="xl" color='red.500'>
+        <Text fontSize='xl' color='red.500'>
           Error Loading Token
         </Text>
         <Text mt={2}>{error}</Text>
@@ -63,12 +62,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
       );
     } else if (metadata?.image) {
       return (
-        <Box
-          borderRadius='lg'
-          overflow='hidden'
-          position='relative'
-          mb={8}
-        >
+        <Box borderRadius='lg' overflow='hidden' position='relative' mb={8}>
           <Image
             src={getImageUrl(metadata.image)}
             alt={metadata?.name || 'Token Image'}
@@ -83,15 +77,17 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
   }, [metadata?.animation_url, metadata?.image, metadata?.name]);
 
   return (
-    <>
-      <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }}>
-        {mediaElement}
-      </Box>
-      <CheerfulEthVolume
-        netVolume={ethVolumeInfo.netVolume} 
-        totalSupply={ethVolumeInfo.totalSupply} 
-        pricePerMint={ethVolumeInfo.pricePerMint} 
-      />
-    </>
+    <Box
+      borderWidth={1}
+      display={'flex'}
+      flexDir={'column'}
+      alignItems='stretch'
+      gap={3}
+      rounded={'lg'}
+      p={6}
+      _dark={{ borderColor: 'yellow' }}
+    >
+      {mediaElement}
+    </Box>
   );
 };
