@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import InitFrameSDK from '@/components/utils/hooks/init-frame-sdk';
 import { fetchDroposalMetadata } from '@/utils/nft';
-import DroposalPage from './DroposalClient';
+import DroposalPage from '@/components/droposal/DroposalPage';
 
 export const dynamic = 'force-dynamic';
 
