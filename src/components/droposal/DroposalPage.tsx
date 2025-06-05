@@ -178,13 +178,16 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
           } else {
             parsedMetadata = await fetchUriMetadata(tokenUri);
           }
-          setMetadata(validateMetadata(parsedMetadata));
+          const validatedMetadata = validateMetadata(parsedMetadata);
+          setMetadata(validatedMetadata);
         }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to fetch token metadata';
         setError(errorMessage);
         console.error('Error fetching metadata:', err);
+        // Set fallback metadata on error
+        setMetadata(validateMetadata(null));
       } finally {
         setLoading(false);
       }

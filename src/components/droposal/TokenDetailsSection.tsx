@@ -41,7 +41,9 @@ export const TokenDetailsSection: React.FC<TokenDetailsSectionProps> = ({
 
       <Box mt={2}>
         <Text>
-          <Text mr={2} display={"inline-block"} fontWeight={"bold"}>Contract Address:</Text>
+          <Text mr={2} display={'inline-block'} fontWeight={'bold'}>
+            Contract Address:
+          </Text>
           <Link
             prefetch={false}
             href={`https://basescan.org/address/${contractAddress}`}
@@ -53,7 +55,9 @@ export const TokenDetailsSection: React.FC<TokenDetailsSectionProps> = ({
           </Link>
         </Text>
         <Text>
-          <Text mr={2} display={"inline-block"} fontWeight={"bold"}>Total Supply:</Text>
+          <Text mr={2} display={'inline-block'} fontWeight={'bold'}>
+            Total Supply:
+          </Text>
           {totalSupply ? totalSupply.toString() : 'Loading...'}
         </Text>
       </Box>

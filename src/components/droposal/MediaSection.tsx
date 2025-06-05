@@ -50,7 +50,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
           height={{ base: '300px', md: 'auto' }}
         >
           <video
-            src={getImageUrl(metadata.animation_url)}
+            src={metadata.animation_url}
             controls
             autoPlay
             loop
@@ -61,6 +61,32 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
         </Box>
       );
     } else if (metadata?.image) {
+      // Special case for the specific PDF IPFS hash
+      if (
+        metadata.image ===
+        'https://ipfs.skatehive.app/ipfs/bafybeibizoza4jwnx5t3nqz3x3lho6allperhgbksbkpx4iqzgcqh4q5di'
+      ) {
+        return (
+          <Box
+            borderRadius='lg'
+            overflow='hidden'
+            position='relative'
+            minHeight='600px'
+            bg='gray.50'
+            _dark={{ bg: 'gray.700' }}
+          >
+            <iframe
+              src={`${metadata.image}#view=FitH`}
+              width='100%'
+              height='600px'
+              style={{ border: 'none', borderRadius: '8px' }}
+              title={metadata?.name || 'PDF Document'}
+            />
+          </Box>
+        );
+      }
+
+      // Default case: render as image
       return (
         <Box borderRadius='lg' overflow='hidden' position='relative' mb={8}>
           <Image

@@ -38,7 +38,9 @@ export const MintSection: React.FC<MintSectionProps> = ({
   setMintQuantity,
 }) => {
   const [comment, setComment] = useState('');
-  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(null);
+  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(
+    null
+  );
   const [isPending, setIsPending] = useState(false);
 
   // Calculate the total price including protocol fee
@@ -162,23 +164,6 @@ export const MintSection: React.FC<MintSectionProps> = ({
       console.warn('Cannot mint: price information not available');
       return;
     }
-
-    if (!simulateData) {
-      console.warn('Cannot mint: contract simulation failed or not ready');
-      if (simulateError) {
-        console.error('Simulation error:', simulateError);
-      }
-      return;
-    }
-
-    console.log('Starting mint process:', {
-      contractAddress,
-      quantity: mintQuantity,
-      comment,
-      totalValue: priceInfo.totalValue.toString(),
-      totalInEth: priceInfo.totalInEth,
-    });
-
     setIsPending(true);
     try {
       writeContract(simulateData.request);
@@ -190,10 +175,19 @@ export const MintSection: React.FC<MintSectionProps> = ({
   };
 
   return (
-    <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }}>
+    <Box
+      borderWidth={1}
+      display={'flex'}
+      flexDir={'column'}
+      alignItems='stretch'
+      gap={3}
+      rounded={'lg'}
+      p={6}
+      _dark={{ borderColor: 'yellow' }}
+    >
       <HStack gap={2}>
-        <FaShoppingCart size={24} color="#FFD700" />
-        <Heading size="xl">Mint Droposal</Heading>
+        <FaShoppingCart size={24} color='#FFD700' />
+        <Heading size='xl'>Mint Droposal</Heading>
       </HStack>
       {/* Quantity Selector */}
       <Box>
@@ -291,7 +285,13 @@ export const MintSection: React.FC<MintSectionProps> = ({
           width='100%'
           onClick={handleMint}
           loading={isWritePending || isConfirming || isPending}
-          disabled={!address || isWritePending || isConfirming || isPending || !salesConfig || !simulateData || isSimulateError}
+          disabled={
+            !address ||
+            isWritePending ||
+            isConfirming ||
+            isPending ||
+            !salesConfig
+          }
         >
           {isConfirmed
             ? 'Collected!'

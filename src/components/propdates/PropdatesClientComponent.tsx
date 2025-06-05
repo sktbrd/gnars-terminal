@@ -33,8 +33,11 @@ export default function PropdatesClientComponent({
 
   return (
     <VStack gap={4} p={4} w={'100%'} mt={{ base: 4, md: 0 }}>
-      <Heading size={'2xl'}>Propdates</Heading>
-
+      <Heading size={'2xl'}>Reports (propdates)</Heading>
+      <Text fontSize='lg' color='gray.600' textAlign='center'>
+        View detailed updates for past proposals. Filter by proposal or see all
+        reports.
+      </Text>
       {/* -- Sidebar -- */}
       <HStack maxW={'100%'} overflowX={{ base: 'scroll', md: 'auto' }} gap={2}>
         <Button
@@ -62,7 +65,6 @@ export default function PropdatesClientComponent({
           );
         })}
       </HStack>
-
       {filteredPropdates && filteredPropdates.length > 0 ? (
         <PropdatesContentCardList
           _propdates={filteredPropdates}

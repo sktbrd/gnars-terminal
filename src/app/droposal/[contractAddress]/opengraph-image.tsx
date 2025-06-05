@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
+import { safeParseJson } from '@/utils/zora';
 
 export const runtime = 'edge';
 
@@ -53,20 +54,23 @@ export async function GET(
       if (tokenUri.startsWith('data:application/json;base64,')) {
         const base64Data = tokenUri.split(',')[1];
         const jsonString = Buffer.from(base64Data, 'base64').toString('utf-8');
-        metadata = JSON.parse(jsonString);
+        metadata = safeParseJson(jsonString);
       } else if (tokenUri.startsWith('data:application/json')) {
         const jsonString = tokenUri.substring(
           tokenUri.indexOf('{'),
           tokenUri.lastIndexOf('}') + 1
         );
-        metadata = JSON.parse(jsonString);
+        metadata = safeParseJson(jsonString);
       } else {
         const uri = tokenUri.startsWith('ipfs://')
           ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
           : tokenUri;
         try {
           const res = await fetchWithTimeout(uri, {}, 3000);
-          if (res.ok) metadata = await res.json();
+          if (res.ok) {
+            const jsonText = await res.text();
+            metadata = safeParseJson(jsonText);
+          }
         } catch (e) {
           // Timeout or fetch error, fallback to default image
         }

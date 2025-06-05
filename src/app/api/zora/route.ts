@@ -142,7 +142,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ owners: results });
     }
 
-    console.log('API Request Parameters:', { contractAddress, tokenId });
 
     if (!contractAddress || !tokenId) {
       return NextResponse.json(
@@ -174,9 +173,7 @@ export async function GET(request: NextRequest) {
       args: []
     });
     
-    if (nameResult.success) {
-      console.log('Contract name:', nameResult.data);
-    }
+
 
     // Check for internal error contract pattern
     if (await isInternalErrorContract(formattedAddress)) {
@@ -196,7 +193,6 @@ export async function GET(request: NextRequest) {
     });
     
     if (totalSupplyResult.success && totalSupplyResult.data) {
-      console.log('Total supply:', totalSupplyResult.data);
       
       if (tokenIdBigInt > totalSupplyResult.data) {
         return NextResponse.json({ 
@@ -250,7 +246,6 @@ export async function GET(request: NextRequest) {
       });
       
       if (fallbackResult.success && fallbackResult.data) {
-        console.log('Owner retrieved with minimal ABI:', fallbackResult.data);
         return NextResponse.json({ owner: fallbackResult.data, exists: true });
       }
       

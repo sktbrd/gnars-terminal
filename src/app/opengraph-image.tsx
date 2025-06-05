@@ -12,10 +12,7 @@ const appUrl = process.env.NEXT_PUBLIC_URL;
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-
 export default async function Image() {
-
-  console.log("opengraph image", `${appUrl}/images/shredquarters.png`);
   return new ImageResponse(
     (
       <div
@@ -31,7 +28,7 @@ export default async function Image() {
         <img
           src={`${appUrl}/images/shredquarters.png`}
           style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-          alt="Gnars DAO"
+          alt='Gnars DAO'
         />
       </div>
     ),

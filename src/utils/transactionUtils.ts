@@ -30,7 +30,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
             contractAbi = SENDIT_ABI;
             break;
         case "DROPOSAL MINT":
-            console.log(`DROPOSAL MINT - details:`, details);
             input = encodeDroposalMint(details);
             contractAbi = DroposalABI;
             break;
@@ -48,7 +47,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
                 throw new Error("Token ID is required for SEND NFT transactions");
             }
             fromAddress = treasureAddress;
-            console.log(`SEND NFT - toAddress: ${details.toAddress}, tokenId: ${details.tokenId}`);
             input = encodeFunctionData({
                 abi: tokenAbi,
                 functionName: 'transferFrom',
@@ -59,8 +57,6 @@ export const prepareTransactionData = (type: string, details: any, treasureAddre
         default:
             throw new Error("Unsupported transaction type");
     }
-
-    console.log(`Prepared transaction data:`, { input, contractAbi, fromAddress, toAddress, value, calldata: input });
 
     return { input, contractAbi, fromAddress, toAddress, value, calldata: input };
 };

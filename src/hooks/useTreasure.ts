@@ -33,7 +33,8 @@ export interface NFT {
         lastSaleEth: string | null;
         medias: {
             type: string;
-            originalUrl: string;
+            url: string;
+            originalUri?: string;
             fileSize: string;
             mimeType: string;
             blurhash: string;
@@ -60,16 +61,13 @@ const useTreasure = (treasuryAddress: string) => {
     useEffect(() => {
         const fetchTreasure = async () => {
             try {
-                console.log("Fetching treasure data...");
                 const apiUrl = `https://pioneers.dev/api/v1/portfolio/${treasuryAddress}`;
 
                 const res = await fetch(apiUrl);
-                console.log("Treasure data fetched:", res);
                 if (!res.ok) {
                     throw new Error(`Error: ${res.status} ${res.statusText}`);
                 }
                 const data = await res.json();
-                console.log("Treasure data fetched:", data);
                 setTokens(data.tokens);
                 setTotalBalance(data.totalBalanceUsdTokens);
                 setTotalNetWorth(data.totalNetWorth);

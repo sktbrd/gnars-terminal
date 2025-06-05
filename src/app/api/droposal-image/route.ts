@@ -3,6 +3,7 @@ import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
 import { put, list } from '@vercel/blob';
 import sharp from 'sharp';
+import { safeParseJson } from '@/utils/zora';
 
 async function fetchDroposalMetadata(contractAddress: string) {
   // Use a PNG fallback image (Edge runtime does not support webp)
@@ -23,23 +24,24 @@ async function fetchDroposalMetadata(contractAddress: string) {
       if (tokenUri.startsWith('data:application/json;base64,')) {
         const base64Data = tokenUri.split(',')[1];
         const jsonString = Buffer.from(base64Data, 'base64').toString('utf-8');
-        metadata = JSON.parse(jsonString);
+        metadata = safeParseJson(jsonString);
       } else if (tokenUri.startsWith('data:application/json')) {
         const jsonString = tokenUri.substring(
           tokenUri.indexOf('{'),
           tokenUri.lastIndexOf('}') + 1
         );
-        metadata = JSON.parse(jsonString);
+        metadata = safeParseJson(jsonString);
       } else {
         const uri = tokenUri.startsWith('ipfs://')
           ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
           : tokenUri;
         const res = await fetch(uri);
-        if (res.ok) metadata = await res.json();
+        if (res.ok) {
+          const jsonText = await res.text();
+          metadata = safeParseJson(jsonText);
+        }
       }
     }
-    // Debug output
-    console.log('[droposal-image] contract:', contractAddress, 'tokenUri:', tokenUri, 'metadata:', metadata);
     // Normalize image and animation_url as in page.tsx
     let image = metadata.image;
     if (image && image.startsWith('ipfs://'))
