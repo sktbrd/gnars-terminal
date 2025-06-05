@@ -8,7 +8,11 @@ import {
   Image,
   Text,
   VStack,
+  HStack,
+  IconButton,
 } from '@chakra-ui/react';
+import { SiOpensea } from 'react-icons/si';
+import { GoZap } from 'react-icons/go';
 import { NFT } from '@/hooks/useTreasure';
 
 interface NFTSectionProps {
@@ -81,17 +85,78 @@ const NFTSection: React.FC<NFTSectionProps> = ({ nfts }) => {
             </Box>
             <VStack
               p={4}
-              gap={1}
+              gap={2}
               align='center'
-              height='100px'
-              justify='center'
+              height='120px'
+              justify='space-between'
             >
-              <Text fontWeight='bold' fontSize='lg' truncate textAlign='center'>
-                {nft.token.collection.name || 'Unnamed Collection'}
-              </Text>
-              <Text fontSize='sm' color='gray.400' textAlign='center'>
-                Token ID: {nft.token.tokenId || 'Unknown'}
-              </Text>
+              <VStack gap={1} align='center'>
+                <Text
+                  fontWeight='bold'
+                  fontSize='lg'
+                  truncate
+                  textAlign='center'
+                >
+                  {nft.token.collection.name || 'Unnamed Collection'}
+                </Text>
+                <Text fontSize='sm' color='gray.400' textAlign='center'>
+                  Token ID:{' '}
+                  {nft.token.tokenId
+                    ? nft.token.tokenId.length > 6
+                      ? `${nft.token.tokenId.slice(0, 6)}...`
+                      : nft.token.tokenId
+                    : 'Unknown'}
+                </Text>
+              </VStack>
+
+              {/* External Links */}
+              <HStack gap={3} mt={2}>
+                {nft.token.collection.openseaId && nft.token.tokenId && (
+                  <IconButton
+                    onClick={() =>
+                      window.open(
+                        `https://opensea.io/assets/base/${nft.token.collection.address}/${nft.token.tokenId}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                      )
+                    }
+                    aria-label='View on OpenSea'
+                    size='sm'
+                    variant='ghost'
+                    colorScheme='blue'
+                    _hover={{
+                      transform: 'scale(1.1)',
+                      bg: 'blue.100',
+                      _dark: { bg: 'blue.900' },
+                    }}
+                  >
+                    <SiOpensea />
+                  </IconButton>
+                )}
+
+                {nft.token.collection.openseaId && nft.token.tokenId && (
+                  <IconButton
+                    onClick={() =>
+                      window.open(
+                        `https://zapper.xyz/nft/base/${nft.token.collection.address}/${nft.token.tokenId}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                      )
+                    }
+                    aria-label='View on Zapper'
+                    size='sm'
+                    variant='ghost'
+                    colorScheme='purple'
+                    _hover={{
+                      transform: 'scale(1.1)',
+                      bg: 'purple.100',
+                      _dark: { bg: 'purple.900' },
+                    }}
+                  >
+                    <GoZap />
+                  </IconButton>
+                )}
+              </HStack>
             </VStack>
           </Box>
         ))}
