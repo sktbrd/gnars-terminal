@@ -22,6 +22,7 @@ import { LuClock, LuSparkles } from 'react-icons/lu';
 import { formatEther } from 'viem';
 import { AuctionBid } from '../auction/bid';
 import { FormattedAddress } from '../utils/names';
+import { useMemo } from 'react';
 
 export default function AuctionCard({
   defaultAuction,
@@ -70,8 +71,38 @@ export default function AuctionCard({
     );
   }
 
-  const auctionEndedAt = new Date(parseInt(activeAuction.endTime) * 1000);
-  const isAuctionRunning = parseInt(activeAuction.endTime) * 1000 > Date.now();
+  // Memoize expensive calculations
+  const { auctionEndTime, formattedBidAmount, formattedEndDate } =
+    useMemo(() => {
+      const endTime = parseInt(activeAuction.endTime) * 1000;
+      const endDate = new Date(endTime);
+
+      const bidAmount = activeAuction.highestBid
+        ? Number(
+            formatEther(BigInt(activeAuction.highestBid.amount))
+          ).toLocaleString(undefined, {
+            maximumFractionDigits: 5,
+          })
+        : null;
+
+      const endDateFormatted = endDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+
+      return {
+        auctionEndTime: endTime,
+        formattedBidAmount: bidAmount,
+        formattedEndDate: endDateFormatted,
+      };
+    }, [activeAuction.endTime, activeAuction.highestBid?.amount]);
+
+  const isRunning = useMemo(
+    () => auctionEndTime > Date.now(),
+    [auctionEndTime]
+  );
+
   console.log({ activeAuction });
 
   return (
@@ -117,47 +148,32 @@ export default function AuctionCard({
                   <FaUser size={12} />
                   <FormattedAddress
                     address={activeAuction.highestBid.bidder}
-                    textBefore={isAuctionRunning ? 'Winning' : 'Winner'}
+                    textBefore={isRunning ? 'Winning' : 'Winner'}
                   />
                 </HStack>
                 <HStack gap={1}>
                   <FaEthereum size={12} style={{ scale: '1.3' }} />
                   <Text>Highest bid </Text>
                   <Badge colorPalette={'blue'} variant={'surface'} size={'sm'}>
-                    {Number(
-                      formatEther(BigInt(activeAuction.highestBid.amount))
-                    ).toLocaleString(undefined, {
-                      maximumFractionDigits: 5,
-                    })}{' '}
-                    ETH
+                    {formattedBidAmount} ETH
                   </Badge>
                 </HStack>
-                {isAuctionRunning ? (
+                {isRunning ? (
                   <HStack gap={1}>
                     <LuClock size={12} />
                     <Text>
                       Time left{' '}
-                      <Countdown
-                        date={parseInt(activeAuction.endTime) * 1000}
-                        daysInHours={false}
-                      />
+                      <Countdown date={auctionEndTime} daysInHours={false} />
                     </Text>
                   </HStack>
                 ) : (
                   <HStack gap={1}>
                     <FaBirthdayCake size={12} />
-                    <Text>
-                      Born at{' '}
-                      {auctionEndedAt.toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </Text>
+                    <Text>Born at {formattedEndDate}</Text>
                   </HStack>
                 )}
               </>
-            ) : isAuctionRunning ? (
+            ) : isRunning ? (
               <HStack gap={1}>
                 <LuSparkles size={12} />
                 <Text>Place the first bid</Text>
@@ -177,7 +193,7 @@ export default function AuctionCard({
                   ? BigInt(activeAuction.highestBid.amount)
                   : 0n
               }
-              isAuctionRunning={isAuctionRunning}
+              isAuctionRunning={isRunning}
               reservePrice={activeAuction.dao.auctionConfig.reservePrice}
               minimumBidIncrement={
                 activeAuction.dao.auctionConfig.minimumBidIncrement
