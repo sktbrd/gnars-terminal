@@ -10,7 +10,6 @@ import {
   useMediaQuery,
   useDisclosure,
 } from '@chakra-ui/react';
-import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { BsGithub } from 'react-icons/bs';
 import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
@@ -50,15 +49,15 @@ export default function Navbar() {
         fontSize={'md'}
         fontWeight={'medium'}
       >
-        <Image asChild boxSize={6} mr={2} onClick={onOpen}>
-          <NextImage
-            src='/images/gnars.webp'
-            alt='gnars-terminal'
-            width={80}
-            height={80}
-            objectFit='contain'
-          />
-        </Image>
+        <Image 
+          src='/images/gnars.webp'
+          alt='gnars-terminal'
+          boxSize={6} 
+          mr={2} 
+          onClick={onOpen}
+          objectFit='contain'
+          cursor='pointer'
+        />
         {!isLargerThanMd && <p onClick={onOpen}>Menu</p>}
         {isLargerThanMd && <NavbarLinks />}
       </Stack>
