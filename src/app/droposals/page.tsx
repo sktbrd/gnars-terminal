@@ -340,7 +340,6 @@ const DroposalListPage = () => {
                               name={data.name}
                               thumbnail={data.imageURI}
                               salesConfig={salesConfig || undefined}
-                              proposalNumber={droposal.proposalNumber}
                             />
                           </ProposalProvider>
                         </VStack>

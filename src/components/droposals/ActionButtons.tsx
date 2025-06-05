@@ -15,14 +15,12 @@ interface ActionButtonsProps {
     presaleEnd: number;
     presaleMerkleRoot: string;
   };
-  proposalNumber?: number;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   name,
   thumbnail,
   salesConfig,
-  proposalNumber,
 }) => {
   const { tokenCreated } = useProposal();
 
@@ -38,13 +36,12 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         size='sm'
         colorScheme='blue'
         onClick={() => {
-          // Use tokenCreated if available, otherwise fall back to proposalNumber
-          const targetId = tokenCreated || proposalNumber;
-          if (targetId) {
-            window.open(`/droposal/${targetId}`, '_blank');
+          // Use tokenCreated contract address for the mint page
+          if (tokenCreated) {
+            window.open(`/droposal/${tokenCreated}`, '_blank');
           }
         }}
-        disabled={!tokenCreated && !proposalNumber}
+        disabled={!tokenCreated}
       >
         Mint Page
       </Button>
