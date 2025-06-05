@@ -2,6 +2,7 @@
 import React, { memo } from 'react';
 import { Box, VStack, Skeleton } from '@chakra-ui/react';
 import CustomVideoPlayer from './CustomVideoPlayer';
+import CollectButton from './CollectButton';
 import { ProposalProvider, useProposal } from '@/contexts/ProposalContext';
 import {
   useDroposals,
@@ -107,13 +108,20 @@ const DroposalContent = memo(() => {
               return (
                 <VStack key={idx} w='full' gap={2} align='start'>
                   {/* <Heading size='md'>{data.name}</Heading> */}
-                  <CustomVideoPlayer
-                    src={data.animationURI || data.imageURI}
-                    isVideo={Boolean(data.animationURI)}
-                    salesConfig={convertedSalesConfig}
-                    thumbnail={data.imageURI}
-                    name={data.name}
-                  />
+                  <Box position='relative' w='full'>
+                    <CustomVideoPlayer
+                      src={data.animationURI || data.imageURI}
+                      isVideo={Boolean(data.animationURI)}
+                      salesConfig={convertedSalesConfig}
+                      thumbnail={data.imageURI}
+                      name={data.name}
+                    />
+                    <CollectButton
+                      name={data.name}
+                      thumbnail={data.imageURI}
+                      salesConfig={convertedSalesConfig}
+                    />
+                  </Box>
                 </VStack>
               );
             }

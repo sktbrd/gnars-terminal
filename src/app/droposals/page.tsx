@@ -10,8 +10,13 @@ import {
   Button,
   Grid,
   Image,
+  Skeleton,
 } from '@chakra-ui/react';
 import { useDroposals, DecodedCalldata } from '@/hooks/useDroposals';
+import FormattedAddress from '@/components/utils/names';
+import CollectButton from '@/components/droposals/CollectButton';
+import ActionButtons from '@/components/droposals/ActionButtons';
+import { ProposalProvider } from '@/contexts/ProposalContext';
 
 const DroposalListPage = () => {
   const { droposals, loading, error, refetch } = useDroposals({
@@ -43,15 +48,62 @@ const DroposalListPage = () => {
 
   if (loading) {
     return (
-      <Box
-        display='flex'
-        justifyContent='center'
-        alignItems='center'
-        minHeight='400px'
-      >
-        <VStack gap={4}>
-          <Spinner size='xl' color='primary' />
-          <Text>Loading droposals...</Text>
+      <Box maxW='container.xl' mx='auto' p={{ base: 4, md: 6 }}>
+        <VStack gap={{ base: 6, md: 8 }} align='stretch'>
+          <HStack
+            justify='space-between'
+            align='center'
+            flexWrap='wrap'
+            gap={4}
+          >
+            <VStack align='start' gap={1}>
+              <Heading size={{ base: 'lg', md: 'xl' }} color='primary'>
+                All Droposals
+              </Heading>
+              <Text
+                fontSize='sm'
+                color='gray.600'
+                _dark={{ color: 'gray.400' }}
+              >
+                Discover and collect NFT drops from the community
+              </Text>
+            </VStack>
+          </HStack>
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+              xl: 'repeat(3, 1fr)',
+            }}
+            gap={{ base: 4, md: 6 }}
+            w='full'
+          >
+            {Array.from({ length: 8 }).map((_, index) => (
+              <Box
+                key={index}
+                borderWidth={1}
+                borderRadius='xl'
+                p={{ base: 4, md: 6 }}
+                _dark={{ borderColor: 'gray.600' }}
+                _light={{ borderColor: 'gray.200' }}
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                height='400px'
+              >
+                <VStack gap={4} align='stretch' h='full'>
+                  <Skeleton height='20px' width='60%' />
+                  <Skeleton height='200px' width='full' borderRadius='lg' />
+                  <Skeleton height='16px' width='80%' />
+                  <Skeleton height='12px' width='60%' />
+                  <VStack gap={2} align='stretch'>
+                    <Skeleton height='12px' width='full' />
+                    <Skeleton height='12px' width='full' />
+                  </VStack>
+                </VStack>
+              </Box>
+            ))}
+          </Grid>
         </VStack>
       </Box>
     );
@@ -77,59 +129,80 @@ const DroposalListPage = () => {
   }
 
   return (
-    <Box maxW='container.xl' mx='auto' p={4}>
-      <VStack gap={6} align='stretch'>
-        <HStack justify='space-between' align='center'>
-          <Heading size='lg'>All Droposals</Heading>
-          <Box
-            bg='blue.500'
-            color='white'
-            px={3}
-            py={1}
-            borderRadius='md'
-            fontSize='sm'
-            fontWeight='medium'
-          >
-            {droposals.length} droposal{droposals.length !== 1 ? 's' : ''}
-          </Box>
+    <Box maxW='container.xl' mx='auto' p={{ base: 4, md: 6 }}>
+      <VStack gap={{ base: 6, md: 8 }} align='stretch'>
+        <HStack justify='space-between' align='center' flexWrap='wrap' gap={4}>
+          <VStack align='start' gap={1}>
+            <Heading size={{ base: 'lg', md: 'xl' }} color='primary'>
+              All Droposals
+            </Heading>
+            <Text fontSize='sm' color='gray.600' _dark={{ color: 'gray.400' }}>
+              Discover and collect drops from the community, you will be
+              supporting the creators and the treasure
+            </Text>
+          </VStack>
         </HStack>
 
         {droposals.length === 0 ? (
-          <Box textAlign='center' py={10}>
-            <Text fontSize='lg' color='gray.500'>
-              No droposals found
-            </Text>
+          <Box textAlign='center' py={20}>
+            <VStack gap={4}>
+              <Box
+                fontSize='6xl'
+                opacity={0.3}
+                _dark={{ color: 'gray.600' }}
+                _light={{ color: 'gray.300' }}
+              >
+                🎨
+              </Box>
+              <Heading size='md' color='gray.600' _dark={{ color: 'gray.400' }}>
+                No droposals found
+              </Heading>
+              <Text fontSize='sm' color='gray.500' maxW='md'>
+                There are no NFT drops available at the moment. Check back later
+                for new community creations!
+              </Text>
+            </VStack>
           </Box>
         ) : (
-          <Grid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+              xl: 'repeat(3, 1fr)',
+            }}
+            gap={{ base: 4, md: 6 }}
+            w='full'
+          >
             {droposals.map((droposal, index) => (
               <Box
                 key={droposal.proposalNumber || index}
                 borderWidth={1}
-                borderRadius='md'
-                p={4}
+                borderRadius='xl'
+                p={{ base: 4, md: 6 }}
                 _dark={{ borderColor: 'yellow.500' }}
+                _light={{ borderColor: 'gray.200' }}
+                transition='all 0.3s ease'
+                _hover={{
+                  transform: 'translateY(-4px)',
+                  shadow: 'xl',
+                  _dark: {
+                    borderColor: 'yellow.400',
+                    shadow: '0 10px 25px -5px rgba(255, 255, 0, 0.1)',
+                  },
+                  _light: {
+                    borderColor: 'gray.300',
+                    shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+                bg={{ base: 'white', _dark: 'gray.800' }}
+                height='fit-content'
+                cursor='pointer'
+                position='relative'
+                overflow='hidden'
               >
-                <VStack gap={4} align='stretch'>
-                  {/* Proposal Info */}
-                  <HStack justify='space-between'>
-                    <Box
-                      bg='green.500'
-                      color='white'
-                      px={2}
-                      py={1}
-                      borderRadius='md'
-                      fontSize='xs'
-                    >
-                      Proposal #{droposal.proposalNumber}
-                    </Box>
-                    <Text fontSize='xs' color='gray.500'>
-                      {new Date(
-                        (droposal as any).createdTimestamp * 1000
-                      ).toLocaleDateString()}
-                    </Text>
-                  </HStack>
-
+                <VStack gap={{ base: 3, md: 4 }} align='stretch'>
                   {/* Decode Calldatas */}
                   {droposal.decodedCalldatas?.map(
                     (data: DecodedCalldata, idx: number) => {
@@ -138,19 +211,26 @@ const DroposalListPage = () => {
                         : null;
 
                       return (
-                        <VStack key={idx} gap={3} align='stretch'>
+                        <VStack
+                          key={idx}
+                          gap={{ base: 2, md: 3 }}
+                          align='stretch'
+                        >
                           {/* Media */}
                           {(data.imageURI || data.animationURI) && (
                             <Box
                               position='relative'
-                              borderRadius='md'
+                              borderRadius='lg'
                               overflow='hidden'
+                              aspectRatio={16 / 9}
+                              bg='gray.100'
+                              _dark={{ bg: 'gray.700' }}
                             >
                               <Image
                                 src={data.imageURI}
                                 alt={data.name}
                                 w='full'
-                                h='200px'
+                                h='full'
                                 objectFit='cover'
                               />
                               {data.animationURI && (
@@ -164,6 +244,7 @@ const DroposalListPage = () => {
                                   py={1}
                                   borderRadius='md'
                                   fontSize='xs'
+                                  fontWeight='medium'
                                 >
                                   Video
                                 </Box>
@@ -173,82 +254,95 @@ const DroposalListPage = () => {
 
                           {/* Title and Symbol */}
                           <VStack gap={1} align='start'>
-                            <Heading size='md' lineClamp={1}>
-                              {data.name}
-                            </Heading>
-                            <Text color='gray.500' fontSize='sm'>
-                              Symbol: {data.symbol}
-                            </Text>
+                            <HStack justify='space-between' w='full'>
+                              <Box>
+                                <Heading
+                                  size='sm'
+                                  lineClamp={2}
+                                  fontWeight='bold'
+                                >
+                                  {data.name}
+                                </Heading>
+
+                                <Text
+                                  color='gray.500'
+                                  fontSize='xs'
+                                  fontWeight='medium'
+                                >
+                                  ${data.symbol}
+                                </Text>
+                              </Box>
+                              {salesConfig &&
+                                salesConfig.publicSalePrice > 0 && (
+                                  <Box
+                                    bg='background'
+                                    color='white'
+                                    px={3}
+                                    py={1}
+                                    borderRadius='lg'
+                                    fontSize='sm'
+                                    fontWeight='bold'
+                                    shadow='sm'
+                                  >
+                                    {salesConfig.publicSalePrice} ETH
+                                  </Box>
+                                )}
+                            </HStack>
                           </VStack>
 
                           {/* Description */}
                           {data.description && (
-                            <Text fontSize='sm' lineClamp={3}>
+                            <Text
+                              fontSize='xs'
+                              lineClamp={2}
+                              color='gray.700'
+                              _dark={{ color: 'gray.300' }}
+                              lineHeight={1.4}
+                            >
                               {data.description}
                             </Text>
                           )}
 
-                          {/* NFT Details */}
-                          <VStack gap={2} align='stretch'>
-                            <HStack justify='space-between'>
-                              <Text fontSize='sm' fontWeight='medium'>
-                                Edition Size:
-                              </Text>
-                              <Text fontSize='sm'>{data.editionSize}</Text>
-                            </HStack>
-                            <HStack justify='space-between'>
-                              <Text fontSize='sm' fontWeight='medium'>
-                                Royalty:
-                              </Text>
-                              <Text fontSize='sm'>{data.royaltyBPS}%</Text>
-                            </HStack>
-                          </VStack>
-
-                          {/* Sales Config */}
-                          {salesConfig && (
-                            <VStack gap={2} align='stretch'>
-                              <Text fontSize='sm' fontWeight='bold'>
-                                Sale Details:
-                              </Text>
-                              {salesConfig.publicSalePrice > 0 && (
-                                <HStack justify='space-between'>
-                                  <Text fontSize='xs'>Price:</Text>
-                                  <Text fontSize='xs'>
-                                    {salesConfig.publicSalePrice} ETH
-                                  </Text>
-                                </HStack>
-                              )}
-                              {salesConfig.maxSalePurchasePerAddress > 0 && (
-                                <HStack justify='space-between'>
-                                  <Text fontSize='xs'>Max per wallet:</Text>
-                                  <Text fontSize='xs'>
-                                    {salesConfig.maxSalePurchasePerAddress}
-                                  </Text>
-                                </HStack>
-                              )}
-                              {salesConfig.publicSaleStart > 0 && (
-                                <HStack justify='space-between'>
-                                  <Text fontSize='xs'>Sale dates:</Text>
-                                  <Text fontSize='xs'>
-                                    {formatDate(salesConfig.publicSaleStart)} -{' '}
-                                    {formatDate(salesConfig.publicSaleEnd)}
-                                  </Text>
-                                </HStack>
-                              )}
-                            </VStack>
-                          )}
-
                           {/* Addresses */}
-                          <VStack gap={1} align='stretch'>
-                            <Text fontSize='xs' color='gray.500'>
-                              Recipient: {data.fundsRecipient.slice(0, 8)}...
-                              {data.fundsRecipient.slice(-6)}
-                            </Text>
-                            <Text fontSize='xs' color='gray.500'>
-                              Admin: {data.defaultAdmin.slice(0, 8)}...
-                              {data.defaultAdmin.slice(-6)}
-                            </Text>
+                          <VStack gap={0} align='stretch'>
+                            <HStack justify='space-between' w='full'>
+                              <Text
+                                fontSize='xs'
+                                color='gray.500'
+                                fontFamily='mono'
+                              >
+                                Recipient:
+                              </Text>
+                              <FormattedAddress address={data.fundsRecipient} />
+                            </HStack>
+                            <HStack justify='space-between' w='full'>
+                              <Text
+                                fontSize='xs'
+                                color='gray.500'
+                                fontFamily='mono'
+                              >
+                                Admin:
+                              </Text>
+                              <FormattedAddress address={data.defaultAdmin} />
+                            </HStack>
                           </VStack>
+
+                          {/* Action Buttons */}
+                          <ProposalProvider
+                            initialProposal={droposal}
+                            initialProposalNumber={droposal.proposalNumber || 0}
+                            initialDescriptionHash={
+                              droposal.descriptionHash || ''
+                            }
+                            initialPropdates={[]}
+                          >
+                            <ActionButtons
+                              name={data.name}
+                              thumbnail={data.imageURI}
+                              salesConfig={salesConfig || undefined}
+                              proposalNumber={droposal.proposalNumber}
+                            />
+                          </ProposalProvider>
                         </VStack>
                       );
                     }
