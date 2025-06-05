@@ -232,8 +232,16 @@ const CollectModal = ({
     }
   }, [balanceData, balanceLoading, totalPrice, mintError?.title]);
 
+  // Handle MintButton error updates - clear mintError when MintButton clears its error
+  const handleMintError = useCallback((error: { title: string; message: string } | null) => {
+    setMintError(error);
+  }, []);
+
   return (
-    <DialogRoot open={isOpen}>
+    <DialogRoot 
+      open={isOpen} 
+      onInteractOutside={onClose}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -455,8 +463,8 @@ const CollectModal = ({
                   quantity={numMints}
                   comment={comment}
                   salesConfig={salesConfig}
-                  onError={setMintError}
-                  disabled={balanceLoading || (balanceData ? Number(balanceData?.formatted) < totalPrice : true) || !!mintError}
+                  onError={handleMintError}
+                  disabled={balanceLoading || (balanceData ? Number(balanceData?.formatted) < totalPrice : true) || (mintError?.title === 'Insufficient Balance')}
                 />
             </Flex>
           </Flex>

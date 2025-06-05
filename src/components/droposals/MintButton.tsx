@@ -147,10 +147,18 @@ const MintButton = ({
           message: 'You do not have enough ETH to complete this purchase.',
         };
       } else if (errorMessage.includes('user rejected transaction')) {
+        // For user rejections, we want to clear the error after a short delay
+        // so the user can try again immediately
         errorObj = {
           title: 'Transaction Cancelled',
           message: 'You cancelled the transaction.',
         };
+        
+        // Clear the error after 2 seconds to allow immediate retry
+        setTimeout(() => {
+          setError(null);
+          if (onError) onError(null);
+        }, 2000);
       } else {
         // Default error handling
         errorObj = {
