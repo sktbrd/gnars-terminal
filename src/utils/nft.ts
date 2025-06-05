@@ -1,6 +1,7 @@
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 import zoraNftAbi from '@/utils/abis/zoraNftAbi';
+import { safeParseJson } from '@/utils/zora';
 
 /**
  * Interface for NFT metadata matching what the DroposalClient expects
@@ -39,7 +40,7 @@ export async function fetchMetadataFromUri(tokenUri: string): Promise<TokenMetad
     if (tokenUri.startsWith('data:application/json;base64,')) {
       const base64Data = tokenUri.split(',')[1];
       const jsonString = Buffer.from(base64Data, 'base64').toString('utf-8');
-      return JSON.parse(jsonString);
+      return safeParseJson(jsonString);
     } 
     // Handle inline JSON 
     else if (tokenUri.startsWith('data:application/json')) {
@@ -47,14 +48,15 @@ export async function fetchMetadataFromUri(tokenUri: string): Promise<TokenMetad
         tokenUri.indexOf('{'),
         tokenUri.lastIndexOf('}') + 1
       );
-      return JSON.parse(jsonString);
+      return safeParseJson(jsonString);
     } 
     // Handle remote URI
     else {
       const uri = ipfsToHttp(tokenUri);
       const response = await fetch(uri, { next: { revalidate: 3600 } }); // Cache for 1 hour
       if (!response.ok) return null;
-      return response.json();
+      const jsonText = await response.text();
+      return safeParseJson(jsonText);
     }
   } catch (error) {
     console.error('Error parsing token URI:', error);

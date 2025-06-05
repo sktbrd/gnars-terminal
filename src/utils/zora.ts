@@ -65,4 +65,13 @@ export const safeParseJson = (jsonString: string): any => {
   } catch (error) {
     console.error('Failed to parse JSON by any method:', error);
   }
+  
+  // Fallback return when all parsing attempts fail
+  return {
+    name: 'Unknown Token',
+    description: 'No description available',
+    image: '',
+    animation_url: '',
+    properties: { number: 0, name: 'Unknown' },
+  };
 };
