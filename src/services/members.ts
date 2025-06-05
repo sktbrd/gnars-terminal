@@ -16,7 +16,6 @@ export async function fetchMembers(page: number, pageSize: number) {
       skip: page * pageSize,
     },
   });
-  console.log('fetchMembers data:', data);
   return data.daotokenOwners;
 }
 

@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
         return proposal;
       }
 
-      console.log(`Attempt ${i + 1}: Proposal timestamp mismatch. Expected: ${timestamp}, Got: ${proposal.timeCreated}`);
       if (i < maxRetries - 1) {
         await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
       }

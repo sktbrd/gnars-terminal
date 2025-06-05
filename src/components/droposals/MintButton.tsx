@@ -76,15 +76,6 @@ const MintButton = ({
     args: [BigInt(quantity)],
   });
 
-  useEffect(() => {
-    if (zoraFeeData.data) {
-      console.log('[MintButton] Zora fee data:', {
-        recipient: zoraFeeData.data[0],
-        fee: zoraFeeData.data[1],
-      });
-    }
-  }, [zoraFeeData.data]);
-
   const {
     writeContract,
     isPending: isWritePending,
@@ -247,17 +238,10 @@ const MintButton = ({
         args: [BigInt(quantity), comment],
         value: totalValue,
       });
-
-      console.log(
-        '[MintButton] writeContract call completed, waiting for transaction...'
-      );
     } catch (err) {
       processError(err);
     } finally {
       setIsPending(false);
-      console.log(
-        '[MintButton] Mint process completed, isPending set to false'
-      );
     }
   };
 
@@ -278,7 +262,6 @@ const MintButton = ({
       // Clear any previous errors when we get a transaction hash
       setError(null);
       if (onError) onError(null);
-      console.log('[MintButton] Transaction hash received:', hash);
     }
   }, [hash, onError]);
 
@@ -287,7 +270,6 @@ const MintButton = ({
       // Clear any previous errors when transaction is confirmed
       setError(null);
       if (onError) onError(null);
-      console.log('[MintButton] Transaction confirmed successfully!');
     }
   }, [isConfirmed, onError]);
 

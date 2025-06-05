@@ -34,7 +34,9 @@ export const MintSection: React.FC<MintSectionProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
-  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(null);
+  const [transactionHash, setTransactionHash] = useState<`0x${string}` | null>(
+    null
+  );
   const [isPending, setIsPending] = useState(false);
 
   const {
@@ -127,14 +129,6 @@ export const MintSection: React.FC<MintSectionProps> = ({
       return;
     }
 
-    console.log('Starting mint process:', {
-      contractAddress,
-      quantity,
-      comment,
-      totalValue: priceInfo.totalValue.toString(),
-      totalInEth: priceInfo.totalInEth,
-    });
-
     setIsPending(true);
     try {
       writeContract({
@@ -152,10 +146,19 @@ export const MintSection: React.FC<MintSectionProps> = ({
   };
 
   return (
-    <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }}>
+    <Box
+      borderWidth={1}
+      display={'flex'}
+      flexDir={'column'}
+      alignItems='stretch'
+      gap={3}
+      rounded={'lg'}
+      p={6}
+      _dark={{ borderColor: 'yellow' }}
+    >
       <HStack gap={2}>
-        <FaShoppingCart size={24} color="#FFD700" />
-        <Heading size="xl">Mint Droposal</Heading>
+        <FaShoppingCart size={24} color='#FFD700' />
+        <Heading size='xl'>Mint Droposal</Heading>
       </HStack>
       {/* Quantity Selector */}
       <Box>
@@ -212,7 +215,13 @@ export const MintSection: React.FC<MintSectionProps> = ({
           width='100%'
           onClick={handleMint}
           loading={isWritePending || isConfirming || isPending}
-          disabled={!address || isWritePending || isConfirming || isPending || !salesConfig}
+          disabled={
+            !address ||
+            isWritePending ||
+            isConfirming ||
+            isPending ||
+            !salesConfig
+          }
         >
           {isConfirmed
             ? 'Collected!'

@@ -57,7 +57,6 @@ export async function POST(req: Request) {
             'Content-Type': 'application/json',
             'X-Access-Key': process.env.NEXT_PUBLIC_TENDERLY_SECRET || '',
         };
-        console.log(type)
 
         // Convert value to wei if it's an ETH transaction
         let value = details.value;
@@ -66,7 +65,6 @@ export async function POST(req: Request) {
         }
         else if (type === "SEND USDC") {
             details.toAddress = process.env.NEXT_PUBLIC_USDC_TOKEN_ADDRESS;
-            console.log("sending usdc: ", details.toAddress);
         }
         else if (type === "SEND IT") {
             details.toAddress = process.env.NEXT_PUBLIC_SENDIT_TOKEN_ADDRESS;

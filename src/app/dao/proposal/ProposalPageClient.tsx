@@ -47,44 +47,46 @@ interface ProposalPageClientProps {
 }
 
 // Extract the entire proposal details section into a memoized component
-const ProposalDetails = memo(({
-  proposal,
-  proposalNumber,
-  latestProposalNumber,
-  setProposal
-}: {
-  proposal: Proposal;
-  proposalNumber: number;
-  latestProposalNumber: number;
-  setProposal: React.Dispatch<React.SetStateAction<Proposal>>;
-}) => {
-  return (
-    <Box
-      shadow='sm'
-      w='full'
-      padding={4}
-      rounded='md'
-      display='flex'
-      flexDirection='column'
-      gap={2}
-      _dark={{ borderColor: 'primary', borderWidth: 1 }}
-    >
-      <ProposalHeader
-        proposalNumber={proposalNumber}
-        latestProposalNumber={latestProposalNumber}
-        proposal={proposal}
-      />
+const ProposalDetails = memo(
+  ({
+    proposal,
+    proposalNumber,
+    latestProposalNumber,
+    setProposal,
+  }: {
+    proposal: Proposal;
+    proposalNumber: number;
+    latestProposalNumber: number;
+    setProposal: React.Dispatch<React.SetStateAction<Proposal>>;
+  }) => {
+    return (
+      <Box
+        shadow='sm'
+        w='full'
+        padding={4}
+        rounded='md'
+        display='flex'
+        flexDirection='column'
+        gap={2}
+        _dark={{ borderColor: 'primary', borderWidth: 1 }}
+      >
+        <ProposalHeader
+          proposalNumber={proposalNumber}
+          latestProposalNumber={latestProposalNumber}
+          proposal={proposal}
+        />
 
-      <VoteCounters proposal={proposal} />
-      <ProposalMetadata proposal={proposal} />
+        <VoteCounters proposal={proposal} />
+        <ProposalMetadata proposal={proposal} />
 
-      <CastVote proposal={proposal} setProposal={setProposal} />
-      <QueueProposal proposal={proposal} setProposal={setProposal} />
-      <ExecuteProposal proposal={proposal} setProposal={setProposal} />
-      <CancelProposal proposal={proposal} setProposal={setProposal} />
-    </Box>
-  );
-});
+        <CastVote proposal={proposal} setProposal={setProposal} />
+        <QueueProposal proposal={proposal} setProposal={setProposal} />
+        <ExecuteProposal proposal={proposal} setProposal={setProposal} />
+        <CancelProposal proposal={proposal} setProposal={setProposal} />
+      </Box>
+    );
+  }
+);
 ProposalDetails.displayName = 'ProposalDetails';
 
 // Optimize the useTabNavigation hook to prevent unnecessary re-renders
@@ -101,7 +103,10 @@ const useTabNavigation = (initialTab = 'description', hasVotes = true) => {
   }, [hasVotes]);
 
   // Extract query parameter only once
-  const tabFromQuery = useMemo(() => searchParams?.get('t') || initialTab, [searchParams, initialTab]);
+  const tabFromQuery = useMemo(
+    () => searchParams?.get('t') || initialTab,
+    [searchParams, initialTab]
+  );
 
   // Calculate initial tab index only once
   const initialTabIndex = useMemo(() => {
@@ -325,7 +330,7 @@ const ProposalHeader = memo(
         <HStack>
           <ProposalStatus proposal={proposal} />
           {/* Wrap FormattedAddress in a span to avoid p > div nesting */}
-          <Box as="span">
+          <Box as='span'>
             <FormattedAddress address={proposal.proposer} />
           </Box>
         </HStack>
@@ -365,17 +370,22 @@ const ProposalTabs = memo(
     editors: Editor[];
   }) => {
     // Track which tab content has been generated once
-    const [generatedTabs, setGeneratedTabs] = useState<{ [key: string]: boolean }>({});
+    const [generatedTabs, setGeneratedTabs] = useState<{
+      [key: string]: boolean;
+    }>({});
     const currentTabName = tabMap[activeTab];
 
     // Check if proposal has votes
-    const hasVotes = useMemo(() => proposal.votes && proposal.votes.length > 0, [proposal]);
+    const hasVotes = useMemo(
+      () => proposal.votes && proposal.votes.length > 0,
+      [proposal]
+    );
 
     // Create early access to tab content to improve perceived performance
     useEffect(() => {
       // Mark current tab as generated
       if (!generatedTabs[currentTabName]) {
-        setGeneratedTabs(prev => ({ ...prev, [currentTabName]: true }));
+        setGeneratedTabs((prev) => ({ ...prev, [currentTabName]: true }));
       }
 
       // Schedule pre-generation of adjacenet tabs for faster perceived switching
@@ -383,13 +393,13 @@ const ProposalTabs = memo(
         // Pre-generate the tabs before and after the current one
         const adjacentIndices = [
           (activeTab - 1 + tabMap.length) % tabMap.length, // Previous tab
-          (activeTab + 1) % tabMap.length                  // Next tab
+          (activeTab + 1) % tabMap.length, // Next tab
         ];
 
-        adjacentIndices.forEach(idx => {
+        adjacentIndices.forEach((idx) => {
           const tabName = tabMap[idx];
           if (!generatedTabs[tabName]) {
-            setGeneratedTabs(prev => ({ ...prev, [tabName]: true }));
+            setGeneratedTabs((prev) => ({ ...prev, [tabName]: true }));
           }
         });
       }, 200); // Shorter timeout for better responsiveness
@@ -420,26 +430,39 @@ const ProposalTabs = memo(
 
     const propdatesContent = useMemo(() => {
       if (!shouldRenderContent('propdates')) return null;
-      return <PropdatesTimeline
-        setPropdates={setPropdates}
-        proposal={proposal}
-        propdates={propdates}
-        editors={editors}
-      />;
-    }, [proposal, propdates, editors, setPropdates, shouldRenderContent('propdates')]);
+      return (
+        <PropdatesTimeline
+          setPropdates={setPropdates}
+          proposal={proposal}
+          propdates={propdates}
+          editors={editors}
+        />
+      );
+    }, [
+      proposal,
+      propdates,
+      editors,
+      setPropdates,
+      shouldRenderContent('propdates'),
+    ]);
 
     // Add an enhanced tab change handler with immediate visual feedback
-    const enhancedHandleTabChange = useCallback((details: { value: string }) => {
-      // Apply immediate visual feedback before waiting for state update
-      const clickedTab = document.querySelector(`[data-value="${details.value}"]`);
-      if (clickedTab) {
-        clickedTab.classList.add('tab-clicked');
-        // Remove the class after animation completes
-        setTimeout(() => clickedTab.classList.remove('tab-clicked'), 200);
-      }
+    const enhancedHandleTabChange = useCallback(
+      (details: { value: string }) => {
+        // Apply immediate visual feedback before waiting for state update
+        const clickedTab = document.querySelector(
+          `[data-value="${details.value}"]`
+        );
+        if (clickedTab) {
+          clickedTab.classList.add('tab-clicked');
+          // Remove the class after animation completes
+          setTimeout(() => clickedTab.classList.remove('tab-clicked'), 200);
+        }
 
-      handleTabChange(details);
-    }, [handleTabChange]);
+        handleTabChange(details);
+      },
+      [handleTabChange]
+    );
 
     return (
       <Box
@@ -449,7 +472,7 @@ const ProposalTabs = memo(
         pt={2}
         rounded={'md'}
         _dark={{ borderColor: 'primary', borderWidth: 1 }}
-        className="tabs-container"
+        className='tabs-container'
       >
         <Tabs.Root
           value={tabMap[activeTab]}
@@ -457,7 +480,9 @@ const ProposalTabs = memo(
           w='full'
           gap={0}
           fitted
-          unmountOnExit={false} /* Keep content in DOM to avoid expensive remounts */
+          unmountOnExit={
+            false
+          } /* Keep content in DOM to avoid expensive remounts */
           size={'sm'}
         >
           <Tabs.List>
@@ -466,22 +491,37 @@ const ProposalTabs = memo(
               display='flex'
               alignItems='center'
               border={0}
-              data-value="description"
+              data-value='description'
             >
               <LuScroll />
               <Text fontSize={'xs'}>Description</Text>
             </Tabs.Trigger>
             {tabMap.includes('votes') && (
-              <Tabs.Trigger value='votes' display='flex' alignItems='center' data-value="votes">
+              <Tabs.Trigger
+                value='votes'
+                display='flex'
+                alignItems='center'
+                data-value='votes'
+              >
                 <LuVote />
                 <Text fontSize={'xs'}>Votes</Text>
               </Tabs.Trigger>
             )}
-            <Tabs.Trigger value='transactions' display='flex' alignItems='center' data-value="transactions">
+            <Tabs.Trigger
+              value='transactions'
+              display='flex'
+              alignItems='center'
+              data-value='transactions'
+            >
               <FaEthereum />
               <Text fontSize={'xs'}>Transactions</Text>
             </Tabs.Trigger>
-            <Tabs.Trigger value='propdates' display='flex' alignItems='center' data-value="propdates">
+            <Tabs.Trigger
+              value='propdates'
+              display='flex'
+              alignItems='center'
+              data-value='propdates'
+            >
               <LuArchive />
               <Text fontSize={'xs'}>Propdates</Text>
             </Tabs.Trigger>
@@ -566,12 +606,15 @@ export default function ProposalPageClient({
   );
 
   // Check if proposal has votes
-  const hasVotes = useMemo(() =>
-    proposal.votes && proposal.votes.length > 0,
+  const hasVotes = useMemo(
+    () => proposal.votes && proposal.votes.length > 0,
     [proposal]
   );
 
-  const { activeTab, tabMap, handleTabChange } = useTabNavigation('description', hasVotes);
+  const { activeTab, tabMap, handleTabChange } = useTabNavigation(
+    'description',
+    hasVotes
+  );
 
   // SDK initialization logic
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -583,14 +626,17 @@ export default function ProposalPageClient({
   }, [isSDKLoaded]);
 
   // Memoize the proposal details component to prevent re-renders on tab changes
-  const memoizedProposalDetails = useMemo(() => (
-    <ProposalDetails
-      proposal={proposal}
-      proposalNumber={proposalNumber}
-      latestProposalNumber={latestProposalNumber}
-      setProposal={setProposal}
-    />
-  ), [proposal, proposalNumber, latestProposalNumber]);
+  const memoizedProposalDetails = useMemo(
+    () => (
+      <ProposalDetails
+        proposal={proposal}
+        proposalNumber={proposalNumber}
+        latestProposalNumber={latestProposalNumber}
+        setProposal={setProposal}
+      />
+    ),
+    [proposal, proposalNumber, latestProposalNumber]
+  );
 
   // Memoize the tabs component
   const memoizedProposalTabs = useMemo(() => {
@@ -607,13 +653,13 @@ export default function ProposalPageClient({
         editors={editors || []}
       />
     );
-    console.log('[DEBUG][Main] memoizedProposalTabs created in', performance.now() - start, 'ms');
+    console.log(
+      '[DEBUG][Main] memoizedProposalTabs created in',
+      performance.now() - start,
+      'ms'
+    );
     return tabs;
   }, [activeTab, tabMap, handleTabChange, proposal, propdates, editors]);
-
-  useEffect(() => {
-    console.log('[DEBUG][Main] Total ProposalPageClient render time:', performance.now() - renderStart, 'ms');
-  });
 
   return (
     <ProposalProvider

@@ -5,7 +5,6 @@ export const safeParseJson = (jsonString: string): any => {
     try {
       return JSON.parse(jsonString);
     } catch (directError) {
-      console.log('Direct JSON parsing failed, attempting to fix JSON...');
 
       // Second attempt: Manual find and replace of the problematic section
       const fixedJson = jsonString.replace(
@@ -16,9 +15,7 @@ export const safeParseJson = (jsonString: string): any => {
       try {
         return JSON.parse(fixedJson);
       } catch (fixError) {
-        console.log(
-          'JSON fix attempt failed, falling back to manual extraction...'
-        );
+
 
         // Third attempt: Manual extraction of fields with improved description extraction
         const name =

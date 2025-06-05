@@ -10,6 +10,23 @@ import {
   DecodedCalldata,
 } from '@/hooks/useDroposals';
 
+// Utility function to convert saleConfig values (moved outside component for better performance)
+const convertSaleConfig = (input: any) => ({
+  publicSalePrice: input.publicSalePrice
+    ? Number(input.publicSalePrice) / 1e18
+    : 0,
+  maxSalePurchasePerAddress: input.maxSalePurchasePerAddress
+    ? Number(input.maxSalePurchasePerAddress)
+    : 0,
+  publicSaleStart: input.publicSaleStart ? Number(input.publicSaleStart) : 0,
+  publicSaleEnd: input.publicSaleEnd ? Number(input.publicSaleEnd) : 0,
+  presaleStart: input.presaleStart ? Number(input.presaleStart) : 0,
+  presaleEnd: input.presaleEnd ? Number(input.presaleEnd) : 0,
+  presaleMerkleRoot: input.presaleMerkleRoot
+    ? input.presaleMerkleRoot.toString()
+    : '',
+});
+
 // Create a memoized component for the droposal content to prevent unnecessary re-renders
 const DroposalContent = memo(() => {
   const { proposal, setProposal, setTokenCreated } = useProposal();
@@ -35,23 +52,6 @@ const DroposalContent = memo(() => {
       setTokenCreated(tokenCreated);
     }
   }, [tokenCreated, setTokenCreated]);
-
-  // Utility function to convert saleConfig values
-  const convertSaleConfig = (input: any) => ({
-    publicSalePrice: input.publicSalePrice
-      ? Number(input.publicSalePrice) / 1e18
-      : 0,
-    maxSalePurchasePerAddress: input.maxSalePurchasePerAddress
-      ? Number(input.maxSalePurchasePerAddress)
-      : 0,
-    publicSaleStart: input.publicSaleStart ? Number(input.publicSaleStart) : 0,
-    publicSaleEnd: input.publicSaleEnd ? Number(input.publicSaleEnd) : 0,
-    presaleStart: input.presaleStart ? Number(input.presaleStart) : 0,
-    presaleEnd: input.presaleEnd ? Number(input.presaleEnd) : 0,
-    presaleMerkleRoot: input.presaleMerkleRoot
-      ? input.presaleMerkleRoot.toString()
-      : '',
-  });
 
   if (
     loading ||

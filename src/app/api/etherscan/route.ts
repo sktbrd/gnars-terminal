@@ -200,7 +200,6 @@ export async function GET(request: Request) {
         // Find transaction matching the provided descriptionHash
         let matchedTransaction = null;
         if (descriptionHash) {
-            console.log('Searching for transaction with descriptionHash:', descriptionHash);
             matchedTransaction = decodedRelevantTransactions.find((transaction) =>
                 transaction.decodedData.descriptionHash === descriptionHash
             );

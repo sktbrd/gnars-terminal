@@ -11,17 +11,11 @@ import {
   DrawerRoot,
   DrawerTitle,
 } from '@/components/ui/drawer';
-import {
-  IconButton,
-  Text,
-  useDisclosure,
-  VStack
-} from '@chakra-ui/react';
+import { IconButton, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import sdk, { Context } from '@farcaster/frame-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { LuBell } from 'react-icons/lu';
 import { Tooltip } from '../ui/tooltip';
-
 
 export default function NotificationButton() {
   const { open, onOpen, onClose } = useDisclosure();
@@ -36,20 +30,24 @@ export default function NotificationButton() {
   useEffect(() => {
     const loadContext: () => Promise<void> = async () => {
       if (!sdk) {
-        setErrorMessage('Please open this website inside a Farcaster app that supports Frames v2.');
+        setErrorMessage(
+          'Please open this website inside a Farcaster app that supports Frames v2.'
+        );
         return;
       }
 
       const ctx = await sdk.context;
       setContext(ctx);
-      
+
       if (ctx?.client) {
         setFrameAdded(ctx.client.added);
       }
 
       if (ctx?.user?.fid) {
         try {
-          const response = await fetch(`/api/farcaster/frame?fid=${ctx.user.fid}`);
+          const response = await fetch(
+            `/api/farcaster/frame?fid=${ctx.user.fid}`
+          );
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.data) {
@@ -64,7 +62,9 @@ export default function NotificationButton() {
           }
         } catch (error) {
           console.error('Error checking notification status:', error);
-          setErrorMessage('Failed to check notification status. Please try again later.');
+          setErrorMessage(
+            'Failed to check notification status. Please try again later.'
+          );
         }
       }
     };
@@ -78,8 +78,6 @@ export default function NotificationButton() {
 
       const result = await sdk.actions.addFrame();
       setFrameAdded(true);
-
-      console.log('Frame added successfully', result);
     } catch (error) {
       console.error('Error adding frame:', error);
       setErrorMessage(
@@ -98,10 +96,10 @@ export default function NotificationButton() {
     try {
       setEnablingNotifications(true);
       setErrorMessage(null);
-      
+
       // Get notification details from the SDK context, not from actions
       const notificationDetails = context?.client?.notificationDetails;
-      
+
       if (!notificationDetails?.token || !notificationDetails?.url) {
         throw new Error('Failed to get notification details from Farcaster');
       }
@@ -125,7 +123,6 @@ export default function NotificationButton() {
       }
 
       setNotificationsEnabled(true);
-      console.log('Notifications enabled successfully', notificationDetails);
     } catch (error) {
       console.error('Error enabling notifications:', error);
       setErrorMessage(
@@ -159,7 +156,9 @@ export default function NotificationButton() {
         setNotificationsEnabled(false);
       } else {
         const error = await response.json();
-        setErrorMessage(`Error: ${error.error || 'Failed to disable notifications'}`);
+        setErrorMessage(
+          `Error: ${error.error || 'Failed to disable notifications'}`
+        );
       }
     } catch (error) {
       console.error('Error disabling notifications:', error);
@@ -174,15 +173,15 @@ export default function NotificationButton() {
   }, [context?.user?.fid]);
 
   const getButtonText = () => {
-    if (!frameAdded) return "Add Frame";
-    if (!notificationsEnabled) return "Enable Notifications";
-    return "Disable Notifications";
+    if (!frameAdded) return 'Add Frame';
+    if (!notificationsEnabled) return 'Enable Notifications';
+    return 'Disable Notifications';
   };
 
   const getButtonColor = () => {
-    if (!frameAdded) return "yellow";
-    if (!notificationsEnabled) return "blue";
-    return "red";
+    if (!frameAdded) return 'yellow';
+    if (!notificationsEnabled) return 'blue';
+    return 'red';
   };
 
   const handleButtonClick = () => {
@@ -195,22 +194,28 @@ export default function NotificationButton() {
     return handleDisableNotifications();
   };
 
-  const isLoading = addingFrame || enablingNotifications || disablingNotifications;
+  const isLoading =
+    addingFrame || enablingNotifications || disablingNotifications;
 
   return (
     <>
-      <Tooltip content="Get DAO Notifications">
+      <Tooltip content='Get DAO Notifications'>
         <IconButton
-          aria-label="Get DAO notifications"
-          variant="ghost"
-          size="sm"
+          aria-label='Get DAO notifications'
+          variant='ghost'
+          size='sm'
           onClick={onOpen}
         >
           <LuBell />
         </IconButton>
       </Tooltip>
 
-      <DrawerRoot open={open} onOpenChange={onClose} size="md" placement="bottom">
+      <DrawerRoot
+        open={open}
+        onOpenChange={onClose}
+        size='md'
+        placement='bottom'
+      >
         <DrawerBackdrop />
         <DrawerContent>
           <DrawerCloseTrigger />
@@ -220,38 +225,41 @@ export default function NotificationButton() {
           </DrawerHeader>
 
           <DrawerBody>
-            <VStack gap={6} align="stretch">
-              <Text fontSize={"sm"}>
-                Receive a notification on Farcaster whenever a new proposal is created or the voting period starts.
+            <VStack gap={6} align='stretch'>
+              <Text fontSize={'sm'}>
+                Receive a notification on Farcaster whenever a new proposal is
+                created or the voting period starts.
               </Text>
-              
+
               {frameAdded && !notificationsEnabled && (
-                <Text fontSize={"sm"} fontWeight="medium">
-                  You've added this frame. Enable notifications to get updates about proposals.
+                <Text fontSize={'sm'} fontWeight='medium'>
+                  You've added this frame. Enable notifications to get updates
+                  about proposals.
                 </Text>
               )}
-              
+
               {frameAdded && notificationsEnabled && (
-                <Text fontSize={"sm"} fontWeight="medium" color="green.500">
-                  You will receive notifications about new proposals and voting periods.
+                <Text fontSize={'sm'} fontWeight='medium' color='green.500'>
+                  You will receive notifications about new proposals and voting
+                  periods.
                 </Text>
               )}
             </VStack>
           </DrawerBody>
 
           <DrawerFooter mb={8}>
-            <VStack w="full" gap={3}>
+            <VStack w='full' gap={3}>
               {errorMessage && (
-                <Text color="red.500" fontSize="sm">
+                <Text color='red.500' fontSize='sm'>
                   {errorMessage}
                 </Text>
               )}
 
               <Button
-                w="full"
-                size={"lg"}
+                w='full'
+                size={'lg'}
                 colorPalette={getButtonColor()}
-                variant="surface"
+                variant='surface'
                 onClick={handleButtonClick}
                 disabled={isLoading || errorMessage !== null}
                 loading={isLoading}

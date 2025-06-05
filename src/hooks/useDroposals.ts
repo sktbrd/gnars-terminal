@@ -44,6 +44,16 @@ interface UseDroposalsReturn {
 
 const DEFAULT_TARGET_ADDRESS = '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c';
 
+// Utility function to format URI (moved outside for better performance)
+const formatURI = (uri: string): string => {
+  if (!uri) return '';
+  const trimmedUri = uri.trim();
+  if (/^ipfs:\/\//.test(trimmedUri)) {
+    return `/ipfs/${trimmedUri.slice(7)}`; // Use the proxy path
+  }
+  return uri;
+};
+
 export const useDroposals = (options: UseDroposalsOptions = {}): UseDroposalsReturn => {
   const {
     limit = 10,
@@ -62,16 +72,6 @@ export const useDroposals = (options: UseDroposalsOptions = {}): UseDroposalsRet
       setTokenCreated(null);
     }
   }, [limit, tokenCreated]);
-
-  // Utility function to format URI
-  const formatURI = (uri: string): string => {
-    if (!uri) return '';
-    const trimmedUri = uri.trim();
-    if (/^ipfs:\/\//.test(trimmedUri)) {
-      return `/ipfs/${trimmedUri.slice(7)}`; // Use the proxy path
-    }
-    return uri;
-  };
 
   // Function to fetch transaction receipt and extract token address
   const fetchTokenAddress = useCallback(async (transactionHash: string): Promise<string | null> => {

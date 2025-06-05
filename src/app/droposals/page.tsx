@@ -18,33 +18,37 @@ import CollectButton from '@/components/droposals/CollectButton';
 import ActionButtons from '@/components/droposals/ActionButtons';
 import { ProposalProvider } from '@/contexts/ProposalContext';
 
+// Utility function to convert saleConfig values (moved outside component for better performance)
+const convertSaleConfig = (input: any) => ({
+  publicSalePrice: input.publicSalePrice
+    ? Number(input.publicSalePrice) / 1e18
+    : 0,
+  maxSalePurchasePerAddress: input.maxSalePurchasePerAddress
+    ? Number(input.maxSalePurchasePerAddress)
+    : 0,
+  publicSaleStart: input.publicSaleStart ? Number(input.publicSaleStart) : 0,
+  publicSaleEnd: input.publicSaleEnd ? Number(input.publicSaleEnd) : 0,
+  presaleStart: input.presaleStart ? Number(input.presaleStart) : 0,
+  presaleEnd: input.presaleEnd ? Number(input.presaleEnd) : 0,
+  presaleMerkleRoot: input.presaleMerkleRoot
+    ? input.presaleMerkleRoot.toString()
+    : '',
+});
+
+// PDF detection constant (moved outside for better performance and maintainability)
+const PDF_IPFS_HASH =
+  'bafkreigwd3ed5fqi5iesh7lhrj3wppjk7ltoeq3ofhcw4oyxoqfsp2e36u';
+const isPDF = (imageURI: string) => {
+  return (
+    imageURI === `ipfs://${PDF_IPFS_HASH}` || imageURI?.includes(PDF_IPFS_HASH)
+  );
+};
+
 const DroposalListPage = () => {
   const { droposals, loading, error, refetch } = useDroposals({
     limit: 50, // Fetch up to 50 droposals
     autoFetch: true,
   });
-
-  // Utility function to convert saleConfig values
-  const convertSaleConfig = (input: any) => ({
-    publicSalePrice: input.publicSalePrice
-      ? Number(input.publicSalePrice) / 1e18
-      : 0,
-    maxSalePurchasePerAddress: input.maxSalePurchasePerAddress
-      ? Number(input.maxSalePurchasePerAddress)
-      : 0,
-    publicSaleStart: input.publicSaleStart ? Number(input.publicSaleStart) : 0,
-    publicSaleEnd: input.publicSaleEnd ? Number(input.publicSaleEnd) : 0,
-    presaleStart: input.presaleStart ? Number(input.presaleStart) : 0,
-    presaleEnd: input.presaleEnd ? Number(input.presaleEnd) : 0,
-    presaleMerkleRoot: input.presaleMerkleRoot
-      ? input.presaleMerkleRoot.toString()
-      : '',
-  });
-
-  const formatDate = (timestamp: number) => {
-    if (!timestamp) return 'Not set';
-    return new Date(timestamp * 1000).toLocaleDateString();
-  };
 
   if (loading) {
     return (
@@ -250,11 +254,7 @@ const DroposalListPage = () => {
                                 </Box>
                               )}
                               {/* PDF badge logic */}
-                              {(data.imageURI ===
-                                'ipfs://bafkreigwd3ed5fqi5iesh7lhrj3wppjk7ltoeq3ofhcw4oyxoqfsp2e36u' ||
-                                data.imageURI?.includes(
-                                  'bafkreigwd3ed5fqi5iesh7lhrj3wppjk7ltoeq3ofhcw4oyxoqfsp2e36u'
-                                )) && (
+                              {isPDF(data.imageURI) && (
                                 <Box
                                   position='absolute'
                                   top={2}
@@ -296,7 +296,7 @@ const DroposalListPage = () => {
                               {salesConfig && (
                                 <Box
                                   bg='background'
-                                  color='white'
+                                  color='primary'
                                   px={3}
                                   py={1}
                                   borderRadius='lg'

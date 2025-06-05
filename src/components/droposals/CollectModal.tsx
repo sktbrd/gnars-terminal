@@ -130,10 +130,17 @@ const CollectModal = ({
       : 0;
   }, [contractSalesConfig.data, salesConfig]);
 
+  // Memoize price calculations to prevent unnecessary recalculations
+  const priceCalculations = useMemo(() => {
+    const totalMintPrice = mintPricePerUnit * numMints;
+    const totalZoraFee = zoraProtocolFee * numMints;
+    const totalPrice = totalMintPrice + totalZoraFee;
+    
+    return { totalMintPrice, totalZoraFee, totalPrice };
+  }, [mintPricePerUnit, numMints, zoraProtocolFee]);
+
   // Calculate total price
-  const totalMintPrice = mintPricePerUnit * numMints;
-  const totalZoraFee = zoraProtocolFee * numMints;
-  const totalPrice = totalMintPrice + totalZoraFee;
+  const { totalMintPrice, totalZoraFee, totalPrice } = priceCalculations;
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   // Fetch transaction data from the API

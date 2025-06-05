@@ -17,10 +17,8 @@ export const processBase64TokenUri = (tokenUri: string): TokenMetadata => {
       bytes[i] = base64Decoded.charCodeAt(i);
     }
     const jsonString = new TextDecoder('utf-8').decode(bytes);
-    console.log('Decoded JSON string:', jsonString);
     
     const parsed = safeParseJson(jsonString);
-    console.log('Parsed metadata from base64:', parsed);
     return parsed;
   } catch (error) {
     console.error('Error processing base64 token URI:', error);
@@ -39,10 +37,8 @@ export const processDirectJsonUri = (tokenUri: string): TokenMetadata => {
     }
     
     const jsonString = tokenUri.substring(startIndex, endIndex);
-    console.log('Extracted JSON string:', jsonString);
     
     const parsed = safeParseJson(jsonString);
-    console.log('Parsed metadata from direct JSON:', parsed);
     return parsed;
   } catch (error) {
     console.error('Error processing direct JSON token URI:', error);
@@ -55,8 +51,6 @@ export const fetchUriMetadata = async (uri: string): Promise<TokenMetadata> => {
     const formattedUri = uri.startsWith('ipfs://')
       ? `https://ipfs.skatehive.app/ipfs/${uri.slice(7)}`
       : uri;
-
-    console.log('Fetching metadata from formatted URI:', formattedUri);
     
     const response = await fetch(formattedUri);
     if (!response.ok) {

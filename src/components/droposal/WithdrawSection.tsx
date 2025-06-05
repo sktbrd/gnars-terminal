@@ -16,7 +16,7 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
 }) => {
   const [withdrawHash, setWithdrawHash] = useState<`0x${string}` | null>(null);
   const [isPending, setPending] = useState(false);
-  
+
   const {
     writeContract,
     isPending: isWritePending,
@@ -47,7 +47,6 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
         setPending(false);
         return;
       }
-      console.log('Withdrawing funds from contract:', contractAddress);
 
       writeContract({
         address: contractAddress,
@@ -62,7 +61,17 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
   };
 
   return (
-    <Box borderWidth={1} display={"flex"} flexDir={"column"} alignItems='stretch' gap={3} rounded={"lg"} p={6} _dark={{ borderColor: 'yellow' }} mt={8}>
+    <Box
+      borderWidth={1}
+      display={'flex'}
+      flexDir={'column'}
+      alignItems='stretch'
+      gap={3}
+      rounded={'lg'}
+      p={6}
+      _dark={{ borderColor: 'yellow' }}
+      mt={8}
+    >
       <Heading size='md' mb={2}>
         Withdraw Funds
       </Heading>
@@ -78,7 +87,9 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
         {isWithdrawConfirmed ? 'Withdrawn!' : 'Withdraw'}
       </Button>
       {writeError && (
-        <Text color='red.400' mt={2}>Error: {writeError.message}</Text>
+        <Text color='red.400' mt={2}>
+          Error: {writeError.message}
+        </Text>
       )}
       {withdrawConfirmError && (
         <Text color='red.400' mt={2}>
