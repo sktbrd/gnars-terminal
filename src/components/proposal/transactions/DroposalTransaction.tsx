@@ -79,7 +79,6 @@ export default function DroposalTransaction({
         presaleMerkleRoot: saleConfig.presaleMerkleRoot,
       };
 
-
       return {
         name,
         symbol,
@@ -124,7 +123,8 @@ export default function DroposalTransaction({
       <VStack align='start' gap={3}>
         <HStack gap={2} align='center'>
           <Text>
-            This transaction creates a new token with the name in behalf of Gnars Dao
+            This transaction creates a new token with the name in behalf of
+            Gnars Dao
           </Text>
           <Code size={'sm'} variant={'surface'}>
             {decodedData.name} ({decodedData.symbol})
@@ -171,41 +171,40 @@ export default function DroposalTransaction({
             <HStack gap={2} align='center'>
               <Text>Sale Period:</Text>
               <Code size={'sm'} variant={'surface'}>
-                {new Date(decodedData.salesConfig.publicSaleStart * 1000).toLocaleDateString()} to {new Date(decodedData.salesConfig.publicSaleEnd * 1000).toLocaleDateString()}
+                {new Date(
+                  decodedData.salesConfig.publicSaleStart * 1000
+                ).toLocaleDateString()}{' '}
+                to{' '}
+                {new Date(
+                  decodedData.salesConfig.publicSaleEnd * 1000
+                ).toLocaleDateString()}
               </Code>
             </HStack>
           </>
         )}
 
-        <HStack gap={2} align='center'>
+        {/* <HStack gap={2} align='center'>
           <Text>
             Royalty:
           </Text>
           <Code size={'sm'} variant={'surface'}>
             {decodedData.royaltyBPS}%
           </Code>
-        </HStack>
+        </HStack> */}
         <HStack gap={2} align='center'>
-          <Text>
-            Funds Recipient:
-          </Text>
+          <Text>Funds Recipient:</Text>
           <FormattedAddress address={decodedData.fundsRecipient} />
         </HStack>
         <HStack gap={2} align='center'>
-          <Text>
-            Default Admin:
-          </Text>
+          <Text>Default Admin:</Text>
           <FormattedAddress address={decodedData.defaultAdmin} />
         </HStack>
         <HStack gap={2} align='center'>
-          <Text>
-            Description:
-          </Text>
+          <Text>Description:</Text>
           <Code size={'sm'} variant={'surface'}>
             {decodedData.description || 'N/A'}
           </Code>
         </HStack>
-
       </VStack>
     </TransactionWrapper>
   );
