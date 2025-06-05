@@ -33,7 +33,8 @@ export interface NFT {
         lastSaleEth: string | null;
         medias: {
             type: string;
-            originalUrl: string;
+            url: string;
+            originalUri?: string;
             fileSize: string;
             mimeType: string;
             blurhash: string;

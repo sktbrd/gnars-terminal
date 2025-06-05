@@ -61,9 +61,9 @@ const NFTSection: React.FC<NFTSectionProps> = ({ nfts }) => {
             <Box height='240px' position='relative' bg='gray.900'>
               {nft.token.medias &&
               nft.token.medias.length > 0 &&
-              nft.token.medias[0].originalUrl ? (
+              nft.token.medias[0].url ? (
                 <Image
-                  src={nft.token.medias[0].originalUrl}
+                  src={nft.token.medias[0].url}
                   alt={nft.token.collection.name}
                   width='100%'
                   height='100%'
