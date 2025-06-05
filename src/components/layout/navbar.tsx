@@ -124,6 +124,16 @@ function NavbarLinks() {
       </Link>
       <Link
         {...linkProps}
+        _open={{ animation: 'fade-in 1200ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1200ms ease-in' }}
+      >
+        <NextLink href='/droposals' style={{ width: '100%' }}>
+          <FaEthereum />
+          DROPS
+        </NextLink>
+      </Link>
+      <Link
+        {...linkProps}
         _open={{ animation: 'fade-in 600ms ease-out' }}
         _hidden={{ animation: 'fade-out 600ms ease-in' }}
       >
@@ -139,13 +149,14 @@ function NavbarLinks() {
       >
         <NextLink href='/propdates' style={{ width: '100%' }}>
           <FaNewspaper />
-          PROPDATES
+          REPORTS
         </NextLink>
       </Link>
+
       <Link
         {...linkProps}
-        _open={{ animation: 'fade-in 1200ms ease-out' }}
-        _hidden={{ animation: 'fade-out 1200ms ease-in' }}
+        _open={{ animation: 'fade-in 1500ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1500ms ease-in' }}
       >
         <NextLink href='/treasure' style={{ width: '100%' }}>
           <FaEthereum />
@@ -154,8 +165,8 @@ function NavbarLinks() {
       </Link>
       <Link
         {...linkProps}
-        _open={{ animation: 'fade-in 1500ms ease-out' }}
-        _hidden={{ animation: 'fade-out 1500ms ease-in' }}
+        _open={{ animation: 'fade-in 1800ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1800ms ease-in' }}
       >
         <NextLink
           target='_blank'
