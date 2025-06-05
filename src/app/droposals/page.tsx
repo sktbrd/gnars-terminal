@@ -249,6 +249,27 @@ const DroposalListPage = () => {
                                   Video
                                 </Box>
                               )}
+                              {/* PDF badge logic */}
+                              {(data.imageURI ===
+                                'ipfs://bafkreigwd3ed5fqi5iesh7lhrj3wppjk7ltoeq3ofhcw4oyxoqfsp2e36u' ||
+                                data.imageURI?.includes(
+                                  'bafkreigwd3ed5fqi5iesh7lhrj3wppjk7ltoeq3ofhcw4oyxoqfsp2e36u'
+                                )) && (
+                                <Box
+                                  position='absolute'
+                                  top={2}
+                                  right={2}
+                                  bg='red.500'
+                                  color='white'
+                                  px={2}
+                                  py={1}
+                                  borderRadius='md'
+                                  fontSize='xs'
+                                  fontWeight='medium'
+                                >
+                                  PDF
+                                </Box>
+                              )}
                             </Box>
                           )}
 
@@ -272,21 +293,22 @@ const DroposalListPage = () => {
                                   ${data.symbol}
                                 </Text>
                               </Box>
-                              {salesConfig &&
-                                salesConfig.publicSalePrice > 0 && (
-                                  <Box
-                                    bg='background'
-                                    color='white'
-                                    px={3}
-                                    py={1}
-                                    borderRadius='lg'
-                                    fontSize='sm'
-                                    fontWeight='bold'
-                                    shadow='sm'
-                                  >
-                                    {salesConfig.publicSalePrice} ETH
-                                  </Box>
-                                )}
+                              {salesConfig && (
+                                <Box
+                                  bg='background'
+                                  color='white'
+                                  px={3}
+                                  py={1}
+                                  borderRadius='lg'
+                                  fontSize='sm'
+                                  fontWeight='bold'
+                                  shadow='sm'
+                                >
+                                  {salesConfig.publicSalePrice === 0
+                                    ? 'Free'
+                                    : `${salesConfig.publicSalePrice} ETH`}
+                                </Box>
+                              )}
                             </HStack>
                           </VStack>
 
