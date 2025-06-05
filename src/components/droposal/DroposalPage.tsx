@@ -38,6 +38,7 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
     initialMetadata || null
   );
   const [totalSupply, setTotalSupply] = useState<bigint | null>(null);
+  const [mintQuantity, setMintQuantity] = useState(1);
   const { address } = useAccount();
 
   // Ensure contractAddress is properly formatted
@@ -54,12 +55,12 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
     args: [],
   });
 
-  // Get Zora fee data for a specific quantity
+  // Get Zora fee data for current mint quantity
   const zoraFeeData = useReadContract({
     address: formattedContractAddress,
     abi: zoraMintAbi,
     functionName: 'zoraFeeForAmount',
-    args: [1n], // Default to 1
+    args: [BigInt(mintQuantity)],
   });
 
   // Get Zora fee data for volume calculation (always use quantity 1)
@@ -256,6 +257,8 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
             contractAddress={formattedContractAddress}
             salesConfig={salesConfig}
             zoraFeeData={zoraFeeData}
+            mintQuantity={mintQuantity}
+            setMintQuantity={setMintQuantity}
           />
         </Box>
       </Flex>
