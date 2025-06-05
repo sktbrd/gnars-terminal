@@ -1,48 +1,39 @@
 'use client';
-import { useEffect, useCallback, memo } from 'react';
-import { Box, VStack, Skeleton, HStack, Text, Heading } from '@chakra-ui/react';
-import { fetchProposals } from '@/app/services/proposal';
-import { Address, decodeFunctionData } from 'viem';
-import droposalABI from '../proposal/transactions/utils/droposalABI';
-import { DAO_ADDRESSES } from '@/utils/constants';
+import React, { memo } from 'react';
+import { Box, VStack, Skeleton } from '@chakra-ui/react';
 import CustomVideoPlayer from './CustomVideoPlayer';
 import { ProposalProvider, useProposal } from '@/contexts/ProposalContext';
-import { Proposal } from '@/app/services/proposal';
-
-// send me to .env and call me DROPOSAL_ADDRESS
-const TARGET_ADDRESS = '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c';
-
-// Define interface for decoded calldata
-interface DecodedCalldata {
-  name: string;
-  symbol: string;
-  editionSize: string;
-  royaltyBPS: string;
-  fundsRecipient: Address;
-  defaultAdmin: Address;
-  saleConfig: unknown;
-  description: string;
-  imageURI: string;
-  animationURI: string;
-}
-
-// Extended proposal interface that includes decodedCalldatas
-interface ExtendedProposal extends Proposal {
-  decodedCalldatas?: DecodedCalldata[];
-}
+import {
+  useDroposals,
+  ExtendedProposal,
+  DecodedCalldata,
+} from '@/hooks/useDroposals';
 
 // Create a memoized component for the droposal content to prevent unnecessary re-renders
 const DroposalContent = memo(() => {
-  const { proposal, setProposal } = useProposal();
+  const { proposal, setProposal, setTokenCreated } = useProposal();
+  const { droposals, loading, tokenCreated } = useDroposals({ limit: 1 });
 
-  const formatURI = (uri: string): string => {
-    if (!uri) return '';
-    const trimmedUri = uri.trim();
-    if (/^ipfs:\/\//.test(trimmedUri)) {
-      return `/ipfs/${trimmedUri.slice(7)}`; // Use the proxy path
+  // Use the first droposal directly from the hook
+  const extendedProposal = droposals[0] as ExtendedProposal;
+
+  // Update the proposal context when droposals are loaded
+  React.useEffect(() => {
+    if (
+      droposals.length > 0 &&
+      (!proposal?.proposalNumber ||
+        proposal.proposalNumber !== droposals[0].proposalNumber)
+    ) {
+      setProposal(droposals[0]);
     }
-    return uri;
-  };
+  }, [droposals, proposal?.proposalNumber, setProposal]);
+
+  // Update the tokenCreated context when it's available
+  React.useEffect(() => {
+    if (tokenCreated && tokenCreated !== '') {
+      setTokenCreated(tokenCreated);
+    }
+  }, [tokenCreated, setTokenCreated]);
 
   // Utility function to convert saleConfig values
   const convertSaleConfig = (input: any) => ({
@@ -61,102 +52,12 @@ const DroposalContent = memo(() => {
       : '',
   });
 
-  const fetchAndDecodeProposals = useCallback(async () => {
-    try {
-      const fetchedProposals = await fetchProposals(
-        DAO_ADDRESSES.token,
-        'proposalNumber',
-        'desc',
-        1,
-        { targets_contains: [TARGET_ADDRESS], executed: true },
-        true
-      );
-      // Debug: Log fetched proposals
-      if (fetchedProposals.length > 0) {
-        const proposal = fetchedProposals[0];
-        const rawCalldatas = proposal.calldatas;
-        // Debug: Log raw calldata
-        const calldatasArray =
-          typeof rawCalldatas === 'string'
-            ? rawCalldatas.split(':')
-            : rawCalldatas;
-        const normalizedCalldatas = calldatasArray.map((calldata: string) =>
-          calldata === '0x' || calldata === '0' ? '0x' : calldata
-        );
-
-        const decodedCalldatas = normalizedCalldatas.map((calldata: string) => {
-          if (!calldata || calldata.length < 8) return null;
-
-          let finalCalldata = calldata;
-          if (!finalCalldata.startsWith('0x')) {
-            finalCalldata = '0x' + finalCalldata;
-          }
-
-          try {
-            const { args } = decodeFunctionData({
-              abi: droposalABI,
-              data: finalCalldata as `0x${string}`,
-            });
-            const [
-              name,
-              symbol,
-              editionSize,
-              royaltyBPS,
-              fundsRecipient,
-              defaultAdmin,
-              saleConfig,
-              description,
-              animationURI,
-              imageURI,
-            ] = args as [
-              string,
-              string,
-              bigint,
-              number,
-              Address,
-              Address,
-              unknown,
-              string,
-              string,
-              string,
-            ];
-
-            return {
-              name,
-              symbol,
-              editionSize: editionSize.toString(),
-              royaltyBPS: (royaltyBPS / 100).toFixed(2),
-              fundsRecipient,
-              defaultAdmin,
-              saleConfig,
-              description,
-              imageURI: formatURI(imageURI),
-              animationURI: formatURI(animationURI),
-            };
-          } catch {
-            return null;
-          }
-        });
-
-        setProposal({
-          ...proposal,
-          // Ensure descriptionHash is explicitly set from the proposal
-          descriptionHash: proposal.descriptionHash || '0x0', // Provide fallback if undefined
-          decodedCalldatas: decodedCalldatas.filter((d) => d !== null),
-        } as ExtendedProposal);
-      }
-    } catch (error) {
-      console.error('Error fetching proposals:', error);
-    }
-  }, [setProposal]);
-
-  useEffect(() => {
-    fetchAndDecodeProposals();
-  }, [fetchAndDecodeProposals]);
-
-  const extendedProposal = proposal as ExtendedProposal;
-  if (!extendedProposal || !extendedProposal.decodedCalldatas) {
-    debugger;
+  if (
+    loading ||
+    !extendedProposal ||
+    !extendedProposal.decodedCalldatas ||
+    extendedProposal.decodedCalldatas.length === 0
+  ) {
     return (
       <Box
         shadow='sm'
