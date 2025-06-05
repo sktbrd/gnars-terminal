@@ -94,10 +94,10 @@ const CollectModal = ({
     title: string;
     message: string;
   } | null>(null);
-  
+
   // Get the user's wallet address
   const { address } = useAccount();
-  
+
   // Get the user's ETH balance
   const { data: balanceData, isLoading: balanceLoading } = useBalance({
     address,
@@ -135,7 +135,7 @@ const CollectModal = ({
     const totalMintPrice = mintPricePerUnit * numMints;
     const totalZoraFee = zoraProtocolFee * numMints;
     const totalPrice = totalMintPrice + totalZoraFee;
-    
+
     return { totalMintPrice, totalZoraFee, totalPrice };
   }, [mintPricePerUnit, numMints, zoraProtocolFee]);
 
@@ -223,7 +223,7 @@ const CollectModal = ({
       if (Number(balanceData.formatted) < totalPrice) {
         setMintError({
           title: 'Insufficient Balance',
-          message: `You need at least ${totalPrice.toFixed(4)} ETH to complete this transaction, but your balance is ${Number(balanceData.formatted).toFixed(4)} ETH.`
+          message: `You need at least ${totalPrice.toFixed(4)} ETH to complete this transaction, but your balance is ${Number(balanceData.formatted).toFixed(4)} ETH.`,
         });
       } else if (mintError?.title === 'Insufficient Balance') {
         // Clear the error if balance is now sufficient
@@ -233,15 +233,15 @@ const CollectModal = ({
   }, [balanceData, balanceLoading, totalPrice, mintError?.title]);
 
   // Handle MintButton error updates - clear mintError when MintButton clears its error
-  const handleMintError = useCallback((error: { title: string; message: string } | null) => {
-    setMintError(error);
-  }, []);
+  const handleMintError = useCallback(
+    (error: { title: string; message: string } | null) => {
+      setMintError(error);
+    },
+    []
+  );
 
   return (
-    <DialogRoot 
-      open={isOpen} 
-      onInteractOutside={onClose}
-    >
+    <DialogRoot open={isOpen} onInteractOutside={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -383,7 +383,7 @@ const CollectModal = ({
         <DialogFooter>
           <Flex direction='column' width='100%'>
             {/* Price breakdown - estimated UI only */}
-            <Box p={3} rounded={"xl"} bg='blackAlpha.100' width='100%'>
+            <Box p={3} rounded={'xl'} bg='blackAlpha.100' width='100%'>
               <Flex justify='space-between'>
                 <Text>Mint Price:</Text>
                 <Text>{totalMintPrice.toFixed(4)} ETH</Text>
@@ -407,11 +407,11 @@ const CollectModal = ({
               <Flex justify='space-between' mt={2}>
                 <Text>Your Balance:</Text>
                 <Text>
-                  {balanceLoading 
-                    ? "Loading..." 
-                    : balanceData 
-                      ? `${Number(balanceData?.formatted).toFixed(4)} ETH` 
-                      : "0.0000 ETH"}
+                  {balanceLoading
+                    ? 'Loading...'
+                    : balanceData
+                      ? `${Number(balanceData?.formatted).toFixed(4)} ETH`
+                      : '0.0000 ETH'}
                 </Text>
               </Flex>
               {contractSalesConfig.isLoading && (
@@ -450,22 +450,23 @@ const CollectModal = ({
                 </Text>
               </Box>
             )}
-            <Flex mt={4} w="100%">
-              <Button 
-                variant={'outline'} 
-                onClick={onClose} 
-                flex={1} 
-                mr={2}
-              >
+            <Flex mt={4} w='100%'>
+              <Button variant={'outline'} onClick={onClose} flex={1} mr={2}>
                 Close
               </Button>
-                <MintButton
-                  quantity={numMints}
-                  comment={comment}
-                  salesConfig={salesConfig}
-                  onError={handleMintError}
-                  disabled={balanceLoading || (balanceData ? Number(balanceData?.formatted) < totalPrice : true) || (mintError?.title === 'Insufficient Balance')}
-                />
+              <MintButton
+                quantity={numMints}
+                comment={comment}
+                salesConfig={salesConfig}
+                onError={handleMintError}
+                disabled={
+                  balanceLoading ||
+                  (balanceData
+                    ? Number(balanceData?.formatted) < totalPrice
+                    : true) ||
+                  mintError?.title === 'Insufficient Balance'
+                }
+              />
             </Flex>
           </Flex>
         </DialogFooter>

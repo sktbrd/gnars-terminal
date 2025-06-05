@@ -153,7 +153,7 @@ const MintButton = ({
           title: 'Transaction Cancelled',
           message: 'You cancelled the transaction.',
         };
-        
+
         // Clear the error after 2 seconds to allow immediate retry
         setTimeout(() => {
           setError(null);
