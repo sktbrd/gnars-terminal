@@ -224,14 +224,14 @@ const MintButton = ({
       return;
     }
 
-    if (pricePerToken <= 0) {
-      setError({
-        title: 'Invalid Price',
-        message: 'The token price is invalid.',
-      });
-      console.error('[MintButton] Invalid price per token:', pricePerToken);
-      return;
-    }
+    // if (pricePerToken <= 0) {
+    //   setError({
+    //     title: 'Invalid Price',
+    //     message: 'The token price is invalid.',
+    //   });
+    //   console.error('[MintButton] Invalid price per token:', pricePerToken);
+    //   return;
+    // }
 
     setIsPending(true);
     try {
