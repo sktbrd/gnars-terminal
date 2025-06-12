@@ -1,5 +1,6 @@
 import React from 'react';
 import { HStack, Button } from '@chakra-ui/react';
+import Link from 'next/link';
 import CollectButton from './CollectButton';
 import { useProposal } from '@/contexts/ProposalContext';
 
@@ -32,19 +33,25 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         salesConfig={salesConfig}
         position='relative'
       />
-      <Button
-        size='sm'
-        colorScheme='blue'
-        onClick={() => {
-          // Use tokenCreated contract address for the mint page
-          if (tokenCreated) {
-            window.open(`/droposal/${tokenCreated}`, '_blank');
-          }
-        }}
-        disabled={!tokenCreated}
-      >
-        Mint Page
-      </Button>
+      {tokenCreated ? (
+        <Link href={`/droposal/${tokenCreated}`}>
+          <Button
+            size='sm'
+            colorScheme='blue'
+          >
+            Mint Page
+          </Button>
+        </Link>
+      ) : (
+        <Button
+          size='sm'
+          colorScheme='blue'
+          disabled={true}
+          cursor='not-allowed'
+        >
+          Mint Page
+        </Button>
+      )}
     </HStack>
   );
 };
