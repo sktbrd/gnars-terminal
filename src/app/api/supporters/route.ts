@@ -135,9 +135,7 @@ async function fetchTokenOwnersBatch(
 ): Promise<{ address: string; tokenId: bigint }[]> {
   const results: { address: string; tokenId: bigint }[] = [];
   
-  // Add delay to avoid spamming RPC
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
+  // Process all tokens in the range
   for (let tokenId = startTokenId; tokenId <= endTokenId; tokenId++) {
     const ownerResult = await safeContractCall<string>({
       address: contractAddress,
@@ -152,11 +150,7 @@ async function fetchTokenOwnersBatch(
         tokenId
       });
     }
-    
-    // Small delay between individual calls
-    if (tokenId < endTokenId) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
+    // No delays - let the RPC handle rate limiting
   }
   
   return results;

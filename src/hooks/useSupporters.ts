@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Address } from 'viem';
 
 export interface AggregatedHolder {
@@ -80,18 +80,36 @@ export function useSupporters({
   const [actualTotalSupply, setActualTotalSupply] = useState<bigint>(0n);
   const [cached, setCached] = useState(false);
   const [visibleCount, setVisibleCount] = useState(itemsPerPage);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  
+  // Track which contracts we've already loaded using a ref to persist across renders
+  const loadedContracts = useRef(new Set<string>());
 
-  // Initial load effect
+  // Only run when contract changes and we haven't loaded it yet
   useEffect(() => {
-    if (!autoLoad || !contractAddress || (!totalSupply && totalSupply !== 0n) || hasInitialized) return;
+    if (!autoLoad) {
+      return;
+    }
+    
+    if (!contractAddress) {
+      return;
+    }
+    
+    if (totalSupply === null || totalSupply === undefined) {
+      return;
+    }
+    
+    if (loadedContracts.current.has(contractAddress)) {
+      return;
+    }
+
+    loadedContracts.current.add(contractAddress);
 
     const fetchInitialSupporters = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const initialEndTokenId = totalSupply && totalSupply > 0n
+        const initialEndTokenId = totalSupply > 0n
           ? totalSupply < BigInt(batchSize) ? totalSupply : BigInt(batchSize)
           : BigInt(batchSize);
 
@@ -110,31 +128,32 @@ export function useSupporters({
         const apiData: SupportersApiResponse = await response.json();
         
         // Convert string tokenIds back to bigint
-        const supporters = apiData.supporters.map(supporter => ({
+        const supportersData = apiData.supporters.map(supporter => ({
           ...supporter,
           tokenIds: supporter.tokenIds.map(id => BigInt(id))
         }));
 
-        setSupporters(supporters);
-        setVisibleSupporters(supporters.slice(0, itemsPerPage));
+        setSupporters(supportersData);
+        setVisibleSupporters(supportersData.slice(0, itemsPerPage));
         setVisibleCount(itemsPerPage);
         setHasMore(apiData.hasMore);
         setNextTokenId(BigInt(apiData.nextTokenId));
         setActualTotalSupply(BigInt(apiData.totalSupply));
         setCached(apiData.cached);
-        setHasInitialized(true);
 
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch supporters';
         setError(errorMessage);
         console.error('Error fetching supporters:', err);
+        // Remove from loaded contracts so it can be retried
+        loadedContracts.current.delete(contractAddress);
       } finally {
         setLoading(false);
       }
     };
 
     fetchInitialSupporters();
-  }, [contractAddress, totalSupply, batchSize, autoLoad, itemsPerPage, hasInitialized]);
+  }, [contractAddress, totalSupply, autoLoad, batchSize, itemsPerPage]); // Add back necessary dependencies
 
   // Load more supporters (fetch next batch from API)
   const loadMore = useCallback(async () => {
