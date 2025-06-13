@@ -205,14 +205,64 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
 
   return (
     <Container maxW='container.xl' py={4}>
-      <Flex gap={6} flexDirection={{ base: 'column', md: 'row' }}>
+      {/* Mobile Layout */}
+      <Box display={{ base: 'flex', md: 'none' }} flexDirection='column' gap={6}>
+        {/* 1. Media */}
+        <MediaSection
+          metadata={metadata}
+          loading={loading}
+          error={error}
+          ethVolumeInfo={ethVolumeInfo}
+        />
+
+        {/* 2. Details */}
+        <TokenDetailsSection
+          metadata={metadata}
+          contractAddress={formattedContractAddress}
+          totalSupply={totalSupply}
+        />
+
+        {/* 3. Mint section */}
+        <MintSection
+          address={address}
+          contractAddress={formattedContractAddress}
+          salesConfig={salesConfig}
+          zoraFeeData={zoraFeeData}
+          mintQuantity={mintQuantity}
+          setMintQuantity={setMintQuantity}
+        />
+
+        {/* 4. Cheerful volume */}
+        <CheerfulEthVolume
+          netVolume={ethVolumeInfo.netVolume}
+          totalSupply={ethVolumeInfo.totalSupply}
+          pricePerMint={ethVolumeInfo.pricePerMint}
+        />
+
+        {/* 5. Supporters */}
+        <SupportersSection
+          contractAddress={formattedContractAddress}
+          totalSupply={totalSupply}
+        />
+
+        {/* Withdraw Section (only for contract owner) */}
+        {isContractOwner && (
+          <WithdrawSection
+            contractAddress={formattedContractAddress}
+            isContractOwner={isContractOwner}
+          />
+        )}
+      </Box>
+
+      {/* Desktop Layout */}
+      <Flex gap={6} flexDirection='row' display={{ base: 'none', md: 'flex' }}>
         {/* Left Section: Media and Withdraw */}
         <Box
           flex='1'
           display={'flex'}
           flexDirection='column'
           gap={6}
-          minW={{ base: '100%', md: '60%' }}
+          minW='60%'
         >
           <MediaSection
             metadata={metadata}
