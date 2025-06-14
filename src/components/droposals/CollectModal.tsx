@@ -155,7 +155,7 @@ const CollectModal = ({
       const topic0 =
         '0x7b1bcf1ccf901a11589afff5504d59fd0a53780eed2a952adade0348985139e0';
       const response = await fetch(
-        `/api/etherscan?contractAddress=${governorAddress}&blockNumber=${blockNumber}&topic0=${topic0}${descriptionHashToUse ? `&descriptionHash=${descriptionHashToUse}` : ''}`
+        `/api/etherscan?contractAddress=${governorAddress}${blockNumber ? `&blockNumber=${blockNumber}` : ''}&topic0=${topic0}${descriptionHashToUse ? `&descriptionHash=${descriptionHashToUse}` : ''}`
       );
 
       if (!response.ok) {

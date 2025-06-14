@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { useDroposals, DecodedCalldata } from '@/hooks/useDroposals';
 import FormattedAddress from '@/components/utils/names';
-import CollectButton from '@/components/droposals/CollectButton';
 import ActionButtons from '@/components/droposals/ActionButtons';
 import { ProposalProvider } from '@/contexts/ProposalContext';
 
@@ -356,6 +355,7 @@ const DroposalListPage = () => {
                             initialDescriptionHash={
                               droposal.descriptionHash || ''
                             }
+                            initialBlockNumber={droposal.snapshotBlockNumber}
                             initialPropdates={[]}
                           >
                             <ActionButtons
