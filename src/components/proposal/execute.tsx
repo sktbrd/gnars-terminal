@@ -7,9 +7,8 @@ import {
   useReadGovernorProposalEta,
   useWriteGovernorExecute,
 } from '@/hooks/wagmiGenerated';
-import { isAddressEqualTo } from '@/utils/ethereum';
 import { Text, VStack } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Address } from 'viem';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { Countdown } from '../ui/countdown';
@@ -25,13 +24,22 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
   const { data: proposalEta } = useReadGovernorProposalEta({
     args: [proposal.proposalId],
   });
+  const [isExecutable, setisExecutable] = useState(false);
 
-  const isExecutable = proposalEta !== undefined && proposalEta === 0n;
+  useEffect(() => {
+    if (proposalEta && proposalEta > 0n) {
+      setisExecutable(proposal.executed || proposal.queued);
+    } else {
+      setisExecutable(
+        proposal.executed || proposal.queued || proposalStatus === Status.QUEUED
+      );
+    }
+  }, [proposalEta, address, proposal]);
 
-  const write = useWriteGovernorExecute();
+  const execute = useWriteGovernorExecute();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
-      hash: write.data,
+      hash: execute.data,
     });
 
   useEffect(() => {
@@ -42,7 +50,7 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
 
   const handleClick = async () => {
     try {
-      await write.writeContractAsync({
+      await execute.writeContractAsync({
         args: [
           proposal.targets as Address[],
           proposal.values.map((value) => BigInt(value)),
@@ -56,10 +64,7 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
     }
   };
 
-  if (
-    Status.QUEUED !== proposalStatus ||
-    !isAddressEqualTo(proposal.proposer, address)
-  ) {
+  if (Status.QUEUED !== proposalStatus || !address) {
     return null;
   }
 
@@ -70,7 +75,7 @@ function ExecuteProposal({ proposal, setProposal }: ExecuteProposalProps) {
         variant='surface'
         colorPalette={'purple'}
         size='lg'
-        loading={write.isPending || isConfirming}
+        loading={execute.isPending || isConfirming}
         onClick={handleClick}
         disabled={!isExecutable}
       >

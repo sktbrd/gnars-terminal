@@ -140,14 +140,6 @@ const useTabNavigation = (initialTab = 'description', hasVotes = true) => {
     (details: { value: string }) => {
       const tabValue = details.value;
       const newTabIndex = tabMap.indexOf(tabValue);
-      const now = performance.now();
-
-      // Rate limit tab changes (prevent accidental double-clicks or thrashing)
-      if (now - lastUpdateTime.current < 100) {
-        return;
-      }
-
-      lastUpdateTime.current = now;
 
       // Only update if the tab is actually changing
       if (newTabIndex !== activeTab) {
@@ -597,9 +589,6 @@ export default function ProposalPageClient({
   propdates: defaultPropdates = [],
   editors = [],
 }: ProposalPageClientProps) {
-  console.log('[DEBUG][Main] ProposalPageClient rendered');
-  const renderStart = performance.now();
-
   const [proposal, setProposal] = useState<Proposal>(defaultProposal);
   const [propdates, setPropdates] = useState<PropDateInterface[]>(
     defaultPropdates || []
@@ -653,11 +642,7 @@ export default function ProposalPageClient({
         editors={editors || []}
       />
     );
-    console.log(
-      '[DEBUG][Main] memoizedProposalTabs created in',
-      performance.now() - start,
-      'ms'
-    );
+
     return tabs;
   }, [activeTab, tabMap, handleTabChange, proposal, propdates, editors]);
 

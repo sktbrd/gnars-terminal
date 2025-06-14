@@ -19,10 +19,10 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
   const { address } = useAccount();
   const proposalStatus = getProposalStatus(proposal);
 
-  const write = useWriteGovernorQueue();
+  const queue = useWriteGovernorQueue();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
-      hash: write.data,
+      hash: queue.data,
     });
 
   useEffect(() => {
@@ -33,16 +33,13 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
 
   const handleClick = async () => {
     try {
-      await write.writeContractAsync({ args: [proposal.proposalId] });
+      await queue.writeContractAsync({ args: [proposal.proposalId] });
     } catch (error) {
       console.error(error);
     }
   };
 
-  if (
-    proposalStatus !== Status.SUCCEEDED ||
-    !isAddressEqualTo(proposal.proposer, address)
-  ) {
+  if (proposalStatus !== Status.SUCCEEDED || !address) {
     return null;
   }
 
@@ -53,7 +50,7 @@ function QueueProposal({ proposal, setProposal }: QueueProposalProps) {
         variant='subtle'
         colorPalette={'blue'}
         size='lg'
-        loading={write.isPending || isConfirming}
+        loading={queue.isPending || isConfirming}
         onClick={handleClick}
       >
         Queue proposal
