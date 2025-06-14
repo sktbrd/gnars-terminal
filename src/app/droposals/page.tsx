@@ -274,7 +274,7 @@ const DroposalListPage = () => {
 
                           {/* Title and Symbol */}
                           <VStack gap={1} align='start'>
-                            <HStack justify='space-between' w='full'>
+                            <HStack justify='space-between' align={"start"} w='full'>
                               <Box>
                                 <Heading
                                   size='sm'
@@ -302,6 +302,7 @@ const DroposalListPage = () => {
                                   fontSize='sm'
                                   fontWeight='bold'
                                   shadow='sm'
+                                  textWrap={"nowrap"}
                                 >
                                   {salesConfig.publicSalePrice === 0
                                     ? 'Free'
