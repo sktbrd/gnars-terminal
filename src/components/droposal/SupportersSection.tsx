@@ -40,19 +40,20 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
   contractAddress,
   totalSupply,
 }) => {
+  // Cap the fetch size to avoid performance issues with very large collections
+  const maxFetchSize = 500; // Reasonable limit for performance
+  const fetchSize = totalSupply ? Math.min(Number(totalSupply), maxFetchSize) : maxFetchSize;
+  
   const {
-    visibleSupporters,
+    supporters,
     loading,
-    loadingMore,
     error,
-    hasMore,
-    loadMore,
     cached
   } = useSupporters({
     contractAddress,
     totalSupply,
-    batchSize: 20,
-    itemsPerPage: 8,
+    batchSize: fetchSize,
+    itemsPerPage: fetchSize,
     autoLoad: true
   });
 
@@ -67,24 +68,29 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
               (cached)
             </Text>
           )}
+          {totalSupply && totalSupply > maxFetchSize && (
+            <Text as="span" fontSize="sm" color="blue.500" ml={2}>
+              (showing first {maxFetchSize})
+            </Text>
+          )}
         </Heading>
       </HStack>
       
-      {loading && visibleSupporters.length === 0 ? (
+      {loading && supporters.length === 0 ? (
         <Flex justify='center' my={4}>
           <Spinner size='sm' mr={2} />
           <Text>Loading supporters...</Text>
         </Flex>
-      ) : visibleSupporters.length > 0 ? (
+      ) : supporters.length > 0 ? (
         <>
-          {/* Vertical grid of supporter cards */}
+          {/* Grid of supporter cards */}
           <Box pb={2}>
             <SimpleGrid 
               columns={{ base: 2, sm: 3, md: 4 }}
               gap={3} 
               w="100%"
             >
-              {visibleSupporters.map((holder, index) => (
+              {supporters.map((holder, index) => (
                 <Box 
                   key={`${holder.address}-${index}`} 
                   bg="gray.50" 
@@ -134,31 +140,9 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
               ))}
             </SimpleGrid>
           </Box>
-          
-          {/* Load More Button */}
-          {hasMore && (
-            <Button
-              onClick={loadMore}
-              mt={4}
-              size='sm'
-              variant='outline'
-              loading={loadingMore}
-              w="full"
-            >
-              Show More Supporters
-            </Button>
-          )}
         </>
       ) : (
         <Text>No supporters found</Text>
-      )}
-
-      {/* Loading indicator when fetching more data */}
-      {loadingMore && visibleSupporters.length > 0 && (
-        <Flex justify='center' mt={2}>
-          <Spinner size='sm' mr={2} />
-          <Text fontSize='sm'>Fetching more supporters...</Text>
-        </Flex>
       )}
 
       {error && (
