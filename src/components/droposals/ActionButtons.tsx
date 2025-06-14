@@ -1,6 +1,7 @@
 import React from 'react';
-import { HStack, Button } from '@chakra-ui/react';
+import { HStack, Button, IconButton } from '@chakra-ui/react';
 import Link from 'next/link';
+import { LuExternalLink } from 'react-icons/lu';
 import CollectButton from './CollectButton';
 import { useProposal } from '@/contexts/ProposalContext';
 
@@ -35,22 +36,25 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       />
       {tokenCreated ? (
         <Link href={`/droposal/${tokenCreated}`}>
-          <Button
+          <IconButton
             size='sm'
-            colorScheme='blue'
+            variant='outline'
+            aria-label='Go to mint page'
+            title='Go to mint page'
           >
-            Mint Page
-          </Button>
+            <LuExternalLink />
+          </IconButton>
         </Link>
       ) : (
-        <Button
+        <IconButton
           size='sm'
-          colorScheme='blue'
           disabled={true}
           cursor='not-allowed'
+          aria-label='Mint page (disabled)'
+          title='Mint page will be available after token creation'
         >
-          Mint Page
-        </Button>
+          <LuExternalLink />
+        </IconButton>
       )}
     </HStack>
   );
