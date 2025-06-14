@@ -71,21 +71,64 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
     args: [1n],
   });
 
-  // Get tokenURI for tokenId 1
-  const { data: tokenUri } = useReadContract({
-    address: formattedContractAddress,
-    abi: zoraMintAbi,
-    functionName: 'tokenURI',
-    args: [1n],
-  });
-
-  // Get total supply
-  const { data: totalSupplyData } = useReadContract({
+  // Get total supply first
+  const { data: totalSupplyData, isSuccess: totalSupplyLoaded } = useReadContract({
     address: formattedContractAddress,
     abi: zoraMintAbi,
     functionName: 'totalSupply',
     args: [],
   });
+
+  // State for tokenUri to manage it manually
+  const [tokenUri, setTokenUri] = useState<string | null>(null);
+  const [tokenUriError, setTokenUriError] = useState<Error | null>(null);
+  const [tokenUriLoading, setTokenUriLoading] = useState(false);
+
+  // Effect to fetch tokenURI only when safe to do so
+  useEffect(() => {
+    // Reset states when dependencies change
+    setTokenUri(null);
+    setTokenUriError(null);
+    
+    // Only fetch if totalSupply has loaded and is > 0
+    if (!totalSupplyLoaded || !totalSupplyData || Number(totalSupplyData) === 0) {
+      return;
+    }
+
+    const fetchTokenUri = async () => {
+      try {
+        setTokenUriLoading(true);
+        setTokenUriError(null);
+        
+        // Use wagmi's readContract function
+        const { readContract } = await import('wagmi/actions');
+        const { getConfig } = await import('@/utils/wagmi');
+        
+        const result = await readContract(getConfig(), {
+          address: formattedContractAddress,
+          abi: zoraMintAbi,
+          functionName: 'tokenURI',
+          args: [1n],
+        });
+        
+        setTokenUri(result as string);
+      } catch (err) {
+        console.warn('Failed to fetch tokenURI:', err);
+        const error = err as Error;
+        // Check if it's the URIQueryForNonexistentToken error
+        if (error.message.includes('0xa14c4b50') || error.message.includes('URIQueryForNonexistentToken')) {
+          // This is expected for contracts with no tokens, don't set as error
+          setTokenUri(null);
+        } else {
+          setTokenUriError(error);
+        }
+      } finally {
+        setTokenUriLoading(false);
+      }
+    };
+
+    fetchTokenUri();
+  }, [formattedContractAddress, totalSupplyLoaded, totalSupplyData]);
 
   // Read contract owner
   const { data: contractOwner } = useReadContract({
@@ -163,7 +206,47 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
 
   // Fetch metadata if not provided
   useEffect(() => {
-    if (!tokenUri || initialMetadata) return;
+    // If initial metadata is provided, use it
+    if (initialMetadata) return;
+    
+    // Wait for totalSupply to load first
+    if (!totalSupplyLoaded) {
+      return;
+    }
+    
+    // If no tokens have been minted yet, set fallback metadata
+    if (totalSupplyData !== undefined && Number(totalSupplyData) === 0) {
+      setMetadata(validateMetadata(null));
+      setLoading(false);
+      return;
+    }
+    
+    // If tokenURI call failed, handle gracefully
+    if (tokenUriError) {
+      const errorMessage = tokenUriError.message;
+      console.warn('TokenURI call failed:', tokenUriError);
+      setError(`Error loading token data: ${errorMessage}`);
+      setMetadata(validateMetadata(null));
+      setLoading(false);
+      return;
+    }
+    
+    // If we're still loading tokenURI, keep loading
+    if (tokenUriLoading) {
+      return;
+    }
+    
+    // If we have tokens but no tokenURI yet, keep waiting
+    if (Number(totalSupplyData || 0) > 0 && !tokenUri) {
+      return;
+    }
+    
+    // If no tokens exist, use fallback
+    if (Number(totalSupplyData || 0) === 0) {
+      setMetadata(validateMetadata(null));
+      setLoading(false);
+      return;
+    }
 
     const fetchMetadata = async () => {
       try {
@@ -194,7 +277,7 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
     };
 
     fetchMetadata();
-  }, [tokenUri, initialMetadata]);
+  }, [tokenUri, initialMetadata, totalSupplyData, totalSupplyLoaded, tokenUriError, tokenUriLoading]);
 
   // Set loading to false if initialMetadata is provided
   useEffect(() => {
@@ -213,6 +296,7 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
           loading={loading}
           error={error}
           ethVolumeInfo={ethVolumeInfo}
+          noTokensYet={totalSupply !== null && Number(totalSupply) === 0}
         />
 
         {/* 2. Details */}
@@ -269,6 +353,7 @@ export default function DroposalPage({ initialMetadata }: DroposalPageProps) {
             loading={loading}
             error={error}
             ethVolumeInfo={ethVolumeInfo}
+            noTokensYet={totalSupply !== null && Number(totalSupply) === 0}
           />
 
           <CheerfulEthVolume
