@@ -179,6 +179,83 @@ const MarkdownRenderers = {
       {children}
     </div>
   ),
+  code: ({ children, ...props }: RendererProps) => (
+    <code
+      {...props}
+      style={{
+        backgroundColor: '#0d1117', // Dark GitHub-like background
+        color: 'primary',
+        padding: '3px 8px',
+        borderRadius: '6px',
+        fontSize: '0.85em',
+        fontFamily:
+          '"Fira Code", "JetBrains Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+        border: '1px solid #30363d', // Subtle border
+        boxShadow:
+          '0 2px 8px rgba(13, 17, 23, 0.4), inset 0 1px 0 rgba(125, 211, 252, 0.1)',
+        display: 'inline',
+        maxWidth: '100%',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word',
+        verticalAlign: 'baseline',
+        background: 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+        position: 'relative',
+      }}
+    >
+      {children}
+    </code>
+  ),
+  pre: ({ children, ...props }: RendererProps) => (
+    <div
+      style={{
+        background:
+          'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%)',
+        borderRadius: '12px',
+        border: '1px solid #30363d',
+        boxShadow: '0 8px 32px rgba(13, 17, 23, 0.6)',
+        margin: '20px 0',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          background:
+            'linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.2), transparent)',
+          height: '1px',
+          width: '100%',
+        }}
+      />
+      <pre
+        {...props}
+        style={{
+          backgroundColor: 'transparent',
+          color: '#f0f6fc',
+          padding: '20px',
+          margin: '0',
+          overflow: 'auto',
+          fontSize: '0.9em',
+          fontFamily:
+            '"Fira Code", "JetBrains Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          lineHeight: '1.6',
+          maxWidth: '100%',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#30363d #161b22',
+        }}
+      >
+        <span
+          style={{
+            color: '#7dd3fc',
+            textShadow: '0 0 10px rgba(125, 211, 252, 0.3)',
+          }}
+        >
+          {children}
+        </span>
+      </pre>
+    </div>
+  ),
 };
 
 export default MarkdownRenderers;
