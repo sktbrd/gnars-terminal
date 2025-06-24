@@ -145,6 +145,7 @@ export default function DroposalCard() {
       initialProposal={initialProposal}
       initialProposalNumber={0}
       initialDescriptionHash=''
+      initialBlockNumber={0}
       initialPropdates={[]}
     >
       <DroposalContent />

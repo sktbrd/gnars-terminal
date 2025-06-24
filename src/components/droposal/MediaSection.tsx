@@ -9,6 +9,7 @@ interface MediaSectionProps {
   loading: boolean;
   error: string | null;
   ethVolumeInfo: EthVolumeInfo;
+  noTokensYet?: boolean;
 }
 
 export const MediaSection: React.FC<MediaSectionProps> = ({
@@ -16,6 +17,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
   loading,
   error,
   ethVolumeInfo,
+  noTokensYet = false,
 }) => {
   // Handle loading states
   if (loading) {
@@ -35,6 +37,46 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
           Error Loading Token
         </Text>
         <Text mt={2}>{error}</Text>
+      </Box>
+    );
+  }
+
+  // Handle case when no tokens have been minted yet
+  if (noTokensYet) {
+    return (
+      <Box
+        borderWidth={1}
+        display={'flex'}
+        flexDir={'column'}
+        alignItems='center'
+        justifyContent='center'
+        gap={3}
+        rounded={'lg'}
+        p={8}
+        minH='400px'
+        bg='gray.50'
+        _dark={{ bg: 'gray.700', borderColor: 'yellow' }}
+      >
+        <Text fontSize='xl' fontWeight='bold' color='gray.600' _dark={{ color: 'gray.300' }}>
+          No Tokens Minted Yet
+        </Text>
+        <Text fontSize='md' color='gray.500' _dark={{ color: 'gray.400' }} textAlign='center'>
+          This droposal hasn't had any tokens minted yet. Be the first to mint!
+        </Text>
+        <Box
+          w='200px'
+          h='200px'
+          bg='gray.200'
+          _dark={{ bg: 'gray.600' }}
+          borderRadius='lg'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+        >
+          <Text fontSize='4xl' opacity={0.5}>
+            🎨
+          </Text>
+        </Box>
       </Box>
     );
   }

@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { useDroposals, DecodedCalldata } from '@/hooks/useDroposals';
 import FormattedAddress from '@/components/utils/names';
-import CollectButton from '@/components/droposals/CollectButton';
 import ActionButtons from '@/components/droposals/ActionButtons';
 import { ProposalProvider } from '@/contexts/ProposalContext';
 
@@ -275,7 +274,7 @@ const DroposalListPage = () => {
 
                           {/* Title and Symbol */}
                           <VStack gap={1} align='start'>
-                            <HStack justify='space-between' w='full'>
+                            <HStack justify='space-between' align={"start"} w='full'>
                               <Box>
                                 <Heading
                                   size='sm'
@@ -303,6 +302,7 @@ const DroposalListPage = () => {
                                   fontSize='sm'
                                   fontWeight='bold'
                                   shadow='sm'
+                                  textWrap={"nowrap"}
                                 >
                                   {salesConfig.publicSalePrice === 0
                                     ? 'Free'
@@ -356,6 +356,7 @@ const DroposalListPage = () => {
                             initialDescriptionHash={
                               droposal.descriptionHash || ''
                             }
+                            initialBlockNumber={droposal.snapshotBlockNumber}
                             initialPropdates={[]}
                           >
                             <ActionButtons
