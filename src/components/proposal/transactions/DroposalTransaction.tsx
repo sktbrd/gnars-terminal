@@ -5,6 +5,7 @@ import { FormattedAddress } from '@/components/utils/names';
 import TransactionWrapper from './TransactionWrapper';
 import CustomVideoPlayer from '@/components/droposals/CustomVideoPlayer';
 import { useMemo } from 'react';
+import { ipfsToHttp } from '@/utils/ipfs-gateway';
 
 interface DroposalTransactionProps {
   calldata: `0x${string}`;
@@ -32,10 +33,7 @@ export default function DroposalTransaction({
 }: DroposalTransactionProps) {
   const formatURI = (uri: string): string => {
     uri = uri.trim();
-    if (uri.startsWith('ipfs://')) {
-      return `https://gateway.pinata.cloud/ipfs/${uri.slice(7)}`;
-    }
-    return uri;
+    return ipfsToHttp(uri);
   };
 
   const decodedData = useMemo(() => {

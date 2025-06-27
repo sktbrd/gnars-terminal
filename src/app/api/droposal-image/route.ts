@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { put, list } from '@vercel/blob';
 import sharp from 'sharp';
 import { safeParseJson } from '@/utils/zora';
+import { ipfsToHttp } from '@/utils/ipfs-gateway';
 
 async function fetchDroposalMetadata(contractAddress: string) {
   // Use a PNG fallback image (Edge runtime does not support webp)
@@ -33,7 +34,7 @@ async function fetchDroposalMetadata(contractAddress: string) {
         metadata = safeParseJson(jsonString);
       } else {
         const uri = tokenUri.startsWith('ipfs://')
-          ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
+          ? ipfsToHttp(tokenUri)
           : tokenUri;
         const res = await fetch(uri);
         if (res.ok) {
@@ -44,11 +45,11 @@ async function fetchDroposalMetadata(contractAddress: string) {
     }
     // Normalize image and animation_url as in page.tsx
     let image = metadata.image;
-    if (image && image.startsWith('ipfs://'))
-      image = `https://ipfs.skatehive.app/ipfs/${image.slice(7)}`;
+    if (image && (image.startsWith('ipfs://') || image.includes('/ipfs/')))
+      image = ipfsToHttp(image);
     let animation_url = metadata.animation_url;
-    if (animation_url && animation_url.startsWith('ipfs://'))
-      animation_url = `https://ipfs.skatehive.app/ipfs/${animation_url.slice(7)}`;
+    if (animation_url && (animation_url.startsWith('ipfs://') || animation_url.includes('/ipfs/')))
+      animation_url = ipfsToHttp(animation_url);
     if (!image || typeof image !== 'string' || !image.startsWith('http')) {
       image = FALLBACK_IMAGE;
     }

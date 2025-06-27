@@ -1,6 +1,7 @@
 import { Address } from 'viem';
 import { safeParseJson } from '@/utils/zora';
 import { TokenMetadata, AggregatedHolder } from './types';
+import { resolveIpfsUrl, ipfsToHttp } from '@/utils/ipfs-gateway';
 
 // --- Base64 and JSON Processing Utilities ---
 export const processBase64TokenUri = (tokenUri: string): TokenMetadata => {
@@ -46,20 +47,28 @@ export const processDirectJsonUri = (tokenUri: string): TokenMetadata => {
   }
 };
 
-export const fetchUriMetadata = async (uri: string): Promise<TokenMetadata> => {
+export const fetchUriMetadata = async (uri: string, skipPaidGateways = false): Promise<TokenMetadata> => {
   try {
-    const formattedUri = uri.startsWith('ipfs://')
-      ? `https://ipfs.skatehive.app/ipfs/${uri.slice(7)}`
-      : uri;
+    const optimizedUri = await resolveIpfsUrl(uri, { skipPaidGateways });
     
-    const response = await fetch(formattedUri);
+    const response = await fetch(optimizedUri);
     if (!response.ok) {
+      // Try fallback without paid gateway restriction if initial attempt fails
+      if (!skipPaidGateways) {
+        console.warn(`Primary gateway failed for ${uri}, trying with free gateways only`);
+        const fallbackUri = await resolveIpfsUrl(uri, { skipPaidGateways: true });
+        const fallbackResponse = await fetch(fallbackUri);
+        if (fallbackResponse.ok) {
+          const metadata = await fallbackResponse.json();
+          return validateMetadata(metadata);
+        }
+      }
       console.error(`Failed to fetch metadata: ${response.status} ${response.statusText}`);
       return validateMetadata(null);
     }
     
     const metadata = await response.json();
-    return metadata;
+    return validateMetadata(metadata);
   } catch (error) {
     console.error('Error fetching URI metadata:', error);
     return validateMetadata(null);
@@ -159,8 +168,8 @@ export const fetchTokenOwnersBatch = async (
 export const getImageUrl = (imageUri?: string) => {
   const FALLBACK_IMAGE = '/images/gnars.webp';
   if (!imageUri || typeof imageUri !== 'string') return FALLBACK_IMAGE;
-  if (imageUri.startsWith('ipfs://')) {
-    return `https://ipfs.skatehive.app/ipfs/${imageUri.slice(7)}`;
+  if (imageUri.startsWith('ipfs://') || imageUri.includes('/ipfs/')) {
+    return ipfsToHttp(imageUri);
   }
   if (!imageUri.startsWith('http')) return FALLBACK_IMAGE;
   return imageUri;

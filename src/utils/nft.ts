@@ -2,6 +2,7 @@ import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 import zoraNftAbi from '@/utils/abis/zoraNftAbi';
 import { safeParseJson } from '@/utils/zora';
+import { resolveIpfsUrl, ipfsToHttp } from '@/utils/ipfs-gateway';
 
 /**
  * Interface for NFT metadata matching what the DroposalClient expects
@@ -19,20 +20,36 @@ export interface TokenMetadata {
 }
 
 /**
- * Converts IPFS URL to HTTP gateway URL
+ * Converts IPFS URL to HTTP gateway URL using optimized gateway selection
  */
-export function ipfsToHttp(url: string): string {
+export function ipfsToHttpOptimized(url: string): string {
   if (!url) return url;
-  if (url.startsWith('ipfs://')) {
-    return `https://ipfs.skatehive.app/ipfs/${url.slice(7)}`;
-  }
-  return url;
+  return ipfsToHttp(url);
 }
 
 /**
- * Fetches NFT metadata from a token URI
+ * Converts IPFS URL to HTTP gateway URL with fallback resolution
+ * Use this for critical paths that need reliable resolution
  */
-export async function fetchMetadataFromUri(tokenUri: string): Promise<TokenMetadata | null> {
+export async function ipfsToHttpReliable(url: string, skipPaidGateways = false): Promise<string> {
+  if (!url) return url;
+  if (!url.includes('ipfs')) return url;
+  
+  try {
+    return await resolveIpfsUrl(url, { skipPaidGateways });
+  } catch (error) {
+    console.warn('Failed to resolve IPFS URL reliably, falling back to simple conversion:', error);
+    return ipfsToHttp(url);
+  }
+}
+
+// Legacy function for backward compatibility
+export { ipfsToHttpOptimized as ipfsToHttp };
+
+/**
+ * Fetches NFT metadata from a token URI with optimized gateway usage
+ */
+export async function fetchMetadataFromUri(tokenUri: string, skipPaidGateways = false): Promise<TokenMetadata | null> {
   try {
     if (!tokenUri) return null;
     
@@ -50,11 +67,23 @@ export async function fetchMetadataFromUri(tokenUri: string): Promise<TokenMetad
       );
       return safeParseJson(jsonString);
     } 
-    // Handle remote URI
+    // Handle remote URI with optimized gateway selection
     else {
-      const uri = ipfsToHttp(tokenUri);
-      const response = await fetch(uri, { next: { revalidate: 3600 } }); // Cache for 1 hour
-      if (!response.ok) return null;
+      const optimizedUri = await ipfsToHttpReliable(tokenUri, skipPaidGateways);
+      const response = await fetch(optimizedUri, { next: { revalidate: 3600 } }); // Cache for 1 hour
+      if (!response.ok) {
+        // Try alternative gateway if first fails
+        if (!skipPaidGateways) {
+          console.warn(`Primary gateway failed for ${tokenUri}, trying without paid gateway restriction`);
+          const fallbackUri = await ipfsToHttpReliable(tokenUri, true);
+          const fallbackResponse = await fetch(fallbackUri, { next: { revalidate: 3600 } });
+          if (fallbackResponse.ok) {
+            const jsonText = await fallbackResponse.text();
+            return safeParseJson(jsonText);
+          }
+        }
+        return null;
+      }
       const jsonText = await response.text();
       return safeParseJson(jsonText);
     }
@@ -65,9 +94,9 @@ export async function fetchMetadataFromUri(tokenUri: string): Promise<TokenMetad
 }
 
 /**
- * Fetches complete droposal metadata with normalized URLs
+ * Fetches complete droposal metadata with normalized URLs and optimized gateway usage
  */
-export async function fetchDroposalMetadata(contractAddress: string): Promise<TokenMetadata> {
+export async function fetchDroposalMetadata(contractAddress: string, options: { skipPaidGateways?: boolean } = {}): Promise<TokenMetadata> {
   const FALLBACK_IMAGE = '/images/gnars.webp';
   const DEFAULT_METADATA: TokenMetadata = {
     name: '',
@@ -100,13 +129,13 @@ export async function fetchDroposalMetadata(contractAddress: string): Promise<To
       return DEFAULT_METADATA;
     }
 
-    // Fetch and parse the metadata
-    const metadata = await fetchMetadataFromUri(tokenUri);
+    // Fetch and parse the metadata with optimized gateway usage
+    const metadata = await fetchMetadataFromUri(tokenUri, options.skipPaidGateways);
     if (!metadata) return DEFAULT_METADATA;
 
-    // Normalize image and animation_url
-    const image = metadata.image ? ipfsToHttp(metadata.image) : FALLBACK_IMAGE;
-    const animation_url = metadata.animation_url ? ipfsToHttp(metadata.animation_url) : '';
+    // Normalize image and animation_url with optimized gateway selection
+    const image = metadata.image ? await ipfsToHttpReliable(metadata.image, options.skipPaidGateways) : FALLBACK_IMAGE;
+    const animation_url = metadata.animation_url ? await ipfsToHttpReliable(metadata.animation_url, options.skipPaidGateways) : '';
 
     // Validate image URL
     const finalImage = (!image || typeof image !== 'string' || !image.startsWith('http'))

@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 import { safeParseJson } from '@/utils/zora';
+import { ipfsToHttp } from '@/utils/ipfs-gateway';
 
 export const runtime = 'edge';
 
@@ -63,7 +64,7 @@ export async function GET(
         metadata = safeParseJson(jsonString);
       } else {
         const uri = tokenUri.startsWith('ipfs://')
-          ? `https://ipfs.skatehive.app/ipfs/${tokenUri.slice(7)}`
+          ? ipfsToHttp(tokenUri)
           : tokenUri;
         try {
           const res = await fetchWithTimeout(uri, {}, 3000);
@@ -78,7 +79,7 @@ export async function GET(
     }
     if (metadata.image) {
       imageUrl = metadata.image.startsWith('ipfs://')
-        ? `https://ipfs.skatehive.app/ipfs/${metadata.image.slice(7)}`
+        ? ipfsToHttp(metadata.image)
         : metadata.image;
     }
     if (metadata.name) name = metadata.name;

@@ -6,6 +6,7 @@ import { DAO_ADDRESSES } from '@/utils/constants';
 import { Proposal } from '@/app/services/proposal';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
+import { ipfsToHttp } from '@/utils/ipfs-gateway';
 
 // Define interface for decoded calldata
 export interface DecodedCalldata {
@@ -48,10 +49,7 @@ const DEFAULT_TARGET_ADDRESS = '0x58c3ccb2dcb9384e5ab9111cd1a5dea916b0f33c';
 const formatURI = (uri: string): string => {
   if (!uri) return '';
   const trimmedUri = uri.trim();
-  if (/^ipfs:\/\//.test(trimmedUri)) {
-    return `/ipfs/${trimmedUri.slice(7)}`; // Use the proxy path
-  }
-  return uri;
+  return ipfsToHttp(trimmedUri);
 };
 
 export const useDroposals = (options: UseDroposalsOptions = {}): UseDroposalsReturn => {
