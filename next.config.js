@@ -47,7 +47,7 @@ const nextConfig = {
       {
         source: '/ipfs-paid/:path*',
         destination: process.env.NEXT_PUBLIC_IPFS_PAID_GATEWAY 
-          ? `${process.env.NEXT_PUBLIC_IPFS_PAID_GATEWAY}:path*`
+          ? `${process.env.NEXT_PUBLIC_IPFS_PAID_GATEWAY.replace(/\/$/, '')}/:path*`
           : 'https://gateway.pinata.cloud/ipfs/:path*',
       },
     ];
