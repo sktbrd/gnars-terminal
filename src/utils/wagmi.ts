@@ -5,6 +5,10 @@ import { WC_PROJECT_ID } from './constants';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 
 export function getConfig() {
+  if (!process.env.NEXT_PUBLIC_ALCHEMY_KEY) {
+    throw new Error('NEXT_PUBLIC_ALCHEMY_KEY environment variable is required');
+  }
+
   const config = getDefaultConfig({
     appName: 'Gnars',
     chains: [
@@ -21,25 +25,7 @@ export function getConfig() {
     projectId: WC_PROJECT_ID,
     ssr: false,
   });
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    interface Chain {
-      network: string;
-      rpcUrls: {
-      default: {
-        http: string[];
-      };
-      };
-      [key: string]: any;
-    }
 
-    interface WagmiConfig {
-      chains: Chain[];
-      [key: string]: any;
-    }
-
-    const typedConfig = config as WagmiConfig;
-    console.log('[wagmi config] chains:', typedConfig.chains.map((c: Chain) => c.network), typedConfig);
-  }
   return config;
 }
 

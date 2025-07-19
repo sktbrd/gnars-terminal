@@ -28,14 +28,18 @@ export const OptimizedAvatar = memo<OptimizedAvatarProps>(
     });
 
     if (isLoading && showSpinner) {
-      return <Spinner size={size === 'xs' ? 'sm' : 'md'} />;
+      const spinnerSize = size === 'xs' || size === 'sm' ? 'sm' : 'md';
+      return <Spinner size={spinnerSize} />;
     }
-
+    const safeDisplay =
+      typeof displayName === 'string' && displayName.length > 0
+        ? displayName
+        : '';
     return (
       <ChakraAvatar.Root size={size}>
-        <ChakraAvatar.Image src={avatar || fallbackSrc} alt={displayName} />
+        <ChakraAvatar.Image src={avatar || fallbackSrc} alt={safeDisplay} />
         <ChakraAvatar.Fallback>
-          {displayName.slice(0, 2).toUpperCase()}
+          {safeDisplay.slice(0, 2).toUpperCase() || '--'}
         </ChakraAvatar.Fallback>
       </ChakraAvatar.Root>
     );
@@ -58,11 +62,15 @@ export const OptimizedName = memo<OptimizedNameProps>(function OptimizedName({
 }) {
   const { displayName } = useENSData(address);
 
-  if (showFull && displayName.length > maxLength) {
+  const safeDisplay =
+    typeof displayName === 'string' && displayName.length > 0
+      ? displayName
+      : '';
+  if (!showFull && safeDisplay.length > maxLength) {
     return (
-      <span title={displayName}>{displayName.slice(0, maxLength)}...</span>
+      <span title={safeDisplay}>{safeDisplay.slice(0, maxLength)}...</span>
     );
   }
 
-  return <span>{displayName}</span>;
+  return <span>{safeDisplay || '--'}</span>;
 });

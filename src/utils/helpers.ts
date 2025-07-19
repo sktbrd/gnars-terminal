@@ -9,7 +9,7 @@ export function toObject(json?: object, space?: number) {
     )
   );
 }
-
+11
 export function formatEthAddress(address?: string, size: number = 4): string {
   if (!address) address = zeroAddress;
   return formatAddressUtil(address, 2 + size, size);

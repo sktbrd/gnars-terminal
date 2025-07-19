@@ -11,26 +11,8 @@ const MembersCard: React.FC = () => {
   const pageSize = 10;
   const { data, loading, error } = useMembers(page, pageSize);
 
-  // Filter out zero addresses and duplicates
-  const filteredMembers = useMemo(() => {
-    if (!data) return [];
-
-    const seen = new Set<string>();
-    return data.filter((member: Member) => {
-      // Skip zero addresses
-      if (!member.owner || member.owner === zeroAddress) {
-        return false;
-      }
-
-      // Skip duplicates
-      if (seen.has(member.owner.toLowerCase())) {
-        return false;
-      }
-
-      seen.add(member.owner.toLowerCase());
-      return true;
-    });
-  }, [data]);
+  // Data is now filtered in useMembers hook for correct pagination
+  const filteredMembers = data || [];
 
   if (loading)
     return (

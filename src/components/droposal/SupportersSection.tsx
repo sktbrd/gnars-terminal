@@ -83,7 +83,7 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({
             <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} gap={3} w='100%'>
               {supporters.map((holder, index) => (
                 <Box
-                  key={`${holder.address}-${index}`}
+                  key={`${holder.address}`}
                   bg='gray.50'
                   p={3}
                   borderRadius='lg'

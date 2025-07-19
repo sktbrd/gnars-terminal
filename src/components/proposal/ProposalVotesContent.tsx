@@ -20,9 +20,15 @@ interface ProposalVotesContentProps {
   };
 }
 
-// Voter Avatar component with image fallback - Now optimized
-function VoterAvatar({ address, size }: { address: Address; size: number }) {
-  return <OptimizedAvatar address={address} size='md' />;
+// Voter Avatar component using OptimizedAvatar for consistent display
+function VoterAvatar({
+  address,
+  size,
+}: {
+  address: Address;
+  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+}) {
+  return <OptimizedAvatar address={address} size={size} />;
 }
 
 export default function ProposalVotesContent({
@@ -121,7 +127,7 @@ export default function ProposalVotesContent({
             <Card.Body>
               <VStack gap={3} align='stretch'>
                 <HStack gap={4}>
-                  <VoterAvatar address={vote.voter as Address} size={40} />
+                  <VoterAvatar address={vote.voter as Address} size='lg' />
                   <HStack wrap={{ base: 'wrap', md: 'nowrap' }} gap={1}>
                     <FormattedAddress address={vote.voter} />
                     <Text>voted</Text>

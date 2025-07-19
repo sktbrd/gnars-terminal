@@ -33,6 +33,10 @@ export function useENSData(
     if (!address || !enabled) {
       return undefined;
     }
+    // Validate address format if it's a string
+    if (typeof address === 'string' && !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      return undefined;
+    }
     return address as Address;
   }, [address, enabled]);
 

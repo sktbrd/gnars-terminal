@@ -12,7 +12,12 @@ export function formatAddress(
   prefixLength: number = 6,
   suffixLength: number = 4
 ): string {
-  if (!address) return '';
+  if (!address || !isValidAddress(address)) return '';
+
+  // Handle case where address is shorter than requested lengths
+  const totalLength = prefixLength + suffixLength;
+  if (address.length <= totalLength) return address;
+
   return `${address.slice(0, prefixLength)}...${address.slice(-suffixLength)}`;
 }
 
