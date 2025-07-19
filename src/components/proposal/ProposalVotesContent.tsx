@@ -1,19 +1,9 @@
-import {
-  Box,
-  Card,
-  Code,
-  HStack,
-  Stack,
-  Text,
-  VStack,
-  Spinner,
-  Avatar,
-} from '@chakra-ui/react';
+import { Box, Card, Code, HStack, Stack, Text, VStack } from '@chakra-ui/react';
 import { FormattedAddress } from '../utils/names';
 import { useState } from 'react';
 import Markdown from './markdown';
-import { useAvatar } from '@paperclip-labs/whisk-sdk/identity';
 import { Address } from 'viem';
+import { OptimizedAvatar } from '../utils/OptimizedIdentity';
 
 export type VoteSupport = 'FOR' | 'AGAINST' | 'ABSTAIN';
 
@@ -30,21 +20,9 @@ interface ProposalVotesContentProps {
   };
 }
 
-// Voter Avatar component with image fallback
+// Voter Avatar component with image fallback - Now optimized
 function VoterAvatar({ address, size }: { address: Address; size: number }) {
-  const { data: avatar, isLoading } = useAvatar({ address });
-
-  return (
-    <Avatar.Root>
-      {isLoading ? (
-        <Spinner size='md' />
-      ) : (
-        <>
-          <Avatar.Image src={avatar || '/images/frames/icon.png'} />
-        </>
-      )}
-    </Avatar.Root>
-  );
+  return <OptimizedAvatar address={address} size='md' />;
 }
 
 export default function ProposalVotesContent({

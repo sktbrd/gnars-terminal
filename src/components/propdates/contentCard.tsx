@@ -3,18 +3,7 @@
 import { Proposal } from '@/app/services/proposal';
 import { PropDateInterface } from '@/utils/database/interfaces';
 import { isAddressEqualTo } from '@/utils/ethereum';
-import {
-  Avatar,
-  Box,
-  Card,
-  HStack,
-  Link,
-  Spinner,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { useAvatar } from '@paperclip-labs/whisk-sdk/identity';
+import { Box, Card, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react';
 import { default as NextLink } from 'next/link';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -22,6 +11,7 @@ import { Address } from 'viem';
 import { useAccount } from 'wagmi';
 import Markdown from '../proposal/markdown';
 import { FormattedAddress } from '../utils/names';
+import { OptimizedAvatar } from '../utils/OptimizedIdentity';
 import PropdatesEditor from './editor';
 import PropdatesLike from './like';
 interface PropdatesContentCardProps {
@@ -53,20 +43,9 @@ export default function PropdatesContentCardList({
   );
 }
 
+// Profile Avatar component - Now optimized
 function ProfileAvatar({ address }: { address: Address }) {
-  const { data: avatar, isLoading } = useAvatar({ address });
-
-  return (
-    <Avatar.Root>
-      {isLoading ? (
-        <Spinner size='md' />
-      ) : (
-        <>
-          <Avatar.Image src={avatar || '/images/frames/icon.png'} />
-        </>
-      )}
-    </Avatar.Root>
-  );
+  return <OptimizedAvatar address={address} size='md' />;
 }
 
 export function PropdatesContentCardContent({

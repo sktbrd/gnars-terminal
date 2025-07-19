@@ -1,4 +1,5 @@
 import { zeroAddress } from 'viem';
+import { formatAddress as formatAddressUtil } from './address';
 
 export function toObject(json?: object, space?: number) {
   if (!json) return json;
@@ -11,7 +12,7 @@ export function toObject(json?: object, space?: number) {
 
 export function formatEthAddress(address?: string, size: number = 4): string {
   if (!address) address = zeroAddress;
-  return `${address.slice(0, 2 + size)}...${address.slice(-size)}`;
+  return formatAddressUtil(address, 2 + size, size);
 }
 
 export const formatBalance = (balance: number): string => {
