@@ -20,26 +20,28 @@ Foundation Tasks (1-7) → Component Tasks (8-15) → Integration Tasks (16-23)
 
 ### Task 1: TypeScript Interfaces and Types 🏗️
 **Dependencies**: None
-**Description**: Create comprehensive TypeScript interfaces for all profile-related data structures
+**Description**: Define TypeScript interfaces inline with services/hooks following codebase patterns
 **Files to create/modify**:
-- `src/types/profile.ts` - Core profile interfaces
-- `src/types/governance.ts` - Governance activity types
-- `src/types/delegation.ts` - Delegation relationship types
+- Define types inline within respective service/hook files
+- Follow existing pattern from `src/services/members.ts` and `src/hooks/useTreasure.ts`
+- Export interfaces alongside their implementation
 
 ### Task 2: Extended GraphQL Queries 🏗️
 **Dependencies**: Task 1
-**Description**: Extend existing GraphQL queries to support user profile data fetching
+**Description**: Create user profile service with inline GraphQL queries following codebase patterns
 **Files to create/modify**:
-- `src/app/services/userProfile.ts` - New user profile service
-- `src/app/services/proposal.ts` - Extend with user filtering
-- `src/utils/graphql/userQueries.ts` - Profile-specific queries
+- `src/services/userProfile.ts` - New user profile service with inline GraphQL queries
+- `src/app/services/proposal.ts` - Extend with user filtering functions
+- Follow patterns from `src/services/members.ts` for query organization
 
 ### Task 3: User Profile Hook Foundation 🏗️
 **Dependencies**: Task 2
-**Description**: Create the core `useUserProfile` hook for data fetching and state management
+**Description**: Create core hooks following existing patterns with consistent return structure
 **Files to create/modify**:
-- `src/hooks/useUserProfile.ts` - Main profile data hook
+- `src/hooks/useUserProfile.ts` - Main profile data hook using React Query pattern
 - `src/hooks/useUserStats.ts` - User statistics hook
+- Follow `{data, loading, error}` return pattern from `useMembers`
+- Use `memo` optimization and proper TypeScript interfaces
 
 ### Task 4: Profile Route Enhancement 🏗️
 **Dependencies**: Task 3
@@ -70,11 +72,12 @@ Foundation Tasks (1-7) → Component Tasks (8-15) → Integration Tasks (16-23)
 
 ### Task 8: Profile Header Component 🎨
 **Dependencies**: Task 1, Task 3, Task 5
-**Description**: Create the main profile header with user identity and basic stats
+**Description**: Create profile header using existing component patterns and optimization
 **Files to create/modify**:
-- `src/components/profile/UserProfileHeader.tsx` - Main header component
-- `src/components/profile/ProfileStats.tsx` - Stats display component
-- `src/components/profile/ProfileAvatar.tsx` - Enhanced avatar component
+- `src/components/profile/UserProfileHeader.tsx` - Main header with `'use client'` directive
+- `src/components/profile/ProfileStats.tsx` - Stats using Chakra UI patterns
+- `src/components/profile/ProfileAvatar.tsx` - Wrapper around existing `OptimizedAvatar`
+- Use `memo` for all components and follow existing prop interface patterns
 
 ### Task 9: Governance Activity Component 🎨
 **Dependencies**: Task 1, Task 7, Task 5
@@ -127,11 +130,11 @@ Foundation Tasks (1-7) → Component Tasks (8-15) → Integration Tasks (16-23)
 
 ### Task 15: Mobile Profile Layout 🎨
 **Dependencies**: Task 8, Task 9, Task 10, Task 11, Task 12, Task 13
-**Description**: Implement responsive mobile layout and touch interactions
+**Description**: Implement responsive mobile layout using CSS modules pattern
 **Files to create/modify**:
-- `src/components/profile/MobileProfileLayout.tsx` - Mobile-specific layout
+- `src/components/profile/MobileProfileLayout.tsx` - Mobile-specific layout with `memo`
 - `src/components/profile/ProfileTabs.tsx` - Mobile tab navigation
-- `src/styles/profile-mobile.css` - Mobile-specific styles
+- `src/components/profile/Profile.module.css` - CSS modules for mobile styles
 
 ---
 
@@ -154,11 +157,12 @@ Foundation Tasks (1-7) → Component Tasks (8-15) → Integration Tasks (16-23)
 
 ### Task 18: Delegation Data Integration 🔌
 **Dependencies**: Task 10, Task 2
-**Description**: Connect delegation components to wagmi hooks and chain data
+**Description**: Connect delegation components to existing wagmi hooks and chain data
 **Files to create/modify**:
 - Update `src/components/profile/DelegationProfile.tsx`
-- `src/hooks/useUserDelegation.ts` - Comprehensive delegation hook
-- Update existing delegation-related hooks
+- `src/hooks/useUserDelegation.ts` - Integration with `wagmiGenerated.ts` hooks
+- Use existing `useReadTokenDelegates`, `useReadGovernorGetVotes` patterns
+- Follow error handling pattern: `useState<string | null>(null)`
 
 ### Task 19: Gnars NFT Data Integration 🔌
 **Dependencies**: Task 11, Task 3
@@ -205,12 +209,21 @@ Foundation Tasks (1-7) → Component Tasks (8-15) → Integration Tasks (16-23)
 
 1. **Atomic Commits**: Each task should result in a single, focused commit
 2. **Dependencies**: Respect task dependencies - don't implement dependent tasks until prerequisites are complete
-3. **Testing**: Include basic tests with each component/feature implementation
-4. **Documentation**: Add JSDoc comments and README updates with each major feature
-5. **Error Handling**: Include error states and fallbacks in each component
-6. **Performance**: Consider performance implications in each implementation
-7. **Accessibility**: Include accessibility features from the start, not as an afterthought
-8. **Mobile**: Consider mobile experience in each UI component implementation
+3. **Codebase Patterns**: Follow existing patterns:
+   - Use `'use client'` directive for client components
+   - Define types inline with services/hooks
+   - Use `memo` for component optimization
+   - Follow `{data, loading, error}` return pattern for hooks
+   - Use CSS modules for styling
+   - Reuse existing components (`OptimizedAvatar`, `FormattedAddress`)
+   - Use Chakra UI component library
+   - Follow wagmi patterns from `wagmiGenerated.ts`
+4. **Testing**: Include basic tests with each component/feature implementation
+5. **Documentation**: Add JSDoc comments and README updates with each major feature
+6. **Error Handling**: Use string-based error states following existing patterns
+7. **Performance**: Use React optimization patterns (`memo`, `useMemo`, `useCallback`)
+8. **Accessibility**: Include accessibility features from the start
+9. **Mobile**: Consider mobile experience in each UI component implementation
 
 ## Quality Checklist
 
