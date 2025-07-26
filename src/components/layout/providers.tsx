@@ -14,6 +14,7 @@ import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { type ReactNode, useState } from 'react';
 import { Provider as ChakraProvider } from '../ui/provider';
+import { base } from 'viem/chains';
 
 const WagmiProvider = dynamic(
   () => import('wagmi').then((mod) => mod.WagmiProvider),
@@ -57,7 +58,7 @@ export function Providers(props: { children: ReactNode }) {
 function RainbowProvider(props: { children: ReactNode }) {
   const { theme } = useTheme();
   return (
-    <RainbowKitProvider theme={theme === 'dark' ? darkTheme() : lightTheme()}>
+    <RainbowKitProvider initialChain={base} theme={theme === 'dark' ? darkTheme() : lightTheme()}>
       {props.children}
     </RainbowKitProvider>
   );
