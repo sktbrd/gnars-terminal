@@ -36,6 +36,8 @@ interface SupportersResponse {
  */
 const cache = new Map<string, { data: SupportersResponse; time: number }>();
 const TTL = 5 * 60 * 1000; // 5 minutes
+// Prevent overloading multicall by limiting the number of tokenIds fetched at once
+const MAX_BATCH_SIZE = 100;
 
 function cacheKey(addr: string, start: bigint, end: bigint) {
   return `${addr}-${start}-${end}`;
@@ -46,6 +48,10 @@ async function fetchOwnersBatch(
   startId: bigint,
   endId: bigint,
 ): Promise<{ address: string; tokenId: bigint }[]> {
+  const count = Number(endId - startId + 1n);
+  if (count > MAX_BATCH_SIZE) {
+    throw new Error(`Batch size ${count} exceeds MAX_BATCH_SIZE ${MAX_BATCH_SIZE}`);
+  }
   const contracts = [] as { address: Address; abi: any; functionName: string; args: [bigint] }[];
   for (let id = startId; id <= endId; id++) {
     contracts.push({ address, abi: zoraMintAbi, functionName: 'ownerOf', args: [id] });

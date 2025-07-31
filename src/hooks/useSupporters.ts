@@ -33,7 +33,8 @@ export function useSupporters({
 }) {
   const [supporters, setSupporters] = useState<AggregatedHolder[]>([]);
   const [visibleSupporters, setVisibleSupporters] = useState<AggregatedHolder[]>([]);
-  const [loading, setLoading] = useState(true);
+  // start as not loading so the initial call to loadMore can trigger
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [nextToken, setNextToken] = useState<bigint>(0n);
 
