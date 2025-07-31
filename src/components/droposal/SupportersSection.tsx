@@ -1,4 +1,5 @@
-import { Box, Button, Heading, SimpleGrid, Spinner, Text, VStack, Badge } from '@chakra-ui/react';
+import { Box, Heading, SimpleGrid, Spinner, Text, VStack, Badge } from '@chakra-ui/react';
+import { Button } from '../ui/button';
 import { Address } from 'viem';
 import { useSupporters } from '@/hooks/useSupporters';
 import { OptimizedAvatar } from '../utils/OptimizedIdentity';
@@ -35,7 +36,7 @@ export const SupportersSection: React.FC<{
       )}
 
       {hasMore && (
-        <Button onClick={loadMore} mt={4} isLoading={loading}>
+        <Button onClick={loadMore} mt={4} loading={loading}>
           Load More
         </Button>
       )}
