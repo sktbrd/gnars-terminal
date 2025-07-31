@@ -256,6 +256,26 @@ const MarkdownRenderers = {
       </pre>
     </div>
   ),
+  a: ({ href, children, ...props }: RendererProps) => (
+    <a
+      href={href}
+      {...props}
+      style={{
+        color: '#58a6ff',
+        textDecoration: 'none',
+        fontWeight: 'bold',
+        transition: 'color 0.3s ease',
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.color = '#1f6feb'; // Darker blue on hover
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.color = '#58a6ff'; // Reset to original color
+      }}
+    >
+      {children}
+    </a>
+  ),
 };
 
 export default MarkdownRenderers;
