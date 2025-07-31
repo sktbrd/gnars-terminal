@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
   if (!contract) {
     return NextResponse.json({ error: 'Missing contractAddress' }, { status: 400 });
   }
-  const start = BigInt(searchParams.get('startTokenId') ?? '1');
+  const start = BigInt(searchParams.get('startTokenId') ?? '0');
   const end = BigInt(searchParams.get('endTokenId') ?? (start + 19n));
   const limit = parseInt(searchParams.get('limit') ?? '0');
 

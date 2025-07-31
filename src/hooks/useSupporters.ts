@@ -33,12 +33,12 @@ export function useSupporters({
 }) {
   const [supporters, setSupporters] = useState<AggregatedHolder[]>([]);
   const [visibleSupporters, setVisibleSupporters] = useState<AggregatedHolder[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-  const [nextToken, setNextToken] = useState<bigint>(1n);
+  const [nextToken, setNextToken] = useState<bigint>(0n);
 
   useEffect(() => {
-    if (!contractAddress || totalSupply === null) return;
+    if (!contractAddress) return;
     loadMore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contractAddress, totalSupply]);

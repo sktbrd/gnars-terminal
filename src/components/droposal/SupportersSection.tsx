@@ -8,7 +8,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { FaUsers } from 'react-icons/fa';
 import { FormattedAddress } from '@/components/utils/names';
 import { Address } from 'viem';
@@ -28,11 +27,6 @@ export const SupportersSection: React.FC<{
     batchSize: fetchSize,
     itemsPerPage: fetchSize,
   });
-
-  useEffect(() => {
-    loadMore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Box
