@@ -30,7 +30,10 @@ interface SupportersResponse {
   nextTokenId: string;
 }
 
-// simple in-memory cache
+/**
+ * In-memory cache for supporter data keyed by
+ * `contract-start-end`. Entries expire after `TTL`.
+ */
 const cache = new Map<string, { data: SupportersResponse; time: number }>();
 const TTL = 5 * 60 * 1000; // 5 minutes
 
