@@ -68,16 +68,56 @@ const useTreasure = (treasuryAddress: string) => {
                     throw new Error(`Error: ${res.status} ${res.statusText}`);
                 }
                 const data = await res.json();
-                setTokens(data.tokens);
-                setTotalBalance(data.totalBalanceUsdTokens);
-                setTotalNetWorth(data.totalNetWorth);
-                setNfts(data.nfts);
+                
+                // The new API structure has apps array and tokens nested under treasury address
+                let tokensArray: Token[] = [];
+                if (data.tokens && data.tokens[treasuryAddress] && Array.isArray(data.tokens[treasuryAddress])) {
+                    tokensArray = data.tokens[treasuryAddress];
+                }
+                
+                // Extract apps data which contains additional DeFi positions
+                let appsArray = [];
+                if (data.apps && Array.isArray(data.apps)) {
+                    appsArray = data.apps;
+                }
+                
+                // There's no separate NFTs in this response structure, they seem to be included in apps
+                let nftsArray: NFT[] = [];
+                
+                // Calculate total balance from tokens
+                const tokensBalance = tokensArray.reduce((sum, token) => {
+                    return sum + (token?.token?.balanceUSD || 0);
+                }, 0);
+                
+                // Calculate total balance from apps (DeFi positions)
+                const appsBalance = appsArray.reduce((sum: number, app: any) => {
+                    return sum + (app?.balanceUSD || 0);
+                }, 0);
+                
+                const calculatedTotalBalance = tokensBalance + appsBalance;
+                
+                // Get net worth from the new API structure (includes NFTs)
+                const nftNetWorth = data.nftNetWorth?.[treasuryAddress] || 0;
+                const totalNetWorth = calculatedTotalBalance + nftNetWorth;
+                
+                setTokens(tokensArray);
+                setTotalBalance(calculatedTotalBalance);
+                setTotalNetWorth(totalNetWorth);
+                setNfts(nftsArray);
 
-                // Calculate specific balances
-                const usdc = data.tokens.find((token: Token) => token.token.name === 'USD Coin');
-                const eth = data.tokens.find((token: Token) => token.token.name === 'Ethereum');
-                const sendit = data.tokens.find((token: Token) => token.token.name === 'Sendit');
-                const gnars = data.nfts.filter((nft: NFT) => nft.token.collection.name === 'Gnars');
+                // Calculate specific balances with safety checks
+                const usdc = tokensArray.find((token: Token) => 
+                    token && token.token && token.token.name === 'USD Coin'
+                );
+                const eth = tokensArray.find((token: Token) => 
+                    token && token.token && token.token.name === 'Ethereum'
+                );
+                const sendit = tokensArray.find((token: Token) => 
+                    token && token.token && token.token.name === 'Sendit'
+                );
+                const gnars = nftsArray.filter((nft: NFT) => 
+                    nft && nft.token && nft.token.collection && nft.token.collection.name === 'Gnars'
+                );
 
                 setUsdcBalance(usdc ? usdc.token.balance : 0);
                 setEthBalance(eth ? eth.token.balance : 0);
