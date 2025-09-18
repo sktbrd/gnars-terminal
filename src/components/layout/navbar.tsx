@@ -25,6 +25,7 @@ import {
   DrawerBody,
   DrawerBackdrop,
 } from '@/components/ui/drawer';
+import { NAVBAR_LOGO } from '@/utils/constants';
 
 export default function Navbar() {
   const [isLargerThanMd] = useMediaQuery(['(min-width: 768px)'], {
@@ -49,11 +50,11 @@ export default function Navbar() {
         fontSize={'md'}
         fontWeight={'medium'}
       >
-        <Image 
-          src='/images/gnars.webp'
+        <Image
+          src={NAVBAR_LOGO}
           alt='gnars-terminal'
-          boxSize={6} 
-          mr={2} 
+          boxSize={6}
+          mr={2}
           onClick={onOpen}
           objectFit='contain'
           cursor='pointer'
