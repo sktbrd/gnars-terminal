@@ -6,13 +6,7 @@ export async function fetchMembers(page: number, pageSize: number) {
   const { data } = await noCacheApolloClient.query({
     query: GET_MEMBERS,
     variables: {
-      where: {
-        dao_: {
-          id: DAO_ADDRESSES.token || "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17",
-        },
-      },
-      orderBy: "daoTokenCount",
-      orderDirection: "desc",
+      daoId: DAO_ADDRESSES.token || "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17",
       first: pageSize,
       skip: page * pageSize,
     },
@@ -35,9 +29,9 @@ export interface GetMembersData {
 }
 
 export const GET_MEMBERS = gql`
-  query GetMembers($first: Int, $skip: Int) {
+  query GetMembers($daoId: String!, $first: Int, $skip: Int) {
     daotokenOwners(
-      where: { dao_: { id: ${DAO_ADDRESSES.token || "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17"} } }
+      where: { dao_: { id: $daoId } }
       orderBy: daoTokenCount
       orderDirection: desc
       first: $first
