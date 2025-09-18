@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Image() {
   // Use the local image from public directory
-  const imageUrl = process.env.VERCEL_URL 
+  const imageUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}/images/shredquarters.png`
     : 'https://gnars-terminal.vercel.app/images/shredquarters.png';
 
@@ -31,8 +31,8 @@ export default async function Image() {
       >
         <img
           src={imageUrl}
-          width="973"
-          height="649"
+          width='973'
+          height='649'
           style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           alt='Gnars DAO'
         />

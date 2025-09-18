@@ -34,15 +34,24 @@ export const TokenDetailsSection: React.FC<TokenDetailsSectionProps> = ({
         >
           {metadata?.name || 'Unknown Token'}
         </Heading>
-        
+
         {totalSupply !== null && Number(totalSupply) === 0 && (
-          <Box mb={3} p={3} bg='blue.50' _dark={{ bg: 'blue.900' }} borderRadius='md' borderLeft={4} borderColor='blue.400'>
+          <Box
+            mb={3}
+            p={3}
+            bg='blue.50'
+            _dark={{ bg: 'blue.900' }}
+            borderRadius='md'
+            borderLeft={4}
+            borderColor='blue.400'
+          >
             <Text fontSize='sm' color='blue.700' _dark={{ color: 'blue.200' }}>
-              💡 This is a preview of the token metadata. The actual NFT will be minted once someone makes the first purchase.
+              💡 This is a preview of the token metadata. The actual NFT will be
+              minted once someone makes the first purchase.
             </Text>
           </Box>
         )}
-        
+
         <Text mb={4}>
           {metadata?.description || 'No description available.'}
         </Text>

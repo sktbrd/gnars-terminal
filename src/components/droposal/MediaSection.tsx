@@ -57,10 +57,20 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
         bg='gray.50'
         _dark={{ bg: 'gray.700', borderColor: 'yellow.400' }}
       >
-        <Text fontSize='xl' fontWeight='bold' color='gray.600' _dark={{ color: 'gray.300' }}>
+        <Text
+          fontSize='xl'
+          fontWeight='bold'
+          color='gray.600'
+          _dark={{ color: 'gray.300' }}
+        >
           No Tokens Minted Yet
         </Text>
-        <Text fontSize='md' color='gray.500' _dark={{ color: 'gray.400' }} textAlign='center'>
+        <Text
+          fontSize='md'
+          color='gray.500'
+          _dark={{ color: 'gray.400' }}
+          textAlign='center'
+        >
           This droposal hasn't had any tokens minted yet. Be the first to mint!
         </Text>
         <Box

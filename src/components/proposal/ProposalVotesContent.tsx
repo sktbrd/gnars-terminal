@@ -138,10 +138,10 @@ export default function ProposalVotesContent({
                         vote.support === 'FOR'
                           ? 'green'
                           : vote.support === 'AGAINST'
-                            ? 'red'
-                            : vote.support === 'ABSTAIN'
-                              ? 'gray'
-                              : 'yellow.400'
+                          ? 'red'
+                          : vote.support === 'ABSTAIN'
+                          ? 'gray'
+                          : 'yellow.400'
                       }
                     >
                       {vote.support}
