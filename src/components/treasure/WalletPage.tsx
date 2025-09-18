@@ -18,19 +18,14 @@ const WalletPage = ({ address }: { address: string }) => {
     useTreasure(address);
   const [hideLowBalance, setHideLowBalance] = useState(true);
 
-  // Ensure tokens is always an array before sorting
-  const tokensArray = Array.isArray(tokens) ? tokens : [];
-  const nftsArray = Array.isArray(nfts) ? nfts : [];
-
-  const sortedTokens = tokensArray
-    .filter(token => token && token.token && typeof token.token.balanceUSD === 'number')
-    .sort((a, b) => b.token.balanceUSD - a.token.balanceUSD);
-    
+  const sortedTokens = tokens.sort(
+    (a, b) => b.token.balanceUSD - a.token.balanceUSD
+  );
   const filteredTokens = hideLowBalance
     ? sortedTokens.filter((token) => token.token.balanceUSD >= 10)
     : sortedTokens;
 
-  const sortedNfts = nftsArray.sort((a, b) => {
+  const sortedNfts = nfts.sort((a, b) => {
     const aHasImage =
       a.token.medias && a.token.medias.length > 0 && a.token.medias[0].url;
     const bHasImage =
