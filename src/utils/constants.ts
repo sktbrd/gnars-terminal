@@ -26,4 +26,4 @@ export const SUPABASE = {
 };
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
-export const APP_URL = process.env.NEXT_PUBLIC_URL;
+export const APP_URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';

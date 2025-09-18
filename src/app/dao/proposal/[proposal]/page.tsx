@@ -7,7 +7,7 @@ import { Metadata } from 'next';
 
 export const revalidate = 0;
 
-const appUrl = process.env.NEXT_PUBLIC_URL;
+const appUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
 // Generate metadata for a specific proposal ID
 export async function generateMetadata({

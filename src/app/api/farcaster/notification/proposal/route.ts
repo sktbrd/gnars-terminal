@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/dao/proposal/${latestProposal.proposalNumber}`;
+  const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/dao/proposal/${latestProposal.proposalNumber}` || `http://localhost:3000/dao/proposal/${latestProposal.proposalNumber}`;
 
   // Send notifications to all recipients
   const results = await Promise.all(

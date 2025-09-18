@@ -7,7 +7,7 @@ export const size = {
   width: 973,
   height: 649,
 };
-const appUrl = process.env.NEXT_PUBLIC_URL;
+const appUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
