@@ -7,7 +7,9 @@ export const size = {
   width: 973,
   height: 649,
 };
-const appUrl = process.env.NEXT_PUBLIC_URL || 'https://gnars.com';
+const appUrl =
+  process.env.NEXT_PUBLIC_URL ||
+  'https://pbs.twimg.com/amplify_video_thumb/1965635499365687296/img/0XHuxn3KdN09W8LL.jpg';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
