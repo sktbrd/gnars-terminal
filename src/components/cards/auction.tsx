@@ -103,8 +103,6 @@ export default function AuctionCard({
     [auctionEndTime]
   );
 
-  console.log({ activeAuction });
-
   return (
     <VStack
       shadow={'sm'}
