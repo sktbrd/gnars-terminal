@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { memo } from 'react';
 import ProposalStatus from '../proposal/status';
 import { FormattedAddress } from '../utils/names';
+import { OG_IMAGE_URL } from '@/utils/constants';
 
 interface ProposalGridCardProps {
   proposal: ProposalWithThumbnail;
@@ -36,7 +37,9 @@ const ProposalGridCard = memo(({ proposal }: ProposalGridCardProps) => {
           <NextImage
             width={512}
             height={512}
-            src={proposal.thumbnail || '/images/logo-banner.jpg'}
+            src={
+              proposal.thumbnail || OG_IMAGE_URL || '/images/logo-banner.jpg'
+            }
             alt={proposal.title}
           />
         </Image>

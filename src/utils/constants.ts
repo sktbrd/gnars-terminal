@@ -27,3 +27,5 @@ export const SUPABASE = {
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
 export const APP_URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+
+export const OG_IMAGE_URL = process.env.NEXT_PUBLIC_OG_IMAGE_URL
