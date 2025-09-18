@@ -1,6 +1,7 @@
 'use client';
 import React, { memo } from 'react';
-import { Box, VStack, Skeleton } from '@chakra-ui/react';
+import { Box, VStack, Skeleton, Button, Flex, Text } from '@chakra-ui/react';
+import Link from 'next/link';
 import CustomVideoPlayer from './CustomVideoPlayer';
 import CollectButton from './CollectButton';
 import { ProposalProvider, useProposal } from '@/contexts/ProposalContext';
@@ -53,12 +54,7 @@ const DroposalContent = memo(() => {
     }
   }, [tokenCreated, setTokenCreated]);
 
-  if (
-    loading ||
-    !extendedProposal ||
-    !extendedProposal.decodedCalldatas ||
-    extendedProposal.decodedCalldatas.length === 0
-  ) {
+  if (loading) {
     return (
       <Box
         shadow='sm'
@@ -76,6 +72,51 @@ const DroposalContent = memo(() => {
     );
   }
 
+  // Check if we have no droposals to display (not loading, but no data)
+  if (
+    !extendedProposal ||
+    !extendedProposal.decodedCalldatas ||
+    extendedProposal.decodedCalldatas.length === 0
+  ) {
+    return (
+      <Box
+        shadow='sm'
+        w='full'
+        h='full'
+        minHeight='300px'
+        padding={4}
+        rounded='md'
+        gap={4}
+        _dark={{ borderColor: 'primary', borderWidth: 1 }}
+        position='relative'
+      >
+        <Flex
+          height='100%'
+          width='100%'
+          direction='column'
+          align='center'
+          justify='center'
+          gap={4}
+        >
+          <Text fontSize='lg' color='gray.500' textAlign='center'>
+            No droposals available
+          </Text>
+          <Link href='/create-proposal' passHref>
+            <Button
+              colorScheme='primary'
+              size='lg'
+              variant='solid'
+              _hover={{ transform: 'translateY(-2px)' }}
+              transition='all 0.2s'
+            >
+              Create Droposal
+            </Button>
+          </Link>
+        </Flex>
+      </Box>
+    );
+  }
+
   return (
     <VStack
       shadow='sm'
@@ -87,48 +128,42 @@ const DroposalContent = memo(() => {
       _dark={{ borderColor: 'primary', borderWidth: 1 }}
       position='relative'
     >
-      {extendedProposal.decodedCalldatas.length > 0 ? (
-        <>
-          {extendedProposal.decodedCalldatas.map(
-            (data: DecodedCalldata, idx: number) => {
-              // Fallback config to ensure all fields are provided.
-              const defaultSalesConfig = {
-                publicSalePrice: 0,
-                maxSalePurchasePerAddress: 0,
-                publicSaleStart: 0,
-                publicSaleEnd: 0,
-                presaleStart: 0,
-                presaleEnd: 0,
-                presaleMerkleRoot: '',
-              };
-              // Convert saleConfig if available
-              const convertedSalesConfig = data.saleConfig
-                ? convertSaleConfig(data.saleConfig)
-                : defaultSalesConfig;
-              return (
-                <VStack key={idx} w='full' gap={2} align='start'>
-                  {/* <Heading size='md'>{data.name}</Heading> */}
-                  <Box position='relative' w='full'>
-                    <CustomVideoPlayer
-                      src={data.animationURI || data.imageURI}
-                      isVideo={Boolean(data.animationURI)}
-                      salesConfig={convertedSalesConfig}
-                      thumbnail={data.imageURI}
-                      name={data.name}
-                    />
-                    <CollectButton
-                      name={data.name}
-                      thumbnail={data.imageURI}
-                      salesConfig={convertedSalesConfig}
-                    />
-                  </Box>
-                </VStack>
-              );
-            }
-          )}
-        </>
-      ) : (
-        <Skeleton height={{ base: '220px', md: 'full' }} width='full' />
+      {extendedProposal.decodedCalldatas.map(
+        (data: DecodedCalldata, idx: number) => {
+          // Fallback config to ensure all fields are provided.
+          const defaultSalesConfig = {
+            publicSalePrice: 0,
+            maxSalePurchasePerAddress: 0,
+            publicSaleStart: 0,
+            publicSaleEnd: 0,
+            presaleStart: 0,
+            presaleEnd: 0,
+            presaleMerkleRoot: '',
+          };
+          // Convert saleConfig if available
+          const convertedSalesConfig = data.saleConfig
+            ? convertSaleConfig(data.saleConfig)
+            : defaultSalesConfig;
+          return (
+            <VStack key={idx} w='full' gap={2} align='start'>
+              {/* <Heading size='md'>{data.name}</Heading> */}
+              <Box position='relative' w='full'>
+                <CustomVideoPlayer
+                  src={data.animationURI || data.imageURI}
+                  isVideo={Boolean(data.animationURI)}
+                  salesConfig={convertedSalesConfig}
+                  thumbnail={data.imageURI}
+                  name={data.name}
+                />
+                <CollectButton
+                  name={data.name}
+                  thumbnail={data.imageURI}
+                  salesConfig={convertedSalesConfig}
+                />
+              </Box>
+            </VStack>
+          );
+        }
       )}
     </VStack>
   );
