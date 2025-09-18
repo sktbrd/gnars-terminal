@@ -22,7 +22,7 @@ export const TokenDetailsSection: React.FC<TokenDetailsSectionProps> = ({
       gap={3}
       rounded={'lg'}
       p={6}
-      _dark={{ borderColor: 'yellow' }}
+      _dark={{ borderColor: 'yellow.400' }}
     >
       <Box>
         <Heading

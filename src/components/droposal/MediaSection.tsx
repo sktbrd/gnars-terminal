@@ -55,7 +55,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
         p={8}
         minH='400px'
         bg='gray.50'
-        _dark={{ bg: 'gray.700', borderColor: 'yellow' }}
+        _dark={{ bg: 'gray.700', borderColor: 'yellow.400' }}
       >
         <Text fontSize='xl' fontWeight='bold' color='gray.600' _dark={{ color: 'gray.300' }}>
           No Tokens Minted Yet
@@ -153,7 +153,7 @@ export const MediaSection: React.FC<MediaSectionProps> = ({
       gap={3}
       rounded={'lg'}
       p={6}
-      _dark={{ borderColor: 'yellow' }}
+      _dark={{ borderColor: 'yellow.400' }}
     >
       {mediaElement}
     </Box>

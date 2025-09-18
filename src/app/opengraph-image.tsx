@@ -7,14 +7,16 @@ export const size = {
   width: 973,
   height: 649,
 };
-const appUrl =
-  process.env.NEXT_PUBLIC_URL ||
-  'https://pbs.twimg.com/amplify_video_thumb/1965635499365687296/img/0XHuxn3KdN09W8LL.jpg';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 export default async function Image() {
+  // Use the local image from public directory
+  const imageUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}/images/shredquarters.png`
+    : 'https://gnars-terminal.vercel.app/images/shredquarters.png';
+
   return new ImageResponse(
     (
       <div
@@ -28,7 +30,9 @@ export default async function Image() {
         }}
       >
         <img
-          src={`${appUrl}/images/shredquarters.png`}
+          src={imageUrl}
+          width="973"
+          height="649"
           style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           alt='Gnars DAO'
         />

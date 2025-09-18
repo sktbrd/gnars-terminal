@@ -20,7 +20,7 @@ export const CheerfulEthVolume: React.FC<CheerfulEthVolumeProps> = React.memo(
         gap={3}
         rounded={'lg'}
         p={6}
-        _dark={{ borderColor: 'yellow' }}
+        _dark={{ borderColor: 'yellow.400' }}
         textAlign='center'
       >
         <HStack gap={2} justifyContent="center">

@@ -69,7 +69,7 @@ export const WithdrawSection: React.FC<WithdrawSectionProps> = ({
       gap={3}
       rounded={'lg'}
       p={6}
-      _dark={{ borderColor: 'yellow' }}
+      _dark={{ borderColor: 'yellow.400' }}
       mt={8}
     >
       <Heading size='md' mb={2}>

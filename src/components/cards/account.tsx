@@ -19,7 +19,7 @@ export default function AccountCard() {
       w={'full'}
       padding={4}
       rounded={'md'}
-      _dark={{ borderColor: 'yellow', borderWidth: 1 }}
+      _dark={{ borderColor: 'yellow.400', borderWidth: 1 }}
     >
       <VStack align={'start'} truncate maxW={'full'}>
         <Heading as='h2'>Account</Heading>
