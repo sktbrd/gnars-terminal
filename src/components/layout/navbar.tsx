@@ -14,6 +14,7 @@ import NextLink from 'next/link';
 import { BsGithub } from 'react-icons/bs';
 import { FaEthereum, FaHome, FaNewspaper, FaVoteYea } from 'react-icons/fa';
 import { IoDocumentText } from 'react-icons/io5';
+import { AiFillSkin } from 'react-icons/ai';
 import AccountMenu from './account-menu';
 import Sparks from './sparks';
 import NotificationButton from './NotificationButton';
@@ -161,6 +162,20 @@ function NavbarLinks() {
         <NextLink href='/treasure' style={{ width: '100%' }}>
           <FaEthereum />
           TREASURE
+        </NextLink>
+      </Link>
+      <Link
+        {...linkProps}
+        _open={{ animation: 'fade-in 1800ms ease-out' }}
+        _hidden={{ animation: 'fade-out 1800ms ease-in' }}
+      >
+        <NextLink
+          target='_blank'
+          href='https://flows.wtf/gnars'
+          style={{ width: '100%' }}
+        >
+          <AiFillSkin />
+          FLOWS
         </NextLink>
       </Link>
       <Link
