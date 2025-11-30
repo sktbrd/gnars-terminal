@@ -85,7 +85,7 @@ const useTreasure = (treasuryAddress: string) => {
                 setGnarsNftBalance(gnars.length);
             } catch (err) {
                 console.error("Error fetching treasure data:", err);
-                setError("Error loading treasure data");
+                setError("Failed to load treasury data. Please visit Zapper and search for the treasury address while we work on our new website.");
             } finally {
                 setIsLoading(false);
             }
